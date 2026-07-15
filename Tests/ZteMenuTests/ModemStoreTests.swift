@@ -3,10 +3,10 @@ import XCTest
 
 @MainActor
 final class ModemStoreV2Tests: XCTestCase {
-    private func makeStore(reachable: Bool, throwing: Error? = nil, history: HistoryStore) -> ModemStore {
+    private func makeStore(reachable: Bool, throwing: Error? = nil, history: HistoryStore, mode: NetworkMode = .byIPReachable) -> ModemStore {
         let defaults = UserDefaults(suiteName: "t-\(UUID().uuidString)")!
         let settings = SettingsStore(defaults: defaults)
-        settings.settings.networkMode = .byIPReachable
+        settings.settings.networkMode = mode
         let detector = NetworkDetector(reader: FixedSSID(value: nil), reachability: FixedReach(ok: reachable))
         let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#.utf8)
         let factory: @MainActor (URL, String?) -> ModemClient = { url, pass in
@@ -33,6 +33,23 @@ final class ModemStoreV2Tests: XCTestCase {
         let store = makeStore(reachable: false, history: hist)
         await store.refresh()
         XCTAssertEqual(store.state, .hidden)
+        XCTAssertTrue(hist.samples.isEmpty)
+    }
+
+    func testBySSIDDeniedIsLocationDenied() async {
+        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
+        let store = makeStore(reachable: true, history: hist, mode: .bySSID)
+        store.setLocationAuth(.denied)
+        await store.refresh()
+        XCTAssertEqual(store.state, .locationDenied)
+        XCTAssertTrue(hist.samples.isEmpty)
+    }
+
+    func testLoginFailedMapsToError() async {
+        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
+        let store = makeStore(reachable: true, throwing: ModemError.loginFailed, history: hist, mode: .byIPReachable)
+        await store.refresh()
+        XCTAssertEqual(store.state, .error("Błąd logowania — sprawdź hasło"))
         XCTAssertTrue(hist.samples.isEmpty)
     }
 }
