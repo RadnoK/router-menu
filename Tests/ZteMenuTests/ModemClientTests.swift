@@ -28,6 +28,7 @@ final class ModemClientTests: XCTestCase {
         XCTAssertTrue(url.absoluteString.contains("multi_data=1"))
         XCTAssertTrue(url.absoluteString.contains("battery_value"))
         XCTAssertTrue(url.absoluteString.contains("Z5g_rsrp"))
+        XCTAssertTrue(url.absoluteString.contains("realtime_rx_thrpt"))
     }
 
     // Modem ZTE U50 oddaje dane tylko przy nagłówku Referer wskazującym na panel
@@ -52,5 +53,48 @@ final class ModemClientTests: XCTestCase {
         } catch {
             // ok
         }
+    }
+}
+
+private final class SequenceHTTP: HTTPFetching, @unchecked Sendable {
+    private let responses: [Data]
+    private(set) var requests: [URLRequest] = []
+    private var i = 0
+    init(_ responses: [Data]) { self.responses = responses }
+    func data(for request: URLRequest) async throws -> Data {
+        requests.append(request)
+        defer { i += 1 }
+        return responses[min(i, responses.count - 1)]
+    }
+}
+
+final class ModemClientLoginTests: XCTestCase {
+    func testWithPasswordLogsInThenFetches() async throws {
+        let ld = #"{"LD":"ABC123"}"#
+        let loginOK = #"{"result":"0"}"#
+        let data = #"{"battery_value":"50","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#
+        let http = SequenceHTTP([Data(ld.utf8), Data(loginOK.utf8), Data(data.utf8)])
+        let client = ModemClient(baseURL: Config.modemBaseURL, http: http, password: "secret")
+
+        let result = try await client.fetch()
+
+        XCTAssertEqual(result.totalRx, 1000)
+        // 3 żądania: GET LD, POST LOGIN, GET dane
+        XCTAssertEqual(http.requests.count, 3)
+        XCTAssertTrue(http.requests[0].url!.absoluteString.contains("cmd=LD"))
+        XCTAssertEqual(http.requests[1].httpMethod, "POST")
+        XCTAssertTrue(http.requests[2].url!.absoluteString.contains("total_rx_bytes"))
+    }
+
+    func testWithoutPasswordSkipsLogin() async throws {
+        let data = #"{"battery_value":"50","signalbar":"5","network_type":"ENDC"}"#
+        let http = SequenceHTTP([Data(data.utf8)])
+        let client = ModemClient(baseURL: Config.modemBaseURL, http: http, password: nil)
+
+        _ = try await client.fetch()
+
+        // 1 żądanie: sam GET danych, bez logowania
+        XCTAssertEqual(http.requests.count, 1)
+        XCTAssertEqual(http.requests[0].httpMethod ?? "GET", "GET")
     }
 }
