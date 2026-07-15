@@ -51,4 +51,12 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationWillTerminate(_ notification: Notification) {
         refreshTask?.cancel()
     }
+
+    /// Aplikacja menu bar NIE może zamykać się, gdy zamknie się okno ustawień.
+    /// Domyślnie SwiftUI z sceną `Window` zwraca tu `true` i kończy proces, gdy
+    /// nie ma otwartych okien — przez co ikona „znika" po chwili. Menu bar żyje
+    /// niezależnie od okien, więc zwracamy `false`.
+    public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
 }
