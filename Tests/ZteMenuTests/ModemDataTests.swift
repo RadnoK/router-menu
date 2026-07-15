@@ -67,4 +67,30 @@ final class ModemDataTests: XCTestCase {
         r["signalbar"] = "0"
         XCTAssertEqual(ModemData.parse(r).signalDescription, "Brak")
     }
+
+    func testParsesTransferFields() {
+        let d = ModemData.parse([
+            "signalbar": "5", "network_type": "ENDC", "ppp_status": "ppp_connected",
+            "realtime_rx_thrpt": "6149", "realtime_tx_thrpt": "60709",
+            "realtime_rx_bytes": "1008395299", "realtime_tx_bytes": "1850536546",
+            "total_rx_bytes": "111604507190", "total_tx_bytes": "22997555141",
+            "monthly_rx_bytes": "20248857403", "monthly_tx_bytes": "3998344877",
+            "realtime_time": "7100", "monthly_time": "127070",
+        ])
+        XCTAssertEqual(d.rxSpeed, 6149)
+        XCTAssertEqual(d.txSpeed, 60709)
+        XCTAssertEqual(d.sessionRx, 1008395299)
+        XCTAssertEqual(d.totalRx, 111604507190)
+        XCTAssertEqual(d.monthlyTx, 3998344877)
+        XCTAssertEqual(d.sessionUptime, 7100)
+        XCTAssertEqual(d.monthlyUptime, 127070)
+        XCTAssertEqual(d.totalBytesForHistory, 111604507190 + 22997555141)
+    }
+
+    func testTransferFieldsNilWhenAbsent() {
+        let d = ModemData.parse(["signalbar": "3", "network_type": "LTE"])
+        XCTAssertNil(d.rxSpeed)
+        XCTAssertNil(d.totalRx)
+        XCTAssertNil(d.totalBytesForHistory)
+    }
 }
