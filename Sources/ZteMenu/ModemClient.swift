@@ -1,12 +1,12 @@
 import Foundation
 
 public protocol HTTPFetching: Sendable {
-    func data(from url: URL) async throws -> Data
+    func data(for request: URLRequest) async throws -> Data
 }
 
 extension URLSession: HTTPFetching {
-    public func data(from url: URL) async throws -> Data {
-        let (data, _) = try await self.data(from: url, delegate: nil)
+    public func data(for request: URLRequest) async throws -> Data {
+        let (data, _) = try await self.data(for: request, delegate: nil)
         return data
     }
 }
@@ -35,7 +35,11 @@ public struct ModemClient: Sendable {
             URLQueryItem(name: "cmd", value: Self.commandFields.joined(separator: ",")),
             URLQueryItem(name: "multi_data", value: "1"),
         ]
-        let data = try await http.data(from: comps.url!)
+        // Modem ZTE U50 zwraca puste stringi bez nagłówka Referer wskazującego
+        // na jego panel (prosta ochrona anty-CSRF).
+        var request = URLRequest(url: comps.url!)
+        request.setValue(baseURL.absoluteString + "/", forHTTPHeaderField: "Referer")
+        let data = try await http.data(for: request)
         let raw = try JSONDecoder().decode([String: String].self, from: data)
         return ModemData.parse(raw)
     }

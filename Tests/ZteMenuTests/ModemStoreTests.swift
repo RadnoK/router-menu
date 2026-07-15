@@ -8,7 +8,7 @@ private struct FixedSSID: SSIDReading {
 private struct StubHTTP: HTTPFetching {
     let payload: Data
     let shouldThrow: Bool
-    func data(from url: URL) async throws -> Data {
+    func data(for request: URLRequest) async throws -> Data {
         if shouldThrow { throw URLError(.cannotConnectToHost) }
         return payload
     }
