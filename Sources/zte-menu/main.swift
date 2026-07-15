@@ -1,0 +1,3 @@
+import ZteMenu
+
+ZteMenuApp.main()

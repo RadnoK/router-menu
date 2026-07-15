@@ -1,17 +1,17 @@
 import Foundation
 
-protocol HTTPFetching: Sendable {
+public protocol HTTPFetching: Sendable {
     func data(from url: URL) async throws -> Data
 }
 
 extension URLSession: HTTPFetching {
-    func data(from url: URL) async throws -> Data {
+    public func data(from url: URL) async throws -> Data {
         let (data, _) = try await self.data(from: url, delegate: nil)
         return data
     }
 }
 
-struct ModemClient: Sendable {
+public struct ModemClient: Sendable {
     let baseURL: URL
     let http: HTTPFetching
 
@@ -22,7 +22,7 @@ struct ModemClient: Sendable {
         "Z5g_rsrp", "Z5g_SINR",
     ]
 
-    init(baseURL: URL = Config.modemBaseURL, http: HTTPFetching = URLSession.shared) {
+    public init(baseURL: URL = Config.modemBaseURL, http: HTTPFetching = URLSession.shared) {
         self.baseURL = baseURL
         self.http = http
     }

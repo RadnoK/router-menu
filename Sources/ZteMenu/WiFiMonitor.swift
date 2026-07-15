@@ -1,15 +1,15 @@
 import Foundation
 import CoreWLAN
 
-protocol SSIDReading: Sendable {
+public protocol SSIDReading: Sendable {
     func currentSSID() -> String?
 }
 
-struct WiFiMonitor: Sendable {
+public struct WiFiMonitor: Sendable {
     let targetSSID: String
     let reader: SSIDReading
 
-    init(targetSSID: String = Config.targetSSID, reader: SSIDReading = CoreWLANReader()) {
+    public init(targetSSID: String = Config.targetSSID, reader: SSIDReading = CoreWLANReader()) {
         self.targetSSID = targetSSID
         self.reader = reader
     }
@@ -19,8 +19,10 @@ struct WiFiMonitor: Sendable {
     }
 }
 
-struct CoreWLANReader: SSIDReading {
-    func currentSSID() -> String? {
+public struct CoreWLANReader: SSIDReading {
+    public init() {}
+
+    public func currentSSID() -> String? {
         CWWiFiClient.shared().interface()?.ssid()
     }
 }

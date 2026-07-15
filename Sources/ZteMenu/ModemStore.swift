@@ -3,13 +3,13 @@ import Observation
 
 @MainActor
 @Observable
-final class ModemStore {
+public final class ModemStore {
     private(set) var state: AppState = .hidden
     private let monitor: WiFiMonitor
     private let client: ModemClient
     private var locationAuth: LocationAuth = .authorized
 
-    init(monitor: WiFiMonitor = WiFiMonitor(), client: ModemClient = ModemClient()) {
+    public init(monitor: WiFiMonitor = WiFiMonitor(), client: ModemClient = ModemClient()) {
         self.monitor = monitor
         self.client = client
     }
