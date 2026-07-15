@@ -3,7 +3,7 @@ import SwiftUI
 public struct MenuBarView: View {
     @State private var store: ModemStore
 
-    public init(store: ModemStore = ModemStore()) {
+    public init(store: ModemStore = ModemStore(settings: SettingsStore(), history: HistoryStore())) {
         _store = State(initialValue: store)
     }
 
