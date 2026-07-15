@@ -33,15 +33,18 @@ się na pasku **wyłącznie** gdy Mac jest podłączony do sieci WiFi modemu
 
 Podział na warstwy, każda z jednym zadaniem:
 
-- **`ModemClient`** — komunikacja z modemem ZTE: logowanie do panelu i pobieranie
-  surowych danych (bateria, sygnał, typ sieci, operator) przez wewnętrzne API
-  (`goform_get_cmd_process` lub równoważne — do zweryfikowania na żywo).
+- **`ModemClient`** — komunikacja z modemem ZTE: pobieranie surowych danych
+  (bateria, sygnał, typ sieci, operator) przez wewnętrzne API
+  `GET /goform/goform_get_cmd_process`. **Bez logowania** — zweryfikowano na żywo,
+  że dane statusu są dostępne bez uwierzytelniania (patrz
+  `2026-07-15-modem-api-findings.md`).
 - **`WiFiMonitor`** — sprawdza aktualne SSID przez CoreWLAN; decyduje o widoczności ikony.
 - **`ModemStore`** — stan aplikacji (`@Observable`): aktualne dane, status
   połączenia, timer odświeżania co 60 s. Spina `WiFiMonitor` + `ModemClient`.
 - **`MenuBarView`** — SwiftUI: ikona na pasku + rozwijane menu ze szczegółami.
 - **`App` / `AppDelegate`** — punkt wejścia, `MenuBarExtra`, konfiguracja LSUIElement.
-- **`Config.swift`** — konfiguracja: adres IP modemu, hasło do panelu, nazwa SSID.
+- **`Config.swift`** — konfiguracja: adres IP modemu (`192.168.0.1`) i nazwa SSID
+  (`ZTE_B4B622`). Bez hasła — dane dostępne bez logowania.
 
 ## Przepływ danych i logika widoczności
 
@@ -92,9 +95,10 @@ Pola RSRP/RSRQ/SINR pokazywane tylko jeśli modem je udostępnia
 
 - Brak WiFi ZTE_B4B622 → ikona znika (stan normalny, nie błąd).
 - WiFi jest, modem nie odpowiada / timeout → menu: „⚠️ Nie można połączyć z modemem".
-- Błąd logowania (złe hasło) → menu: „⚠️ Błąd logowania — sprawdź hasło".
 - Brak uprawnień do lokalizacji → menu: „⚠️ Włącz uprawnienia lokalizacji,
   aby wykrywać sieć WiFi".
+
+(Błąd logowania nie występuje — dane dostępne bez uwierzytelniania.)
 
 ## Uprawnienia (CoreWLAN)
 
@@ -104,9 +108,8 @@ poprosi o zgodę na lokalizację przy pierwszym uruchomieniu.
 
 ## Konfiguracja
 
-Adres IP modemu, hasło do panelu i nazwa SSID zaszyte na start w `Config.swift`
-(proste, YAGNI). Hasło nie trafia do gita — plik z sekretem w `.gitignore`
-albo wpis lokalny (do ustalenia przy implementacji).
+Adres IP modemu (`192.168.0.1`) i nazwa SSID (`ZTE_B4B622`) zaszyte w `Config.swift`
+(proste, YAGNI). Bez hasła — dane statusu dostępne bez logowania (zweryfikowano na żywo).
 
 ## Testowanie
 
@@ -120,11 +123,12 @@ albo wpis lokalny (do ustalenia przy implementacji).
 SwiftPM + skrypt pakujący do `.app` (skill `macos-spm-app-packaging`).
 Uruchamiane jednym poleceniem, bez Xcode.
 
-## Krytyczny pierwszy krok implementacji
+## Weryfikacja API (wykonana)
 
-Przed napisaniem parsera — odpytać modem na żywo (curl / przeglądarka), by poznać
-**dokładne endpointy i nazwy pól** (modele ZTE się różnią). To ustawia fundament
-pod `ModemClient`.
+API modemu zostało już odpytane na żywo — dokładne endpointy, nazwy pól i przykładowe
+odpowiedzi (fixtures) są udokumentowane w `2026-07-15-modem-api-findings.md`.
+Najważniejsze: dane dostępne bez logowania; pola sygnału 5G to `Z5g_rsrp` i `Z5g_SINR`;
+siła sygnału `signalbar` (0–5); `network_type=ENDC` → „5G".
 
 ## Poza zakresem (YAGNI)
 
