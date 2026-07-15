@@ -12,21 +12,12 @@ import SwiftUI
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Współdzielone, obserwowalne źródło prawdy — czyta je etykieta ikony
-    /// oraz widok menu.
-    private let settings: SettingsStore
-    private let history: HistoryStore
-    public let store: ModemStore
+    /// oraz widok popovera i okna ustawień.
+    public let settings = SettingsStore()
+    public let history = HistoryStore()
+    public lazy var store = ModemStore(settings: settings, history: history)
     private let permission = LocationPermission()
     private var refreshTask: Task<Void, Never>?
-
-    override public init() {
-        let settings = SettingsStore()
-        let history = HistoryStore()
-        self.settings = settings
-        self.history = history
-        self.store = ModemStore(settings: settings, history: history)
-        super.init()
-    }
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         // Zmiana uprawnień lokalizacji (np. użytkownik klika „Zezwól") musi
