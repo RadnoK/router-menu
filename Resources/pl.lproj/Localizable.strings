@@ -30,6 +30,7 @@
 "error.unreachable" = "Nie można połączyć z modemem";
 
 /* Ustawienia — sieć */
+"settings.window_title" = "Ustawienia ZTE Menu";
 "settings.tab.general" = "Ogólne";
 "settings.tab.panel" = "Panel";
 "settings.tab.account" = "Konto";

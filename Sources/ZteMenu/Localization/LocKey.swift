@@ -35,8 +35,9 @@ enum LocKey: String, CaseIterable, Sendable {
     case errorUnreachable = "error.unreachable"
 
     // Settings — window and network section
-    // Tab names. The Settings scene titles the window itself, so there is no
-    // window-title key.
+    case settingsWindowTitle = "settings.window_title"
+
+    // Tab names.
     case settingsTabGeneral = "settings.tab.general"
     case settingsTabPanel = "settings.tab.panel"
     case settingsTabAccount = "settings.tab.account"

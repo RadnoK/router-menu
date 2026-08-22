@@ -30,6 +30,7 @@
 "error.unreachable" = "Cannot reach the modem";
 
 /* Settings — network */
+"settings.window_title" = "ZTE Menu Settings";
 "settings.tab.general" = "General";
 "settings.tab.panel" = "Panel";
 "settings.tab.account" = "Account";
