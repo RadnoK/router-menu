@@ -3,13 +3,16 @@ import SwiftUI
 /// Tabbed settings window, the standard shape for a macOS app with more than a
 /// couple of preference groups.
 ///
-/// Each tab owns its own `Form`; this type only composes them and keeps the
-/// language in sync. The window has no fixed height — it resizes to whichever
-/// tab is showing, which is the native behaviour.
+/// The tab strip is `SettingsTabBar` rather than `TabView`'s built-in one,
+/// because a `Window` scene renders `TabView` in its content style and drops the
+/// tab icons. Each tab owns its own `Form`; this type composes them, tracks the
+/// selection, and keeps the language in sync.
 public struct SettingsView: View {
     @Bindable private var settings: SettingsStore
     @Bindable private var updater: UpdaterController
     private let l10n: L10n
+
+    @State private var selection: SettingsTab = .general
 
     public init(settings: SettingsStore, updater: UpdaterController, l10n: L10n) {
         self.settings = settings
@@ -18,22 +21,28 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        TabView {
-            GeneralSettingsTab(settings: settings, l10n: l10n)
-                .tabItem { Label(l10n(.settingsTabGeneral), systemImage: "gearshape") }
-
-            PanelSettingsTab(settings: settings, l10n: l10n)
-                .tabItem { Label(l10n(.settingsTabPanel), systemImage: "menubar.rectangle") }
-
-            AccountSettingsTab(l10n: l10n)
-                .tabItem { Label(l10n(.settingsTabAccount), systemImage: "key") }
-
-            UpdatesSettingsTab(updater: updater, l10n: l10n)
-                .tabItem { Label(l10n(.settingsTabUpdates), systemImage: "arrow.triangle.2.circlepath") }
+        VStack(spacing: 0) {
+            SettingsTabBar(selection: $selection, l10n: l10n)
+            Divider()
+            content
         }
         .frame(width: 460)
         .onChange(of: settings.settings.language) { _, new in
             l10n.setLanguage(new)
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch selection {
+        case .general:
+            GeneralSettingsTab(settings: settings, l10n: l10n)
+        case .panel:
+            PanelSettingsTab(settings: settings, l10n: l10n)
+        case .account:
+            AccountSettingsTab(l10n: l10n)
+        case .updates:
+            UpdatesSettingsTab(updater: updater, l10n: l10n)
         }
     }
 }
