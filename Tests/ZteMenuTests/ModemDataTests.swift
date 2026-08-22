@@ -61,11 +61,13 @@ final class ModemDataTests: XCTestCase {
         XCTAssertEqual(ModemData.parse(r).networkLabel, "WCDMA")
     }
 
-    func testSignalDescription() {
+    func testSignalQuality() {
         var r = raw; r["signalbar"] = "5"
-        XCTAssertEqual(ModemData.parse(r).signalDescription, "Bardzo dobry")
+        XCTAssertEqual(ModemData.parse(r).signalQuality, .veryGood)
         r["signalbar"] = "0"
-        XCTAssertEqual(ModemData.parse(r).signalDescription, "Brak")
+        XCTAssertEqual(ModemData.parse(r).signalQuality, .noSignal)
+        r["signalbar"] = "3"
+        XCTAssertEqual(ModemData.parse(r).signalQuality, .medium)
     }
 
     func testParsesTransferFields() {

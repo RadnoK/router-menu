@@ -23,7 +23,7 @@ final class MenuBarPresentationTests: XCTestCase {
     }
 
     func testErrorIsVisibleWithSlash() {
-        let p = MenuBarPresentation.make(for: .error("x"))
+        let p = MenuBarPresentation.make(for: .error(.unreachable))
         XCTAssertTrue(p.isVisible)
         XCTAssertEqual(p.symbolName, "antenna.radiowaves.left.and.right.slash")
     }

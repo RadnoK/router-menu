@@ -44,9 +44,9 @@ public final class ModemStore {
             state = .connected(data)
             history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
         } catch ModemError.loginFailed {
-            state = .error("Błąd logowania — sprawdź hasło")
+            state = .error(.loginFailed)
         } catch {
-            state = .error("Nie można połączyć z modemem")
+            state = .error(.unreachable)
         }
     }
 }

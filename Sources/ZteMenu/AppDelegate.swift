@@ -16,15 +16,17 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     public let settings = SettingsStore()
     public let updater = UpdaterController()
     public let history = HistoryStore()
+    public lazy var l10n = L10n(language: settings.settings.language)
     public lazy var store = ModemStore(settings: settings, history: history)
     private let permission = LocationPermission()
     private var refreshTask: Task<Void, Never>?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
-        // Zmiana uprawnień lokalizacji (np. użytkownik klika „Zezwól") musi
-        // NATYCHMIAST odświeżyć stan — inaczej ikona pojawiłaby się dopiero
-        // przy kolejnym ticku pętli (do 60 s później). Zweryfikowane na żywo:
-        // zgoda ustala się ~3 s po starcie, po czym stan przeskakuje na connected.
+        l10n.setLanguage(settings.settings.language)
+        // A location-permission change (e.g. the user taps "Allow") must refresh
+        // state IMMEDIATELY — otherwise the icon would only appear on the next
+        // loop tick, up to 60 s later. Verified live: permission settles ~3 s
+        // after launch, after which the state flips to connected.
         permission.onChange = { [weak self] auth in
             self?.store.setLocationAuth(auth)
             self?.triggerRefresh()

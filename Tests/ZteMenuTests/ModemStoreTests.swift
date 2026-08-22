@@ -49,7 +49,7 @@ final class ModemStoreV2Tests: XCTestCase {
         let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
         let store = makeStore(reachable: true, throwing: ModemError.loginFailed, history: hist, mode: .byIPReachable)
         await store.refresh()
-        XCTAssertEqual(store.state, .error("Błąd logowania — sprawdź hasło"))
+        XCTAssertEqual(store.state, .error(.loginFailed))
         XCTAssertTrue(hist.samples.isEmpty)
     }
 }
