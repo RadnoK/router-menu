@@ -3,12 +3,12 @@
     <channel>
         <title>ZTE Menu</title>
         <item>
-            <title>0.3.0</title>
-            <pubDate>Sat, 22 Aug 2026 11:20:04 +0000</pubDate>
-            <sparkle:version>0.3.0</sparkle:version>
-            <sparkle:shortVersionString>0.3.0</sparkle:shortVersionString>
+            <title>0.4.0</title>
+            <pubDate>Sat, 22 Aug 2026 15:17:23 +0000</pubDate>
+            <sparkle:version>0.4.0</sparkle:version>
+            <sparkle:shortVersionString>0.4.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/zte-menu/releases/download/v0.3.0/ZteMenu-0.3.0.zip" length="1645496" type="application/octet-stream" sparkle:edSignature="K8U/Z9aSioUTZhcminKeN9I3aVmZEGAdcJf+DOAte+O5vztoEYempLjsTNVSdblcB8bwZkOY85DB0gcUHnG5AQ=="/>
+            <enclosure url="https://github.com/RadnoK/zte-menu/releases/download/v0.4.0/ZteMenu-0.4.0.zip" length="1669989" type="application/octet-stream" sparkle:edSignature="oEQ2K6yIQhF5p5AitcVRuYTr4DGlqZeFVgmFsd7W+kYMEN6r2D+2EZKqiWGMbBHvdHu7nvZ0m9vY6p69jt3LBg=="/>
         </item>
     </channel>
 </rss>
