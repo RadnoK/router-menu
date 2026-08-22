@@ -2,10 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>ZTE Menu</string>
 	<key>CFBundleExecutable</key>
 	<string>zte-menu</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>pl</string>
+	</array>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
@@ -23,7 +30,7 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Aplikacja odczytuje nazwę sieci WiFi, aby pokazać status modemu tylko gdy jesteś podłączony do ZTE_B4B622.</string>
+	<string>The app reads your Wi-Fi network name so it can show modem status only while you are connected to it.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>

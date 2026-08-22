@@ -24,6 +24,11 @@ mkdir -p "$APP/Contents/Resources"
 cp "$BIN_PATH" "$APP/Contents/MacOS/$EXECUTABLE"
 cp "Resources/Info.plist" "$APP/Contents/Info.plist"
 
+echo "==> Localizations (en, pl)"
+for LPROJ in Resources/*.lproj; do
+  cp -R "$LPROJ" "$APP/Contents/Resources/"
+done
+
 echo "==> Ikona aplikacji"
 ./scripts/make-icon.sh
 cp "$DIST/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
