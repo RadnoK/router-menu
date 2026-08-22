@@ -32,6 +32,16 @@ final class L10nTests: XCTestCase {
                        LocKey.settingsLastChecked.rawValue)
     }
 
+    func testSetLanguagePropagatesToResolvedStrings() {
+        // The core behaviour of the feature: switching the language must
+        // actually change what callAsFunction returns for a real key, using
+        // the bundled .lproj tables (via the default Bundle.module lookup).
+        let l10n = L10n(language: .en)
+        XCTAssertEqual(l10n(.popoverRefresh), "Refresh")
+        l10n.setLanguage(.pl)
+        XCTAssertEqual(l10n(.popoverRefresh), "Odśwież")
+    }
+
     func testEveryKeyResolvesInBothLanguages() throws {
         // The real guard: catches a key added to LocKey but forgotten in a
         // .strings file, and a typo in either file.

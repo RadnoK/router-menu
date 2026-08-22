@@ -1,1 +1,1 @@
-"NSLocationWhenInUseUsageDescription" = "Aplikacja odczytuje nazwę sieci WiFi, aby pokazać status modemu tylko gdy jesteś podłączony do modemu.";
+"NSLocationWhenInUseUsageDescription" = "Aplikacja odczytuje nazwę Twojej sieci Wi-Fi, aby pokazywać status modemu tylko wtedy, gdy jesteś z nią połączony.";

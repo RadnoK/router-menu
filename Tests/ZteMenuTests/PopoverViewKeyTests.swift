@@ -3,13 +3,17 @@ import XCTest
 
 @MainActor
 final class PopoverViewKeyTests: XCTestCase {
-    func testSignalQualityMapsToDistinctKeys() {
-        let qualities: [SignalQuality] = [.noSignal, .veryWeak, .weak, .medium, .good, .veryGood]
-        let keys = qualities.map { PopoverView.key(for: $0) }
-        XCTAssertEqual(Set(keys).count, qualities.count, "signal keys must be distinct")
+    func testSignalQualityMapsToExpectedKeys() {
+        XCTAssertEqual(PopoverView.key(for: .noSignal), .signalNone)
+        XCTAssertEqual(PopoverView.key(for: .veryWeak), .signalVeryWeak)
+        XCTAssertEqual(PopoverView.key(for: .weak), .signalWeak)
+        XCTAssertEqual(PopoverView.key(for: .medium), .signalMedium)
+        XCTAssertEqual(PopoverView.key(for: .good), .signalGood)
+        XCTAssertEqual(PopoverView.key(for: .veryGood), .signalVeryGood)
     }
 
-    func testErrorKindMapsToDistinctKeys() {
-        XCTAssertNotEqual(PopoverView.key(for: .loginFailed), PopoverView.key(for: .unreachable))
+    func testErrorKindMapsToExpectedKeys() {
+        XCTAssertEqual(PopoverView.key(for: .loginFailed), .errorLoginFailed)
+        XCTAssertEqual(PopoverView.key(for: .unreachable), .errorUnreachable)
     }
 }

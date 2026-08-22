@@ -8,7 +8,7 @@
 "popover.network" = "Sieć";
 "popover.download" = "Pobieranie";
 "popover.upload" = "Wysyłanie";
-"popover.monthly" = "Miesiąc";
+"popover.monthly" = "W tym miesiącu";
 "popover.total" = "Łącznie";
 "popover.session" = "Sesja";
 
@@ -33,7 +33,7 @@
 "settings.window_title" = "Ustawienia ZTE Menu";
 "settings.network.section" = "Sieć";
 "settings.network.detection_mode" = "Tryb wykrywania";
-"settings.network.detection_by_ssid" = "Po nazwie WiFi";
+"settings.network.detection_by_ssid" = "Po nazwie Wi-Fi";
 "settings.network.detection_by_ip" = "Po osiągalności IP";
 "settings.network.current" = "Aktualna sieć";
 "settings.network.ssid_field" = "Nazwa sieci ZTE";
