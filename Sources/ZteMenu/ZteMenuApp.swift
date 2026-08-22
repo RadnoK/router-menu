@@ -22,7 +22,7 @@ public struct ZteMenuApp: App {
         .menuBarExtraStyle(.window)
 
         Window("Ustawienia ZTE Menu", id: "settings") {
-            SettingsView(settings: settings)
+            SettingsView(settings: settings, updater: appDelegate.updater)
         }
         .windowResizability(.contentSize)
     }

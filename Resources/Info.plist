@@ -24,5 +24,13 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Aplikacja odczytuje nazwę sieci WiFi, aby pokazać status modemu tylko gdy jesteś podłączony do ZTE_B4B622.</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://radnok.github.io/zte-menu/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>ALXbpEEByW2KIAMtGC69OHKfoA0ghWfqNkvT0xXTIvA=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

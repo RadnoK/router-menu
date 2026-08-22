@@ -14,6 +14,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Współdzielone, obserwowalne źródło prawdy — czyta je etykieta ikony
     /// oraz widok popovera i okna ustawień.
     public let settings = SettingsStore()
+    public let updater = UpdaterController()
     public let history = HistoryStore()
     public lazy var store = ModemStore(settings: settings, history: history)
     private let permission = LocationPermission()
