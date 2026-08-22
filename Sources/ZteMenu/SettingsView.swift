@@ -11,11 +11,16 @@ public struct SettingsView: View {
     @Bindable private var settings: SettingsStore
     @Bindable private var updater: UpdaterController
     private let l10n: L10n
+    private let onNotificationsEnabled: () -> Void
 
-    public init(settings: SettingsStore, updater: UpdaterController, l10n: L10n) {
+    public init(settings: SettingsStore,
+                updater: UpdaterController,
+                l10n: L10n,
+                onNotificationsEnabled: @escaping () -> Void = {}) {
         self.settings = settings
         self.updater = updater
         self.l10n = l10n
+        self.onNotificationsEnabled = onNotificationsEnabled
     }
 
     public var body: some View {
@@ -39,6 +44,10 @@ public struct SettingsView: View {
             GeneralSettingsTab(settings: settings, l10n: l10n)
         case .panel:
             PanelSettingsTab(settings: settings, l10n: l10n)
+        case .battery:
+            BatterySettingsTab(settings: settings,
+                               l10n: l10n,
+                               onNotificationsEnabled: onNotificationsEnabled)
         case .account:
             AccountSettingsTab(l10n: l10n)
         case .updates:

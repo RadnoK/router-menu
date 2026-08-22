@@ -78,5 +78,25 @@
 "settings.appearance.language_polish" = "Polski";
 "settings.appearance.language_english" = "English";
 
+/* Settings — battery */
+"settings.tab.battery" = "Battery";
+"settings.battery.menu_bar_section" = "Menu bar";
+"settings.battery.show_percent" = "Show battery percentage";
+"settings.battery.show_percent_help" = "Displays the modem's battery level next to the menu bar icon.";
+"settings.battery.notifications_section" = "Notifications";
+"settings.battery.low" = "Low battery";
+"settings.battery.critical" = "Critical battery";
+"settings.battery.full" = "Fully charged";
+"settings.battery.threshold" = "Below %d%%";
+"settings.battery.notifications_help" = "Each alert fires once when the level crosses its threshold, and re-arms after the battery recovers.";
+
+/* Notifications */
+"notification.battery.low_title" = "Modem battery low";
+"notification.battery.low_body" = "The battery is at %d%%. Consider plugging the modem in.";
+"notification.battery.critical_title" = "Modem battery critical";
+"notification.battery.critical_body" = "Only %d%% left. The modem will shut down soon.";
+"notification.battery.full_title" = "Modem fully charged";
+"notification.battery.full_body" = "The battery has reached 100%. You can unplug the modem.";
+
 /* Shared */
 "shared.placeholder_dash" = "—";

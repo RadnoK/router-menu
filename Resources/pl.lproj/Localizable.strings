@@ -78,5 +78,25 @@
 "settings.appearance.language_polish" = "Polski";
 "settings.appearance.language_english" = "English";
 
+/* Ustawienia — bateria */
+"settings.tab.battery" = "Bateria";
+"settings.battery.menu_bar_section" = "Pasek menu";
+"settings.battery.show_percent" = "Pokazuj procent baterii";
+"settings.battery.show_percent_help" = "Wyświetla poziom baterii modemu obok ikony na pasku menu.";
+"settings.battery.notifications_section" = "Powiadomienia";
+"settings.battery.low" = "Niski poziom baterii";
+"settings.battery.critical" = "Krytyczny poziom baterii";
+"settings.battery.full" = "Pełne naładowanie";
+"settings.battery.threshold" = "Poniżej %d%%";
+"settings.battery.notifications_help" = "Każde powiadomienie wysyłane jest raz po przekroczeniu progu i uzbraja się ponownie, gdy bateria się naładuje.";
+
+/* Powiadomienia */
+"notification.battery.low_title" = "Niski poziom baterii modemu";
+"notification.battery.low_body" = "Bateria ma %d%%. Warto podłączyć modem do zasilania.";
+"notification.battery.critical_title" = "Krytyczny poziom baterii modemu";
+"notification.battery.critical_body" = "Zostało tylko %d%%. Modem wkrótce się wyłączy.";
+"notification.battery.full_title" = "Modem w pełni naładowany";
+"notification.battery.full_body" = "Bateria osiągnęła 100%. Możesz odłączyć modem od zasilania.";
+
 /* Wspólne */
 "shared.placeholder_dash" = "—";

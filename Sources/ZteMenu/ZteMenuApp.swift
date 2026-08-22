@@ -9,14 +9,23 @@ public struct ZteMenuApp: App {
         let store = appDelegate.store
         let settings = appDelegate.settings
         let l10n = appDelegate.l10n
-        let p = MenuBarPresentation.make(for: store.state)
+        let p = MenuBarPresentation.make(for: store.state,
+                                         showBatteryPercent: settings.settings.showBatteryPercent)
 
         MenuBarExtra(isInserted: .constant(p.isVisible)) {
             PopoverView(store: store, settings: settings, l10n: l10n) {
                 SettingsWindowOpener.open()
             }
         } label: {
-            Image(systemName: p.symbolName, variableValue: p.variableValue)
+            // One label view, not two branches: `MenuBarExtra` re-creates the
+            // label whenever the presentation changes, and a stable view tree
+            // keeps the icon from flickering as the percentage updates.
+            HStack(spacing: 3) {
+                Image(systemName: p.symbolName, variableValue: p.variableValue)
+                if let text = p.batteryText {
+                    Text(text)
+                }
+            }
         }
         .menuBarExtraStyle(.window)
 
@@ -25,7 +34,10 @@ public struct ZteMenuApp: App {
         // menu item and Command-, shortcut for free. Opening it from the
         // popover goes through SettingsWindowOpener.
         Settings {
-            SettingsView(settings: settings, updater: appDelegate.updater, l10n: l10n)
+            SettingsView(settings: settings,
+                         updater: appDelegate.updater,
+                         l10n: l10n,
+                         onNotificationsEnabled: appDelegate.requestNotificationAuthorization)
         }
     }
 }

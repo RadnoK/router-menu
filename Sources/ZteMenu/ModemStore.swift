@@ -10,6 +10,8 @@ public final class ModemStore {
     private let detector: NetworkDetector
     private let clientFactory: @MainActor (URL, String?) -> ModemClient
     private var locationAuth: LocationAuth = .authorized
+    /// Optional so tests get a store that posts nothing; the app wires one in.
+    private var notifier: BatteryNotifier?
 
     public init(settings: SettingsStore,
                 history: HistoryStore,
@@ -21,6 +23,10 @@ public final class ModemStore {
         self.history = history
         self.detector = detector
         self.clientFactory = clientFactory
+    }
+
+    func setBatteryNotifier(_ notifier: BatteryNotifier) {
+        self.notifier = notifier
     }
 
     func setLocationAuth(_ auth: LocationAuth) {
@@ -43,6 +49,7 @@ public final class ModemStore {
             let data = try await client.fetch()
             state = .connected(data)
             history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
+            notifier?.handle(data)
         } catch ModemError.loginFailed {
             state = .error(.loginFailed)
         } catch {

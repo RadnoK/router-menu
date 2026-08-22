@@ -30,6 +30,46 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(b.settings.networkMode, .byIPReachable)
     }
 
+    func testBatteryDefaults() {
+        let store = SettingsStore(defaults: freshDefaults())
+        XCTAssertFalse(store.settings.showBatteryPercent, "the percentage is opt-in")
+        let alerts = store.settings.batteryNotifications
+        XCTAssertTrue(alerts.lowEnabled)
+        XCTAssertEqual(alerts.lowThreshold, 20)
+        XCTAssertTrue(alerts.criticalEnabled)
+        XCTAssertEqual(alerts.criticalThreshold, 10)
+        XCTAssertFalse(alerts.fullEnabled)
+    }
+
+    func testPayloadWithoutBatteryKeysStillLoads() throws {
+        // What a 0.4.x install has on disk. Every other preference must survive
+        // the upgrade rather than silently reset to defaults.
+        let d = freshDefaults()
+        let legacy = Data(#"{"networkMode":"byIPReachable","ssid":"MyZTE","modemIP":"10.0.0.1","refreshInterval":30,"stats":{"basic":false,"radio":true,"transfer":true,"uptime":true},"language":"pl"}"#.utf8)
+        d.set(legacy, forKey: "zte.settings")
+
+        let store = SettingsStore(defaults: d)
+        XCTAssertEqual(store.settings.ssid, "MyZTE")
+        XCTAssertEqual(store.settings.language, .pl)
+        XCTAssertFalse(store.settings.stats.basic)
+        XCTAssertFalse(store.settings.showBatteryPercent)
+        XCTAssertEqual(store.settings.batteryNotifications, BatteryNotificationSettings())
+    }
+
+    func testBatterySettingsPersist() {
+        let d = freshDefaults()
+        let a = SettingsStore(defaults: d)
+        a.settings.showBatteryPercent = true
+        a.settings.batteryNotifications.lowThreshold = 35
+        a.settings.batteryNotifications.fullEnabled = true
+        a.save()
+
+        let b = SettingsStore(defaults: d)
+        XCTAssertTrue(b.settings.showBatteryPercent)
+        XCTAssertEqual(b.settings.batteryNotifications.lowThreshold, 35)
+        XCTAssertTrue(b.settings.batteryNotifications.fullEnabled)
+    }
+
     func testModemBaseURL() {
         let store = SettingsStore(defaults: freshDefaults())
         store.settings.modemIP = "192.168.1.1"

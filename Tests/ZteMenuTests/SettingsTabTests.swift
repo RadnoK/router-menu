@@ -6,7 +6,7 @@ import XCTest
 final class SettingsTabTests: XCTestCase {
     func testTabOrderIsStable() {
         XCTAssertEqual(SettingsTab.allCases.map(\.rawValue),
-                       ["general", "panel", "account", "updates"])
+                       ["general", "panel", "battery", "account", "updates"])
     }
 
     func testEveryTabHasADistinctSymbol() {

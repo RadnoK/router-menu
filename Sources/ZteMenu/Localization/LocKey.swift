@@ -86,6 +86,29 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsLanguagePolish = "settings.appearance.language_polish"
     case settingsLanguageEnglish = "settings.appearance.language_english"
 
+    // Settings — battery tab
+    case settingsTabBattery = "settings.tab.battery"
+    case settingsBatteryMenuBarSection = "settings.battery.menu_bar_section"
+    case settingsBatteryShowPercent = "settings.battery.show_percent"
+    case settingsBatteryShowPercentHelp = "settings.battery.show_percent_help"
+    case settingsBatteryNotificationsSection = "settings.battery.notifications_section"
+    case settingsBatteryLow = "settings.battery.low"
+    case settingsBatteryCritical = "settings.battery.critical"
+    case settingsBatteryFull = "settings.battery.full"
+    /// Takes one argument: the threshold percentage.
+    case settingsBatteryThreshold = "settings.battery.threshold"
+    case settingsBatteryNotificationsHelp = "settings.battery.notifications_help"
+
+    // Notifications
+    case notificationBatteryLowTitle = "notification.battery.low_title"
+    /// Takes one argument: the current battery percentage.
+    case notificationBatteryLowBody = "notification.battery.low_body"
+    case notificationBatteryCriticalTitle = "notification.battery.critical_title"
+    /// Takes one argument: the current battery percentage.
+    case notificationBatteryCriticalBody = "notification.battery.critical_body"
+    case notificationBatteryFullTitle = "notification.battery.full_title"
+    case notificationBatteryFullBody = "notification.battery.full_body"
+
     // Shared
     case placeholderDash = "shared.placeholder_dash"
 }

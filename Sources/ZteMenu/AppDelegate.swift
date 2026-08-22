@@ -18,11 +18,16 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     public let history = HistoryStore()
     public lazy var l10n = L10n(language: settings.settings.language)
     public lazy var store = ModemStore(settings: settings, history: history)
+    private lazy var batteryNotifier = BatteryNotifier(settings: settings, l10n: l10n)
     private let permission = LocationPermission()
     private var refreshTask: Task<Void, Never>?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         l10n.setLanguage(settings.settings.language)
+        store.setBatteryNotifier(batteryNotifier)
+        // Only if the user already armed an alert in a previous run — a fresh
+        // install shows no prompt until they turn one on.
+        batteryNotifier.requestAuthorizationIfNeeded()
         // A location-permission change (e.g. the user taps "Allow") must refresh
         // state IMMEDIATELY — otherwise the icon would only appear on the next
         // loop tick, up to 60 s later. Verified live: permission settles ~3 s
@@ -34,6 +39,11 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         store.setLocationAuth(permission.status)
         permission.requestIfNeeded()
         startRefreshLoop()
+    }
+
+    /// Called by the settings window the moment the user arms the first alert.
+    public func requestNotificationAuthorization() {
+        batteryNotifier.requestAuthorizationIfNeeded()
     }
 
     private func startRefreshLoop() {

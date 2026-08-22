@@ -2,8 +2,10 @@ import XCTest
 @testable import ZteMenu
 
 final class MenuBarPresentationTests: XCTestCase {
-    private func data(bars: Int) -> ModemData {
-        ModemData.parse(["signalbar": "\(bars)", "network_type": "ENDC", "ppp_status": "ppp_connected"])
+    private func data(bars: Int, battery: Int? = nil) -> ModemData {
+        var raw = ["signalbar": "\(bars)", "network_type": "ENDC", "ppp_status": "ppp_connected"]
+        if let battery { raw["battery_value"] = "\(battery)" }
+        return ModemData.parse(raw)
     }
 
     func testHiddenIsInvisible() {
@@ -30,5 +32,27 @@ final class MenuBarPresentationTests: XCTestCase {
 
     func testLocationDeniedIsVisible() {
         XCTAssertTrue(MenuBarPresentation.make(for: .locationDenied).isVisible)
+    }
+
+    func testBatteryTextIsAbsentByDefault() {
+        let p = MenuBarPresentation.make(for: .connected(data(bars: 4, battery: 72)))
+        XCTAssertNil(p.batteryText, "the percentage is opt-in")
+    }
+
+    func testBatteryTextWhenEnabled() {
+        let p = MenuBarPresentation.make(for: .connected(data(bars: 4, battery: 72)),
+                                         showBatteryPercent: true)
+        XCTAssertEqual(p.batteryText, "72%")
+    }
+
+    func testBatteryTextOmittedWhenModemReportsNoLevel() {
+        let p = MenuBarPresentation.make(for: .connected(data(bars: 4)), showBatteryPercent: true)
+        XCTAssertNil(p.batteryText)
+    }
+
+    func testBatteryTextOmittedWhenDisconnected() {
+        for state in [AppState.error(.unreachable), .locationDenied] {
+            XCTAssertNil(MenuBarPresentation.make(for: state, showBatteryPercent: true).batteryText)
+        }
     }
 }

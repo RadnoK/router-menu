@@ -8,6 +8,7 @@ import Foundation
 enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
     case general
     case panel
+    case battery
     case account
     case updates
 
@@ -18,6 +19,7 @@ enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .general: return "gearshape"
         case .panel: return "menubar.rectangle"
+        case .battery: return "battery.75percent"
         case .account: return "key"
         case .updates: return "arrow.triangle.2.circlepath"
         }
@@ -27,6 +29,7 @@ enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .general: return .settingsTabGeneral
         case .panel: return .settingsTabPanel
+        case .battery: return .settingsTabBattery
         case .account: return .settingsTabAccount
         case .updates: return .settingsTabUpdates
         }
