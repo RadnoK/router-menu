@@ -17,8 +17,9 @@ KEYCHAIN_PROFILE="${KEYCHAIN_PROFILE:-zte-menu-notary}"
 SPARKLE_BIN="${SPARKLE_BIN:-$HOME/.local/sparkle/bin}"
 APPCAST_DIR="$DIST/appcast"
 
-# Hash SHA-1 zamiast nazwy — w keychainie są dwa certyfikaty o identycznej nazwie
-export SIGN_IDENTITY="78189AA14E80C16A00C743B32112F7B6D663D714"
+# Hash SHA-1 zamiast nazwy — lokalnie w keychainie są dwa certyfikaty
+# o identycznej nazwie. W CI hash podaje workflow po imporcie .p12.
+export SIGN_IDENTITY="${SIGN_IDENTITY:-78189AA14E80C16A00C743B32112F7B6D663D714}"
 
 echo "==> Build + podpis Developer ID"
 ./scripts/build-app.sh
@@ -53,9 +54,16 @@ if [[ ! -x "$SPARKLE_BIN/generate_appcast" ]]; then
 fi
 mkdir -p "$APPCAST_DIR"
 cp "$ZIP" "$APPCAST_DIR/"
-"$SPARKLE_BIN/generate_appcast" \
-  --download-url-prefix "https://github.com/RadnoK/zte-menu/releases/download/v$VERSION/" \
-  "$APPCAST_DIR"
+URL_PREFIX="https://github.com/RadnoK/zte-menu/releases/download/v$VERSION/"
+if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
+  # CI: klucz z sekretu przez stdin, keychain runnera go nie ma
+  echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
+    --ed-key-file - --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+else
+  # Lokalnie: klucz prywatny siedzi w keychainie
+  "$SPARKLE_BIN/generate_appcast" \
+    --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+fi
 
 SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
 echo
