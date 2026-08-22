@@ -104,9 +104,21 @@ public struct PopoverView: View {
         }
     }
 
+    /// Symbols differ in intrinsic width (`cellularbars` is far narrower than
+    /// `battery.100`), which would ragged-edge every title in the list. A fixed
+    /// centred slot keeps the text baseline aligned without adding a gap.
+    private static let iconWidth: CGFloat = 18
+
+    private func icon(_ symbol: String) -> some View {
+        Image(systemName: symbol)
+            .symbolRenderingMode(.monochrome)
+            .frame(width: Self.iconWidth, alignment: .center)
+    }
+
     private func row(_ symbol: String, _ title: String, _ value: String) -> some View {
-        HStack {
-            Label(title, systemImage: symbol)
+        HStack(spacing: 6) {
+            icon(symbol)
+            Text(title)
             Spacer()
             Text(value).foregroundStyle(.primary).monospacedDigit()
         }
@@ -114,7 +126,11 @@ public struct PopoverView: View {
     }
 
     private func label(_ text: String, _ symbol: String) -> some View {
-        Label(text, systemImage: symbol).foregroundStyle(.secondary)
+        HStack(spacing: 6) {
+            icon(symbol)
+            Text(text)
+        }
+        .foregroundStyle(.secondary)
     }
 
     private var footer: some View {
