@@ -1,139 +1,156 @@
 # ZTE Menu
 
-A native macOS menu bar app that shows the status of a **ZTE U50 5G** modem:
-battery level, signal strength, network type, carrier, and transfer statistics.
-The icon appears **only** while you're connected to the modem.
+Keep an eye on your ZTE 5G modem from the macOS menu bar — battery, signal,
+and how much data you've used, without opening the modem's web panel.
 
-Built with Swift + SwiftUI (SwiftPM, no Xcode project), an `LSUIElement` app —
-it lives in the menu bar, with no Dock icon.
+The icon shows up only while you're actually connected to the modem, and stays
+out of the way the rest of the time.
 
-## Features
+[![Release](https://img.shields.io/github/v/release/RadnoK/zte-menu)](https://github.com/RadnoK/zte-menu/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-lightgrey)](#requirements)
 
-- **Menu bar icon** (`cellularbars`) — changes with signal strength; visible only
-  on the modem's network, and disappears off it.
-- **Click-through panel** — a readable popover with sections:
-  - Battery (dynamic icon by level, charging indicator)
-  - Signal (description + bars) and network type (5G / LTE / …)
-  - Radio details: RSRP, SINR
-  - Transfer: current speed ↓↑, total and monthly (in GB)
-  - Carrier, connection time
-  - Mini charts of battery and transfer (last 24h, Swift Charts)
-- **Settings window**:
-  - Network detection mode: **by WiFi name** or **by modem IP reachability**
-    (IP mode doesn't require location permission)
-  - Network name (SSID) and the modem's IP address
-  - Toggle stat groups shown in the panel
-  - Modem password (for transfer counters) — stored in **Keychain**
-- **24h history** of battery and transfer — saved locally, survives a restart.
-- **Localization** — English and Polish. The app follows your system language by
-  default; you can force either language in Settings under **Appearance**.
-
-## Requirements
-
-- macOS 14+ (verified on macOS 26)
-- Swift 6.3 toolchain
-- ZTE U50 modem (panel at `192.168.0.1`)
-
-## Installation
+## Install
 
 ```bash
 brew tap RadnoK/tap
 brew install --cask zte-menu
 ```
 
-The app is Developer ID signed and notarized by Apple, so it launches without
-Gatekeeper warnings. The binary is universal (Apple Silicon + Intel).
+Or grab the `.zip` from [Releases](https://github.com/RadnoK/zte-menu/releases)
+and drag `ZTE Menu.app` into `/Applications`.
 
-Alternatively: download the `.zip` from [Releases](https://github.com/RadnoK/zte-menu/releases)
-and move `ZTE Menu.app` to `/Applications`.
+The app is signed and notarized by Apple, so it opens without Gatekeeper
+warnings. It runs natively on both Apple Silicon and Intel Macs.
+
+## What you get
+
+**At a glance in the menu bar** — the icon fills up as your signal gets
+stronger, so you can tell reception from across the room.
+
+**Click for the details:**
+
+- Battery level, and whether the modem is charging
+- Signal strength and network type (5G, LTE, …)
+- Current up and down speed
+- Data used this month and in total
+- How long the connection has been up
+- Small charts of battery and data over the last 24 hours
+
+**Optional signal diagnostics** — RSRP and SINR, two numbers the modem reports
+that tell you how clean the cellular signal is. Useful when you're hunting for
+the best spot to put the modem; easy to ignore otherwise. You can hide them,
+along with any other group of stats, in Settings.
+
+**Speaks your language** — English and Polish. Follows your Mac's language, or
+you can pick one in Settings.
+
+## Requirements
+
+- macOS 14 or newer
+- A ZTE 5G modem with a web panel at `192.168.0.1` — developed against the
+  **ZTE U50**, and likely to work with related models that share the same web
+  panel. If you try another one, [let me know how it goes](https://github.com/RadnoK/zte-menu/issues).
+
+## Setup
+
+Most of it works the moment you install it. Two things are worth knowing.
+
+### Finding your modem
+
+The app needs to know when you're on the modem's network, and there are two
+ways it can tell:
+
+- **By Wi-Fi name** — matches your network name. macOS only lets apps read the
+  Wi-Fi name if you grant **location** permission, so you'll see that prompt on
+  first launch. Nothing about your location is read, sent, or stored; it's just
+  the gate macOS puts in front of the network name.
+- **By modem address** — checks whether the modem answers at its IP. No
+  location permission needed.
+
+Pick whichever you prefer in Settings, under **General**.
+
+### Data counters
+
+Battery, signal, and current speed work right away.
+
+The **monthly** and **total** counters are different: the modem only reports
+them to a logged-in session. Put your modem's web panel password into Settings
+under **Account**, and the counters start filling in. The password goes into
+your macOS keychain and is only ever sent to the modem on your own network.
+
+Don't want to bother? Leave it empty. Everything else keeps working.
 
 ## Updates
 
-The app checks for new versions on its own (Sparkle). In the settings window,
-under **Updates**, you can:
-
-- turn automatic checking on or off,
-- pick a frequency (daily / weekly),
-- turn on automatic downloading and installing,
-- check for updates manually with the **Check Now** button.
-
-Updates are signed with an EdDSA key and verified before installation.
-
-## Building and running
-
-```bash
-# tests
-swift test
-
-# build and package into a .app
-./scripts/build-app.sh
-
-# run
-open "dist/ZTE Menu.app"
-```
-
-On first launch (in "by WiFi name" mode) macOS will ask for **location**
-permission — it's required because on newer macOS versions the WiFi network
-name is only readable with that permission granted. Alternatively, switch to
-**"by IP reachability"** mode in settings, which doesn't require it.
-
-## Transfer statistics (login)
-
-Battery, signal, network, and **current speed** are available without logging in.
-The **total** and **monthly** counters (GB) are only exposed by the modem after
-logging in — enter the modem panel password in the settings window (stored in
-Keychain).
-
-## Architecture
-
-Layered, with pure logic that's unit tested (64 tests) and thin, injected
-system-facing layers:
-
-| Layer | Files |
-|---------|-------|
-| Model / parsing | `ModemData`, `ByteFormat` |
-| Modem communication | `ModemClient`, `ZTEAuth` (login), `SessionHTTP` |
-| Network detection | `NetworkDetector`, `WiFiMonitor`, `LocationPermission` |
-| State and persistence | `ModemStore`, `SettingsStore`, `HistoryStore`, `Keychain` |
-| Localization | `AppLanguage`, `LocKey`, `L10n` |
-| UI | `PopoverView`, `SettingsView`, `BatteryChartView`, `TransferChartView` |
-| Lifecycle / scene | `AppDelegate`, `ZteMenuApp`, `MenuBarPresentation` |
-
-Modem login (verified live) uses a double SHA256 hash of the password with the
-`LD` token and keeps the session alive via the `stok` cookie. All communication
-is local (LAN) — the app never sends any data externally. The password never
-ends up in the repository or on disk outside Keychain.
-
-## Note: menu bar managers (e.g. Bartender)
-
-Menu bar managers can automatically hide newly appearing icons. If you don't
-see the "ZTE Menu" icon, check your manager's hidden area and set it to always
-visible.
+The app updates itself. You can turn that off, change how often it checks, or
+check right now — all under **Updates** in Settings. Updates are
+cryptographically signed and verified before anything is installed.
 
 ## Privacy
 
-- Communicates only with the local modem (`192.168.0.1`), no external services.
-- Modem password stored in the macOS Keychain.
-- History (battery/transfer) saved locally in `~/Library/Application Support/zte-menu/`.
-- Location permission used only to read the WiFi network name (a macOS
-  requirement); the app never tracks or sends location data.
+The app talks to your modem and nothing else.
 
-## Releasing a new version
+- No analytics, no telemetry, no external servers — all traffic stays on your
+  local network.
+- Your modem password lives in the macOS keychain.
+- The 24-hour history is a local file in
+  `~/Library/Application Support/zte-menu/`.
+- Location permission, if you grant it, is used for exactly one thing: reading
+  your Wi-Fi network name. Your location is never read or transmitted.
 
-Releasing is fully automated — just bump the version and push a tag:
+## Not seeing the icon?
+
+If you use a menu bar manager like Bartender or Ice, it may have tucked the new
+icon into the hidden section. Check there and mark **ZTE Menu** as always
+visible.
+
+Otherwise, remember the icon is hidden by design when you're not connected to
+the modem — that's usually the explanation.
+
+## Contributing
+
+Bug reports and pull requests are welcome. If something's broken or your modem
+isn't supported, [open an issue](https://github.com/RadnoK/zte-menu/issues).
+
+### Building from source
+
+You'll need a Swift 6 toolchain (ships with recent Xcode). There's no Xcode
+project — it's a Swift package.
 
 ```bash
-# 1. bump the version in Info.plist (must match the tag)
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 0.2.0" Resources/Info.plist
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion 0.2.0" Resources/Info.plist
-
-# 2. commit and tag
-git commit -am "chore: version 0.2.0"
-git tag v0.2.0 && git push origin main v0.2.0
+swift test              # run the test suite (64 tests)
+./scripts/build-app.sh  # build and package into a .app
+open "dist/ZTE Menu.app"
 ```
 
-GitHub Actions builds the universal binary, signs it with Developer ID,
-notarizes it, publishes the Release, generates a signed appcast on the
-`gh-pages` branch, and bumps the cask in [RadnoK/homebrew-tap](https://github.com/RadnoK/homebrew-tap).
+`build-app.sh` produces a universal binary, assembles the app bundle, and
+ad-hoc signs it so it runs locally.
 
-Local release (skipping CI): `./scripts/release.sh <version>`.
+### How it fits together
+
+The code is layered so the interesting parts can be unit tested without a
+modem attached: parsing, formatting, state, and history are plain Swift with no
+system dependencies, while the pieces that touch the network, the keychain, and
+Core Location sit behind thin injected wrappers. SwiftUI views read from an
+observable store and stay free of business logic.
+
+Talking to the modem was worked out by watching its own web panel: logging in
+hashes the password, and the resulting session cookie is replayed on later
+requests. `ModemClient` and `ZTEAuth` hold that logic, and the tests pin it
+against captured responses.
+
+### Releasing
+
+Bump the version in `Resources/Info.plist`, then push a matching tag:
+
+```bash
+git tag v0.4.0 && git push origin main v0.4.0
+```
+
+GitHub Actions takes it from there — builds, signs, notarizes, publishes the
+release, updates the appcast, and bumps the Homebrew cask.
+
+## License
+
+[MIT](LICENSE) © Konrad Alfaro
