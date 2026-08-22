@@ -24,7 +24,23 @@ mkdir -p "$APP/Contents/Resources"
 cp "$BIN_PATH" "$APP/Contents/MacOS/$EXECUTABLE"
 cp "Resources/Info.plist" "$APP/Contents/Info.plist"
 
-echo "==> Ad-hoc signing"
-codesign --force --deep --sign - "$APP" || echo "Uwaga: codesign nieudany (można uruchomić i tak lokalnie)"
+echo "==> Ikona aplikacji"
+./scripts/make-icon.sh
+cp "$DIST/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+
+# SIGN_IDENTITY pozwala podpisać Developer ID (release); domyślnie ad-hoc (lokalnie)
+SIGN_IDENTITY="${SIGN_IDENTITY:--}"
+
+if [[ "$SIGN_IDENTITY" == "-" ]]; then
+  echo "==> Ad-hoc signing"
+  codesign --force --deep --sign - "$APP" || echo "Uwaga: codesign nieudany (można uruchomić i tak lokalnie)"
+else
+  # Hardened runtime + timestamp są wymagane przez notaryzację
+  echo "==> Podpis Developer ID: $SIGN_IDENTITY"
+  codesign --force --options runtime --timestamp \
+    --entitlements "Resources/entitlements.plist" \
+    --sign "$SIGN_IDENTITY" "$APP"
+  codesign --verify --deep --strict --verbose=2 "$APP"
+fi
 
 echo "==> Gotowe: $APP"
