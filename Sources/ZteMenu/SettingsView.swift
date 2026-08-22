@@ -1,18 +1,16 @@
 import SwiftUI
 
-/// Tabbed settings window, the standard shape for a macOS app with more than a
-/// couple of preference groups.
+/// Tabbed settings window.
 ///
-/// The tab strip is `SettingsTabBar` rather than `TabView`'s built-in one,
-/// because a `Window` scene renders `TabView` in its content style and drops the
-/// tab icons. Each tab owns its own `Form`; this type composes them, tracks the
-/// selection, and keeps the language in sync.
+/// Inside a `Settings` scene, `TabView` renders macOS's native preference
+/// toolbar — an icon above each label, with the window title tracking the
+/// selected tab. The same `TabView` in a plain `Window` scene falls back to a
+/// content-style strip that drops the icons, which is why the scene type
+/// matters here. Each tab owns its own `Form`; this type only composes them.
 public struct SettingsView: View {
     @Bindable private var settings: SettingsStore
     @Bindable private var updater: UpdaterController
     private let l10n: L10n
-
-    @State private var selection: SettingsTab = .general
 
     public init(settings: SettingsStore, updater: UpdaterController, l10n: L10n) {
         self.settings = settings
@@ -21,10 +19,12 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            SettingsTabBar(selection: $selection, l10n: l10n)
-            Divider()
-            content
+        TabView {
+            ForEach(SettingsTab.allCases) { tab in
+                content(for: tab)
+                    .tabItem { Label(l10n(tab.titleKey), systemImage: tab.symbolName) }
+                    .tag(tab)
+            }
         }
         .frame(width: 460)
         .onChange(of: settings.settings.language) { _, new in
@@ -33,8 +33,8 @@ public struct SettingsView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        switch selection {
+    private func content(for tab: SettingsTab) -> some View {
+        switch tab {
         case .general:
             GeneralSettingsTab(settings: settings, l10n: l10n)
         case .panel:
