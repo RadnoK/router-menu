@@ -30,7 +30,10 @@
 "error.unreachable" = "Nie można połączyć z modemem";
 
 /* Ustawienia — sieć */
-"settings.window_title" = "Ustawienia ZTE Menu";
+"settings.tab.general" = "Ogólne";
+"settings.tab.panel" = "Panel";
+"settings.tab.account" = "Konto";
+"settings.tab.updates" = "Aktualizacje";
 "settings.network.section" = "Sieć";
 "settings.network.detection_mode" = "Tryb wykrywania";
 "settings.network.detection_by_ssid" = "Po nazwie Wi-Fi";
@@ -38,6 +41,8 @@
 "settings.network.current" = "Aktualna sieć";
 "settings.network.ssid_field" = "Nazwa sieci ZTE";
 "settings.network.modem_ip_field" = "IP modemu";
+"settings.network.ssid_help" = "Nazwa sieci Wi-Fi rozgłaszanej przez modem. Ikona na pasku menu pojawia się tylko wtedy, gdy jesteś z nią połączony.";
+"settings.network.modem_ip_help" = "Adres panelu modemu, zwykle 192.168.0.1.";
 
 /* Ustawienia — statystyki */
 "settings.stats.section" = "Statystyki w panelu";
@@ -49,12 +54,13 @@
 /* Ustawienia — konto */
 "settings.account.section" = "Konto modemu (dla liczników transferu)";
 "settings.account.password_field" = "Hasło do panelu";
-"settings.account.save_password" = "Zapisz hasło";
-"settings.account.delete_password" = "Usuń";
+"settings.account.delete_password" = "Usuń hasło";
+"settings.account.password_help" = "Zapisywane w pęku kluczy. Potrzebne tylko do liczników łącznego i miesięcznego transferu.";
 
 /* Ustawienia — aktualizacje */
 "settings.updates.section" = "Aktualizacje";
 "settings.updates.version" = "Wersja";
+"settings.updates.build" = "Kompilacja";
 "settings.updates.auto_check" = "Sprawdzaj automatycznie";
 "settings.updates.frequency" = "Częstotliwość";
 "settings.updates.frequency_daily" = "Codziennie";

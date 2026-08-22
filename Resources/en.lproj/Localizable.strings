@@ -30,7 +30,10 @@
 "error.unreachable" = "Cannot reach the modem";
 
 /* Settings — network */
-"settings.window_title" = "ZTE Menu Settings";
+"settings.tab.general" = "General";
+"settings.tab.panel" = "Panel";
+"settings.tab.account" = "Account";
+"settings.tab.updates" = "Updates";
 "settings.network.section" = "Network";
 "settings.network.detection_mode" = "Detection mode";
 "settings.network.detection_by_ssid" = "By Wi-Fi name";
@@ -38,6 +41,8 @@
 "settings.network.current" = "Current network";
 "settings.network.ssid_field" = "ZTE network name";
 "settings.network.modem_ip_field" = "Modem IP";
+"settings.network.ssid_help" = "The Wi-Fi network name the modem broadcasts. The menu bar icon appears only while you are connected to it.";
+"settings.network.modem_ip_help" = "Address of the modem's web panel, usually 192.168.0.1.";
 
 /* Settings — stats */
 "settings.stats.section" = "Panel statistics";
@@ -49,12 +54,13 @@
 /* Settings — account */
 "settings.account.section" = "Modem account (for transfer counters)";
 "settings.account.password_field" = "Web panel password";
-"settings.account.save_password" = "Save password";
-"settings.account.delete_password" = "Delete";
+"settings.account.delete_password" = "Delete password";
+"settings.account.password_help" = "Saved to your keychain. Needed only for the total and monthly data counters.";
 
 /* Settings — updates */
 "settings.updates.section" = "Updates";
 "settings.updates.version" = "Version";
+"settings.updates.build" = "Build";
 "settings.updates.auto_check" = "Check automatically";
 "settings.updates.frequency" = "Frequency";
 "settings.updates.frequency_daily" = "Daily";

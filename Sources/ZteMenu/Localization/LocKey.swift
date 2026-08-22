@@ -35,7 +35,12 @@ enum LocKey: String, CaseIterable, Sendable {
     case errorUnreachable = "error.unreachable"
 
     // Settings — window and network section
-    case settingsWindowTitle = "settings.window_title"
+    // Tab names. The Settings scene titles the window itself, so there is no
+    // window-title key.
+    case settingsTabGeneral = "settings.tab.general"
+    case settingsTabPanel = "settings.tab.panel"
+    case settingsTabAccount = "settings.tab.account"
+    case settingsTabUpdates = "settings.tab.updates"
     case settingsNetworkSection = "settings.network.section"
     case settingsDetectionMode = "settings.network.detection_mode"
     case settingsDetectionBySSID = "settings.network.detection_by_ssid"
@@ -43,6 +48,8 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsCurrentNetwork = "settings.network.current"
     case settingsSSIDField = "settings.network.ssid_field"
     case settingsModemIPField = "settings.network.modem_ip_field"
+    case settingsSSIDHelp = "settings.network.ssid_help"
+    case settingsModemIPHelp = "settings.network.modem_ip_help"
 
     // Settings — stats section
     case settingsStatsSection = "settings.stats.section"
@@ -54,12 +61,13 @@ enum LocKey: String, CaseIterable, Sendable {
     // Settings — account section
     case settingsAccountSection = "settings.account.section"
     case settingsPasswordField = "settings.account.password_field"
-    case settingsSavePassword = "settings.account.save_password"
     case settingsDeletePassword = "settings.account.delete_password"
+    case settingsPasswordHelp = "settings.account.password_help"
 
     // Settings — updates section
     case settingsUpdatesSection = "settings.updates.section"
     case settingsVersion = "settings.updates.version"
+    case settingsBuild = "settings.updates.build"
     case settingsAutoCheck = "settings.updates.auto_check"
     case settingsFrequency = "settings.updates.frequency"
     case settingsFrequencyDaily = "settings.updates.frequency_daily"

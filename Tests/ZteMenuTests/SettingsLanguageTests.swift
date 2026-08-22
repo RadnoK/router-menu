@@ -30,12 +30,12 @@ final class SettingsLanguageTests: XCTestCase {
 
     func testLastCheckLabelUsesNeverCheckedKeyWhenNil() {
         let l10n = L10n(language: .en)
-        XCTAssertEqual(SettingsView.lastCheckLabel(nil, l10n: l10n), l10n(.settingsNeverChecked))
+        XCTAssertEqual(UpdatesSettingsTab.lastCheckLabel(nil, l10n: l10n), l10n(.settingsNeverChecked))
     }
 
     func testLastCheckLabelIncludesRelativeDate() {
         let l10n = L10n(language: .en)
-        let label = SettingsView.lastCheckLabel(Date(timeIntervalSinceNow: -3600), l10n: l10n)
+        let label = UpdatesSettingsTab.lastCheckLabel(Date(timeIntervalSinceNow: -3600), l10n: l10n)
         XCTAssertNotEqual(label, l10n(.settingsNeverChecked))
         XCTAssertFalse(label.isEmpty)
     }
