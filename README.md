@@ -132,4 +132,4 @@ GitHub Actions zbuduje binarkę uniwersalną, podpisze ją Developer ID,
 znotaryzuje, opublikuje Release, wygeneruje podpisany appcast na gałęzi
 `gh-pages` i podbije cask w [RadnoK/homebrew-tap](https://github.com/RadnoK/homebrew-tap).
 
-Wydanie lokalne (z pominięciem CI): `./scripts/release.sh 0.2.0`.
+Wydanie lokalne (z pominięciem CI): `./scripts/release.sh <wersja>`.
