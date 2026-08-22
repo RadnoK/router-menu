@@ -1,0 +1,75 @@
+/* Popover — stany */
+"popover.no_connection" = "Brak połączenia z modemem";
+"popover.location_denied" = "Włącz uprawnienia lokalizacji";
+
+/* Popover — wiersze */
+"popover.battery" = "Bateria";
+"popover.signal" = "Sygnał";
+"popover.network" = "Sieć";
+"popover.download" = "Pobieranie";
+"popover.upload" = "Wysyłanie";
+"popover.monthly" = "Miesiąc";
+"popover.total" = "Łącznie";
+"popover.session" = "Sesja";
+
+/* Popover — akcje */
+"popover.refresh" = "Odśwież";
+"popover.settings" = "Ustawienia";
+"popover.quit" = "Zakończ";
+
+/* Jakość sygnału */
+"signal.none" = "Brak";
+"signal.very_weak" = "Bardzo słaby";
+"signal.weak" = "Słaby";
+"signal.medium" = "Średni";
+"signal.good" = "Dobry";
+"signal.very_good" = "Bardzo dobry";
+
+/* Błędy */
+"error.login_failed" = "Błąd logowania — sprawdź hasło";
+"error.unreachable" = "Nie można połączyć z modemem";
+
+/* Ustawienia — sieć */
+"settings.window_title" = "Ustawienia ZTE Menu";
+"settings.network.section" = "Sieć";
+"settings.network.detection_mode" = "Tryb wykrywania";
+"settings.network.detection_by_ssid" = "Po nazwie WiFi";
+"settings.network.detection_by_ip" = "Po osiągalności IP";
+"settings.network.current" = "Aktualna sieć";
+"settings.network.ssid_field" = "Nazwa sieci ZTE";
+"settings.network.modem_ip_field" = "IP modemu";
+
+/* Ustawienia — statystyki */
+"settings.stats.section" = "Statystyki w panelu";
+"settings.stats.basic" = "Bateria, sygnał, sieć, operator";
+"settings.stats.radio" = "Szczegóły radiowe (RSRP/SINR)";
+"settings.stats.transfer" = "Transfer";
+"settings.stats.uptime" = "Czas połączenia";
+
+/* Ustawienia — konto */
+"settings.account.section" = "Konto modemu (dla liczników transferu)";
+"settings.account.password_field" = "Hasło do panelu";
+"settings.account.save_password" = "Zapisz hasło";
+"settings.account.delete_password" = "Usuń";
+
+/* Ustawienia — aktualizacje */
+"settings.updates.section" = "Aktualizacje";
+"settings.updates.version" = "Wersja";
+"settings.updates.auto_check" = "Sprawdzaj automatycznie";
+"settings.updates.frequency" = "Częstotliwość";
+"settings.updates.frequency_daily" = "Codziennie";
+"settings.updates.frequency_weekly" = "Co tydzień";
+"settings.updates.auto_download" = "Pobieraj i instaluj automatycznie";
+"settings.updates.check_now" = "Sprawdź teraz";
+"settings.updates.never_checked" = "Nie sprawdzano";
+"settings.updates.last_checked" = "Sprawdzono %@";
+
+/* Ustawienia — wygląd */
+"settings.appearance.section" = "Wygląd";
+"settings.appearance.language" = "Język";
+"settings.appearance.language_system" = "Systemowy";
+"settings.appearance.language_polish" = "Polski";
+"settings.appearance.language_english" = "English";
+
+/* Wspólne */
+"shared.placeholder_dash" = "—";

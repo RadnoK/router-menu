@@ -14,14 +14,9 @@ public final class L10n {
     /// Where to look for `.lproj` directories, in order: the assembled `.app`
     /// bundle first, then SwiftPM target resources so `swift run` and `swift
     /// test` work without a built bundle.
-    ///
-    /// `Bundle.module` is added by Task 4, which declares `resources:` on the
-    /// `ZteMenu` target in `Package.swift`. That synthesizes the `Bundle.module`
-    /// accessor; without it the symbol does not exist and the package fails to
-    /// compile. Until then this list is `Bundle.main` only.
     static var defaultBundles: [Bundle] {
         var bundles = [Bundle.main]
-        // TODO(Task 4): bundles.append(Bundle.module) once resources: is declared.
+        bundles.append(Bundle.module)
         return bundles
     }
 
