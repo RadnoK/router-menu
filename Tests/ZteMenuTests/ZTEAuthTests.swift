@@ -2,13 +2,13 @@ import XCTest
 @testable import ZteMenu
 
 final class ZTEAuthTests: XCTestCase {
-    // Wektor: SHA256(SHA256("test").upper + "ABC").upper — policzony niezależnie.
+    // Vector: SHA256(SHA256("test").upper + "ABC").upper — computed independently.
     func testLoginHashIsDeterministic() {
         let h = ZTEAuth.loginHash(password: "test", ld: "ABC")
-        // 64 hex znaki, wielkie litery
+        // 64 hex characters, uppercase
         XCTAssertEqual(h.count, 64)
         XCTAssertEqual(h, h.uppercased())
-        // Powtarzalny
+        // Repeatable
         XCTAssertEqual(h, ZTEAuth.loginHash(password: "test", ld: "ABC"))
     }
 

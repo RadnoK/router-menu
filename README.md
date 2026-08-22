@@ -1,135 +1,139 @@
 # ZTE Menu
 
-Natywna aplikacja macOS w pasku menu, która pokazuje status modemu **ZTE U50 5G**:
-poziom baterii, moc sygnału, typ sieci, operatora oraz statystyki transferu.
-Ikona pojawia się **tylko** gdy jesteś podłączony do modemu.
+A native macOS menu bar app that shows the status of a **ZTE U50 5G** modem:
+battery level, signal strength, network type, carrier, and transfer statistics.
+The icon appears **only** while you're connected to the modem.
 
-Zbudowana w Swift + SwiftUI (SwiftPM, bez projektu Xcode), aplikacja typu
-`LSUIElement` — żyje na pasku menu, bez ikony w Docku.
+Built with Swift + SwiftUI (SwiftPM, no Xcode project), an `LSUIElement` app —
+it lives in the menu bar, with no Dock icon.
 
-## Funkcje
+## Features
 
-- **Ikona na pasku** (`cellularbars`) — zmienia się wg siły sygnału; widoczna tylko
-  w sieci modemu, poza nią znika.
-- **Panel po kliknięciu** — czytelny popover z sekcjami:
-  - Bateria (dynamiczna ikona wg poziomu, wskaźnik ładowania)
-  - Sygnał (opis + słupki) i typ sieci (5G / LTE / …)
-  - Szczegóły radiowe: RSRP, SINR
-  - Transfer: bieżąca prędkość ↓↑, łączny i miesięczny (w GB)
-  - Operator, czas połączenia
-  - Mini-wykresy baterii i transferu (ostatnie 24h, Swift Charts)
-- **Okno ustawień**:
-  - Tryb wykrywania sieci: **po nazwie WiFi** albo **po osiągalności IP** modemu
-    (tryb IP nie wymaga uprawnień lokalizacji)
-  - Nazwa sieci (SSID) i adres IP modemu
-  - Włączanie/wyłączanie grup statystyk w panelu
-  - Hasło do modemu (do liczników transferu) — przechowywane w **Keychain**
-- **Historia 24h** baterii i transferu — zapisywana lokalnie, przeżywa restart.
+- **Menu bar icon** (`cellularbars`) — changes with signal strength; visible only
+  on the modem's network, and disappears off it.
+- **Click-through panel** — a readable popover with sections:
+  - Battery (dynamic icon by level, charging indicator)
+  - Signal (description + bars) and network type (5G / LTE / …)
+  - Radio details: RSRP, SINR
+  - Transfer: current speed ↓↑, total and monthly (in GB)
+  - Carrier, connection time
+  - Mini charts of battery and transfer (last 24h, Swift Charts)
+- **Settings window**:
+  - Network detection mode: **by WiFi name** or **by modem IP reachability**
+    (IP mode doesn't require location permission)
+  - Network name (SSID) and the modem's IP address
+  - Toggle stat groups shown in the panel
+  - Modem password (for transfer counters) — stored in **Keychain**
+- **24h history** of battery and transfer — saved locally, survives a restart.
+- **Localization** — English and Polish. The app follows your system language by
+  default; you can force either language in Settings under **Appearance**.
 
-## Wymagania
+## Requirements
 
-- macOS 14+ (weryfikowane na macOS 26)
+- macOS 14+ (verified on macOS 26)
 - Swift 6.3 toolchain
-- Modem ZTE U50 (panel pod `192.168.0.1`)
+- ZTE U50 modem (panel at `192.168.0.1`)
 
-## Instalacja
+## Installation
 
 ```bash
 brew tap RadnoK/tap
 brew install --cask zte-menu
 ```
 
-Aplikacja jest podpisana Developer ID i notaryzowana przez Apple, więc uruchamia
-się bez ostrzeżeń Gatekeepera. Binarka jest uniwersalna (Apple Silicon + Intel).
+The app is Developer ID signed and notarized by Apple, so it launches without
+Gatekeeper warnings. The binary is universal (Apple Silicon + Intel).
 
-Alternatywnie: pobierz `.zip` z [Releases](https://github.com/RadnoK/zte-menu/releases)
-i przenieś `ZTE Menu.app` do `/Applications`.
+Alternatively: download the `.zip` from [Releases](https://github.com/RadnoK/zte-menu/releases)
+and move `ZTE Menu.app` to `/Applications`.
 
-## Aktualizacje
+## Updates
 
-Aplikacja sama sprawdza dostępność nowych wersji (Sparkle). W oknie ustawień,
-w sekcji **Aktualizacje**, możesz:
+The app checks for new versions on its own (Sparkle). In the settings window,
+under **Updates**, you can:
 
-- włączyć lub wyłączyć automatyczne sprawdzanie,
-- wybrać częstotliwość (codziennie / co tydzień),
-- włączyć automatyczne pobieranie i instalowanie,
-- sprawdzić dostępność aktualizacji ręcznie przyciskiem **Sprawdź teraz**.
+- turn automatic checking on or off,
+- pick a frequency (daily / weekly),
+- turn on automatic downloading and installing,
+- check for updates manually with the **Check Now** button.
 
-Aktualizacje są podpisane kluczem EdDSA i weryfikowane przed instalacją.
+Updates are signed with an EdDSA key and verified before installation.
 
-## Budowanie i uruchamianie
+## Building and running
 
 ```bash
-# testy
+# tests
 swift test
 
-# zbuduj i spakuj do .app
+# build and package into a .app
 ./scripts/build-app.sh
 
-# uruchom
+# run
 open "dist/ZTE Menu.app"
 ```
 
-Przy pierwszym uruchomieniu (w trybie „po nazwie WiFi") macOS poprosi o zgodę na
-**lokalizację** — jest niezbędna, bo na nowszych macOS nazwa sieci WiFi jest
-czytelna tylko z tą zgodą. Alternatywnie w ustawieniach przełącz na tryb
-**„po osiągalności IP"**, który zgody nie wymaga.
+On first launch (in "by WiFi name" mode) macOS will ask for **location**
+permission — it's required because on newer macOS versions the WiFi network
+name is only readable with that permission granted. Alternatively, switch to
+**"by IP reachability"** mode in settings, which doesn't require it.
 
-## Statystyki transferu (logowanie)
+## Transfer statistics (login)
 
-Bateria, sygnał, sieć i **bieżąca prędkość** transferu są dostępne bez logowania.
-Liczniki **łączne** i **miesięczne** (GB) modem udostępnia dopiero po zalogowaniu —
-wpisz hasło do panelu modemu w oknie ustawień (zapisywane w Keychain).
+Battery, signal, network, and **current speed** are available without logging in.
+The **total** and **monthly** counters (GB) are only exposed by the modem after
+logging in — enter the modem panel password in the settings window (stored in
+Keychain).
 
-## Architektura
+## Architecture
 
-Warstwowa, z czystą logiką testowaną jednostkowo (44 testy) i cienkimi,
-wstrzykiwanymi warstwami systemowymi:
+Layered, with pure logic that's unit tested (64 tests) and thin, injected
+system-facing layers:
 
-| Warstwa | Pliki |
+| Layer | Files |
 |---------|-------|
-| Model / parsowanie | `ModemData`, `ByteFormat` |
-| Komunikacja z modemem | `ModemClient`, `ZTEAuth` (logowanie), `SessionHTTP` |
-| Wykrywanie sieci | `NetworkDetector`, `WiFiMonitor`, `LocationPermission` |
-| Stan i persystencja | `ModemStore`, `SettingsStore`, `HistoryStore`, `Keychain` |
+| Model / parsing | `ModemData`, `ByteFormat` |
+| Modem communication | `ModemClient`, `ZTEAuth` (login), `SessionHTTP` |
+| Network detection | `NetworkDetector`, `WiFiMonitor`, `LocationPermission` |
+| State and persistence | `ModemStore`, `SettingsStore`, `HistoryStore`, `Keychain` |
+| Localization | `AppLanguage`, `LocKey`, `L10n` |
 | UI | `PopoverView`, `SettingsView`, `BatteryChartView`, `TransferChartView` |
-| Cykl życia / scena | `AppDelegate`, `ZteMenuApp`, `MenuBarPresentation` |
+| Lifecycle / scene | `AppDelegate`, `ZteMenuApp`, `MenuBarPresentation` |
 
-Logowanie do modemu (zweryfikowane na żywo) używa dwukrotnego SHA256 hasła z
-tokenem `LD` i utrzymuje sesję przez cookie `stok`. Cała komunikacja jest lokalna
-(LAN) — aplikacja nie wysyła żadnych danych na zewnątrz. Hasło nigdy nie trafia
-do repozytorium ani na dysk poza Keychain.
+Modem login (verified live) uses a double SHA256 hash of the password with the
+`LD` token and keeps the session alive via the `stok` cookie. All communication
+is local (LAN) — the app never sends any data externally. The password never
+ends up in the repository or on disk outside Keychain.
 
-## Uwaga: menedżery paska menu (np. Bartender)
+## Note: menu bar managers (e.g. Bartender)
 
-Menedżery paska menu mogą automatycznie chować nowo pojawiające się ikony. Jeśli
-nie widzisz ikony „ZTE Menu", sprawdź ukryty obszar swojego menedżera i ustaw ją
-jako zawsze widoczną.
+Menu bar managers can automatically hide newly appearing icons. If you don't
+see the "ZTE Menu" icon, check your manager's hidden area and set it to always
+visible.
 
-## Prywatność
+## Privacy
 
-- Komunikacja wyłącznie z lokalnym modemem (`192.168.0.1`), bez zewnętrznych usług.
-- Hasło modemu przechowywane w macOS Keychain.
-- Historia (bateria/transfer) zapisywana lokalnie w `~/Library/Application Support/zte-menu/`.
-- Uprawnienie lokalizacji używane wyłącznie do odczytu nazwy sieci WiFi (wymóg macOS);
-  aplikacja nie śledzi ani nie wysyła lokalizacji.
+- Communicates only with the local modem (`192.168.0.1`), no external services.
+- Modem password stored in the macOS Keychain.
+- History (battery/transfer) saved locally in `~/Library/Application Support/zte-menu/`.
+- Location permission used only to read the WiFi network name (a macOS
+  requirement); the app never tracks or sends location data.
 
-## Wydawanie nowej wersji
+## Releasing a new version
 
-Wydanie jest w pełni zautomatyzowane — wystarczy podbić wersję i wypchnąć tag:
+Releasing is fully automated — just bump the version and push a tag:
 
 ```bash
-# 1. podbij wersję w Info.plist (musi zgadzać się z tagiem)
+# 1. bump the version in Info.plist (must match the tag)
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 0.2.0" Resources/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 0.2.0" Resources/Info.plist
 
-# 2. commit i tag
-git commit -am "chore: wersja 0.2.0"
+# 2. commit and tag
+git commit -am "chore: version 0.2.0"
 git tag v0.2.0 && git push origin main v0.2.0
 ```
 
-GitHub Actions zbuduje binarkę uniwersalną, podpisze ją Developer ID,
-znotaryzuje, opublikuje Release, wygeneruje podpisany appcast na gałęzi
-`gh-pages` i podbije cask w [RadnoK/homebrew-tap](https://github.com/RadnoK/homebrew-tap).
+GitHub Actions builds the universal binary, signs it with Developer ID,
+notarizes it, publishes the Release, generates a signed appcast on the
+`gh-pages` branch, and bumps the cask in [RadnoK/homebrew-tap](https://github.com/RadnoK/homebrew-tap).
 
-Wydanie lokalne (z pominięciem CI): `./scripts/release.sh <wersja>`.
+Local release (skipping CI): `./scripts/release.sh <version>`.

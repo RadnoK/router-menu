@@ -3,11 +3,16 @@ import SwiftUI
 public struct PopoverView: View {
     @State private var store: ModemStore
     private let settings: SettingsStore
+    private let l10n: L10n
     private let openSettings: () -> Void
 
-    public init(store: ModemStore, settings: SettingsStore, openSettings: @escaping () -> Void) {
+    public init(store: ModemStore,
+                settings: SettingsStore,
+                l10n: L10n,
+                openSettings: @escaping () -> Void) {
         _store = State(initialValue: store)
         self.settings = settings
+        self.l10n = l10n
         self.openSettings = openSettings
     }
 
@@ -25,11 +30,11 @@ public struct PopoverView: View {
     private var content: some View {
         switch store.state {
         case .hidden:
-            label("Brak połączenia z modemem", "wifi.slash")
+            label(l10n(.popoverNoConnection), "wifi.slash")
         case .locationDenied:
-            label("Włącz uprawnienia lokalizacji", "location.slash")
-        case .error(let msg):
-            label(msg, "exclamationmark.triangle")
+            label(l10n(.popoverLocationDenied), "location.slash")
+        case .error(let kind):
+            label(l10n(Self.key(for: kind)), "exclamationmark.triangle")
         case .connected(let d):
             connected(d)
         }
@@ -52,7 +57,7 @@ public struct PopoverView: View {
             transferSection(d)
         }
         if settings.settings.stats.uptime, let up = d.sessionUptime {
-            row("timer", "Sesja", ByteFormat.uptime(up))
+            row("timer", l10n(.popoverSession), ByteFormat.uptime(up))
         }
         if !store.history.batterySeries().isEmpty {
             BatteryChartView(samples: store.history.batterySeries())
@@ -63,11 +68,12 @@ public struct PopoverView: View {
     @ViewBuilder
     private func statSection(_ d: ModemData) -> some View {
         if let b = d.batteryPercent {
-            row(batterySymbol(b, d.isCharging), "Bateria",
+            row(batterySymbol(b, d.isCharging), l10n(.popoverBattery),
                 "\(b)%\(d.isCharging ? " ⚡" : "")")
         }
-        row("cellularbars", "Sygnał", "\(d.signalDescription) (\(d.signalBars)/5)")
-        row("antenna.radiowaves.left.and.right", "Sieć", d.networkLabel)
+        row("cellularbars", l10n(.popoverSignal),
+            "\(l10n(Self.key(for: d.signalQuality))) (\(d.signalBars)/5)")
+        row("antenna.radiowaves.left.and.right", l10n(.popoverNetwork), d.networkLabel)
     }
 
     @ViewBuilder
@@ -79,14 +85,14 @@ public struct PopoverView: View {
     @ViewBuilder
     private func transferSection(_ d: ModemData) -> some View {
         if let rx = d.rxSpeed, let tx = d.txSpeed {
-            row("arrow.down.circle", "Pobieranie", ByteFormat.speed(rx))
-            row("arrow.up.circle", "Wysyłanie", ByteFormat.speed(tx))
+            row("arrow.down.circle", l10n(.popoverDownload), ByteFormat.speed(rx))
+            row("arrow.up.circle", l10n(.popoverUpload), ByteFormat.speed(tx))
         }
         if let mrx = d.monthlyRx, let mtx = d.monthlyTx {
-            row("calendar", "Miesiąc", "\(ByteFormat.gb(mrx + mtx))")
+            row("calendar", l10n(.popoverMonthly), "\(ByteFormat.gb(mrx + mtx))")
         }
         if let trx = d.totalRx, let ttx = d.totalTx {
-            row("sum", "Łącznie", "\(ByteFormat.gb(trx + ttx))")
+            row("sum", l10n(.popoverTotal), "\(ByteFormat.gb(trx + ttx))")
         }
         let downloadSeries = store.history.downloadSpeedSeries()
         if !downloadSeries.isEmpty {
@@ -113,10 +119,16 @@ public struct PopoverView: View {
 
     private var footer: some View {
         HStack {
-            Button { Task { await store.refresh() } } label: { Label("Odśwież", systemImage: "arrow.clockwise") }
+            Button { Task { await store.refresh() } } label: {
+                Label(l10n(.popoverRefresh), systemImage: "arrow.clockwise")
+            }
             Spacer()
-            Button { openSettings() } label: { Label("Ustawienia", systemImage: "gearshape") }
-            Button { NSApplication.shared.terminate(nil) } label: { Label("Zakończ", systemImage: "power") }
+            Button { openSettings() } label: {
+                Label(l10n(.popoverSettings), systemImage: "gearshape")
+            }
+            Button { NSApplication.shared.terminate(nil) } label: {
+                Label(l10n(.popoverQuit), systemImage: "power")
+            }
         }
         .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
@@ -130,6 +142,24 @@ public struct PopoverView: View {
         case ...60: return "battery.50"
         case ...85: return "battery.75"
         default: return "battery.100"
+        }
+    }
+
+    static func key(for quality: SignalQuality) -> LocKey {
+        switch quality {
+        case .noSignal: return .signalNone
+        case .veryWeak: return .signalVeryWeak
+        case .weak: return .signalWeak
+        case .medium: return .signalMedium
+        case .good: return .signalGood
+        case .veryGood: return .signalVeryGood
+        }
+    }
+
+    static func key(for error: ModemErrorKind) -> LocKey {
+        switch error {
+        case .loginFailed: return .errorLoginFailed
+        case .unreachable: return .errorUnreachable
         }
     }
 }

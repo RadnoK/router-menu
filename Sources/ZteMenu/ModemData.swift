@@ -1,5 +1,13 @@
 import Foundation
 
+/// Signal strength as a value, not a sentence. Rendering it as text belongs to
+/// the view layer, which knows the active language.
+enum SignalQuality: Sendable, Equatable {
+    // `noSignal`, not `none`: a case named `none` collides with `Optional.none`
+    // during type inference, which breaks `XCTAssertEqual(x, .none)`.
+    case noSignal, veryWeak, weak, medium, good, veryGood
+}
+
 struct ModemData: Equatable {
     let batteryPercent: Int?
     let isCharging: Bool
@@ -55,14 +63,14 @@ struct ModemData: Equatable {
         }
     }
 
-    var signalDescription: String {
+    var signalQuality: SignalQuality {
         switch signalBars {
-        case ...0: return "Brak"
-        case 1: return "Bardzo słaby"
-        case 2: return "Słaby"
-        case 3: return "Średni"
-        case 4: return "Dobry"
-        default: return "Bardzo dobry"
+        case ...0: return .noSignal
+        case 1: return .veryWeak
+        case 2: return .weak
+        case 3: return .medium
+        case 4: return .good
+        default: return .veryGood
         }
     }
 

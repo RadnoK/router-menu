@@ -31,8 +31,8 @@ final class ModemClientTests: XCTestCase {
         XCTAssertTrue(url.absoluteString.contains("realtime_rx_thrpt"))
     }
 
-    // Modem ZTE U50 oddaje dane tylko przy nagłówku Referer wskazującym na panel
-    // (prosta ochrona anty-CSRF). Bez niego zwraca puste stringi.
+    // The ZTE U50 modem only returns data with a Referer header pointing at
+    // its panel (a simple anti-CSRF guard). Without it, it returns empty strings.
     func testSendsRefererHeader() async throws {
         let json = #"{"battery_value":"41"}"#
         let stub = StubHTTP(payload: Data(json.utf8))
@@ -49,7 +49,7 @@ final class ModemClientTests: XCTestCase {
         let client = ModemClient(baseURL: Config.modemBaseURL, http: stub)
         do {
             _ = try await client.fetch()
-            XCTFail("Oczekiwano błędu")
+            XCTFail("Expected an error")
         } catch {
             // ok
         }
@@ -79,7 +79,7 @@ final class ModemClientLoginTests: XCTestCase {
         let result = try await client.fetch()
 
         XCTAssertEqual(result.totalRx, 1000)
-        // 3 żądania: GET LD, POST LOGIN, GET dane
+        // 3 requests: GET LD, POST LOGIN, GET data
         XCTAssertEqual(http.requests.count, 3)
         XCTAssertTrue(http.requests[0].url!.absoluteString.contains("cmd=LD"))
         XCTAssertEqual(http.requests[1].httpMethod, "POST")
@@ -93,7 +93,7 @@ final class ModemClientLoginTests: XCTestCase {
 
         _ = try await client.fetch()
 
-        // 1 żądanie: sam GET danych, bez logowania
+        // 1 request: just GET data, no login
         XCTAssertEqual(http.requests.count, 1)
         XCTAssertEqual(http.requests[0].httpMethod ?? "GET", "GET")
     }

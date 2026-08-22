@@ -1,0 +1,75 @@
+/* Popover — states */
+"popover.no_connection" = "No modem connection";
+"popover.location_denied" = "Enable location permissions";
+
+/* Popover — rows */
+"popover.battery" = "Battery";
+"popover.signal" = "Signal";
+"popover.network" = "Network";
+"popover.download" = "Download";
+"popover.upload" = "Upload";
+"popover.monthly" = "This month";
+"popover.total" = "Total";
+"popover.session" = "Session";
+
+/* Popover — actions */
+"popover.refresh" = "Refresh";
+"popover.settings" = "Settings";
+"popover.quit" = "Quit";
+
+/* Signal quality */
+"signal.none" = "None";
+"signal.very_weak" = "Very weak";
+"signal.weak" = "Weak";
+"signal.medium" = "Fair";
+"signal.good" = "Good";
+"signal.very_good" = "Very good";
+
+/* Errors */
+"error.login_failed" = "Login failed — check the password";
+"error.unreachable" = "Cannot reach the modem";
+
+/* Settings — network */
+"settings.window_title" = "ZTE Menu Settings";
+"settings.network.section" = "Network";
+"settings.network.detection_mode" = "Detection mode";
+"settings.network.detection_by_ssid" = "By Wi-Fi name";
+"settings.network.detection_by_ip" = "By IP reachability";
+"settings.network.current" = "Current network";
+"settings.network.ssid_field" = "ZTE network name";
+"settings.network.modem_ip_field" = "Modem IP";
+
+/* Settings — stats */
+"settings.stats.section" = "Panel statistics";
+"settings.stats.basic" = "Battery, signal, network, carrier";
+"settings.stats.radio" = "Radio details (RSRP/SINR)";
+"settings.stats.transfer" = "Transfer";
+"settings.stats.uptime" = "Connection time";
+
+/* Settings — account */
+"settings.account.section" = "Modem account (for transfer counters)";
+"settings.account.password_field" = "Web panel password";
+"settings.account.save_password" = "Save password";
+"settings.account.delete_password" = "Delete";
+
+/* Settings — updates */
+"settings.updates.section" = "Updates";
+"settings.updates.version" = "Version";
+"settings.updates.auto_check" = "Check automatically";
+"settings.updates.frequency" = "Frequency";
+"settings.updates.frequency_daily" = "Daily";
+"settings.updates.frequency_weekly" = "Weekly";
+"settings.updates.auto_download" = "Download and install automatically";
+"settings.updates.check_now" = "Check now";
+"settings.updates.never_checked" = "Never checked";
+"settings.updates.last_checked" = "Checked %@";
+
+/* Settings — appearance */
+"settings.appearance.section" = "Appearance";
+"settings.appearance.language" = "Language";
+"settings.appearance.language_system" = "System";
+"settings.appearance.language_polish" = "Polski";
+"settings.appearance.language_english" = "English";
+
+/* Shared */
+"shared.placeholder_dash" = "—";

@@ -1,7 +1,7 @@
 import Foundation
 
-/// HTTPFetching z izolowaną sesją cookie — konieczne dla logowania ZTE,
-/// bo cookie `stok` z LOGIN musi wracać w kolejnych żądaniach.
+/// HTTPFetching with an isolated cookie session — required for ZTE login,
+/// because the `stok` cookie from LOGIN must be sent back on later requests.
 public struct SessionHTTP: HTTPFetching {
     private let session: URLSession
 
