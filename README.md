@@ -32,6 +32,31 @@ Zbudowana w Swift + SwiftUI (SwiftPM, bez projektu Xcode), aplikacja typu
 - Swift 6.3 toolchain
 - Modem ZTE U50 (panel pod `192.168.0.1`)
 
+## Instalacja
+
+```bash
+brew tap RadnoK/tap
+brew install --cask zte-menu
+```
+
+Aplikacja jest podpisana Developer ID i notaryzowana przez Apple, więc uruchamia
+się bez ostrzeżeń Gatekeepera. Binarka jest uniwersalna (Apple Silicon + Intel).
+
+Alternatywnie: pobierz `.zip` z [Releases](https://github.com/RadnoK/zte-menu/releases)
+i przenieś `ZTE Menu.app` do `/Applications`.
+
+## Aktualizacje
+
+Aplikacja sama sprawdza dostępność nowych wersji (Sparkle). W oknie ustawień,
+w sekcji **Aktualizacje**, możesz:
+
+- włączyć lub wyłączyć automatyczne sprawdzanie,
+- wybrać częstotliwość (codziennie / co tydzień),
+- włączyć automatyczne pobieranie i instalowanie,
+- sprawdzić dostępność aktualizacji ręcznie przyciskiem **Sprawdź teraz**.
+
+Aktualizacje są podpisane kluczem EdDSA i weryfikowane przed instalacją.
+
 ## Budowanie i uruchamianie
 
 ```bash
@@ -88,3 +113,23 @@ jako zawsze widoczną.
 - Historia (bateria/transfer) zapisywana lokalnie w `~/Library/Application Support/zte-menu/`.
 - Uprawnienie lokalizacji używane wyłącznie do odczytu nazwy sieci WiFi (wymóg macOS);
   aplikacja nie śledzi ani nie wysyła lokalizacji.
+
+## Wydawanie nowej wersji
+
+Wydanie jest w pełni zautomatyzowane — wystarczy podbić wersję i wypchnąć tag:
+
+```bash
+# 1. podbij wersję w Info.plist (musi zgadzać się z tagiem)
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 0.2.0" Resources/Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion 0.2.0" Resources/Info.plist
+
+# 2. commit i tag
+git commit -am "chore: wersja 0.2.0"
+git tag v0.2.0 && git push origin main v0.2.0
+```
+
+GitHub Actions zbuduje binarkę uniwersalną, podpisze ją Developer ID,
+znotaryzuje, opublikuje Release, wygeneruje podpisany appcast na gałęzi
+`gh-pages` i podbije cask w [RadnoK/homebrew-tap](https://github.com/RadnoK/homebrew-tap).
+
+Wydanie lokalne (z pominięciem CI): `./scripts/release.sh 0.2.0`.
