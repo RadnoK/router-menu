@@ -90,14 +90,20 @@ jobs:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: ./scripts/release.sh "${{ steps.ver.outputs.version }}"
 
+      # Idempotentnie — przy ponownym uruchomieniu release już istnieje
       - name: GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          ZIP: dist/ZteMenu-${{ steps.ver.outputs.version }}.zip
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            "dist/ZteMenu-${{ steps.ver.outputs.version }}.zip" \
-            --title "ZTE Menu ${{ steps.ver.outputs.version }}" \
-            --generate-notes
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            echo "Release istnieje — podmieniam artefakt"
+            gh release upload "$GITHUB_REF_NAME" "$ZIP" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$ZIP" \
+              --title "ZTE Menu ${{ steps.ver.outputs.version }}" \
+              --generate-notes
+          fi
 
       - name: Publikacja appcastu na gh-pages
         env:
@@ -131,8 +137,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/zte-menu.rb
-          git commit -m "chore: zte-menu $VERSION"
-          git push origin main
+          if git diff --cached --quiet; then
+            echo "Cask już aktualny — nic do zrobienia"
+          else
+            git commit -m "chore: zte-menu $VERSION"
+            git push origin main
+          fi
 
       - name: Sprzątanie keychaina
         if: always()
