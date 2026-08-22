@@ -11,14 +11,12 @@ public final class L10n {
     private(set) var language: AppLanguage
     private let searchBundles: [Bundle]
 
-    /// Where to look for `.lproj` directories, in order: the assembled `.app`
-    /// bundle first, then SwiftPM target resources so `swift run` and `swift
-    /// test` work without a built bundle.
-    static var defaultBundles: [Bundle] {
-        var bundles = [Bundle.main]
-        bundles.append(Bundle.module)
-        return bundles
-    }
+    /// Where to look for `.lproj` directories. Only `Bundle.main` is used: the
+    /// assembled `.app` carries `en.lproj` and `pl.lproj` in `Contents/Resources`.
+    /// Deliberately no `Bundle.module` — declaring SwiftPM resources makes the
+    /// release accessor `fatalError` when the synthesized bundle is absent from
+    /// the hand-assembled `.app`, which crashed the app on launch.
+    static var defaultBundles: [Bundle] { [Bundle.main] }
 
     init(language: AppLanguage = .system, bundles: [Bundle] = L10n.defaultBundles) {
         self.language = language

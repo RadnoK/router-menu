@@ -13,11 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "ZteMenu",
-            dependencies: [.product(name: "Sparkle", package: "Sparkle")],
-            resources: [
-                .copy("../../Resources/en.lproj"),
-                .copy("../../Resources/pl.lproj"),
-            ]
+            dependencies: [.product(name: "Sparkle", package: "Sparkle")]
         ),
         .executableTarget(name: "zte-menu", dependencies: ["ZteMenu"]),
         .testTarget(name: "ZteMenuTests", dependencies: ["ZteMenu"]),

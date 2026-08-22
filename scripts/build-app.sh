@@ -73,4 +73,35 @@ else
   codesign --verify --deep --strict --verbose=2 "$APP"
 fi
 
+echo "==> Launch smoke test"
+# Nothing else in this pipeline ever runs the assembled app, so a bundle that
+# fatal-errors at startup (e.g. a missing SwiftPM resource bundle) used to ship
+# silently: the app is LSUIElement, so a dead process looks like "no icon yet".
+SMOKE_LOG="$(mktemp -t zte-menu-smoke)"
+set +e
+"$APP/Contents/MacOS/$EXECUTABLE" >"$SMOKE_LOG" 2>&1 &
+SMOKE_PID=$!
+sleep 3
+kill -0 "$SMOKE_PID" 2>/dev/null
+SMOKE_ALIVE=$?
+set -e
+
+if [[ "$SMOKE_ALIVE" -ne 0 ]]; then
+  wait "$SMOKE_PID" 2>/dev/null || true
+  {
+    echo "Launch smoke test FAILED: $EXECUTABLE exited within 3 seconds."
+    echo "The assembled app crashes on launch and must not be shipped."
+    echo "--- output ---"
+    cat "$SMOKE_LOG"
+    echo "--------------"
+  } >&2
+  rm -f "$SMOKE_LOG"
+  exit 1
+fi
+
+kill "$SMOKE_PID" 2>/dev/null || true
+wait "$SMOKE_PID" 2>/dev/null || true
+rm -f "$SMOKE_LOG"
+echo "    App survived launch (still running after 3s)"
+
 echo "==> Done: $APP"

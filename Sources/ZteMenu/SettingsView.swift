@@ -11,6 +11,11 @@ public struct SettingsView: View {
         self.settings = settings
         self.updater = updater
         self.l10n = l10n
+        // The placeholder is resolved once at init and frozen in @State, so it
+        // does NOT re-localize when the user switches language. That is only
+        // safe because `placeholder_dash` is an em dash — identical in every
+        // language. If it ever becomes real translated text, this must move to
+        // a computed value that reads `l10n` at render time.
         _currentSSID = State(initialValue: CoreWLANReader().currentSSID()
                              ?? l10n(.placeholderDash))
     }

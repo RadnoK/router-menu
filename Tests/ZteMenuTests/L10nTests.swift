@@ -32,13 +32,17 @@ final class L10nTests: XCTestCase {
                        LocKey.settingsLastChecked.rawValue)
     }
 
-    func testSetLanguagePropagatesToResolvedStrings() {
+    func testSetLanguagePropagatesToResolvedStrings() throws {
         // The core behaviour of the feature: switching the language must
-        // actually change what callAsFunction returns for a real key, using
-        // the bundled .lproj tables (via the default Bundle.module lookup).
-        let l10n = L10n(language: .en)
+        // actually change what callAsFunction returns for a real key. The
+        // bundle list is built explicitly from the repository's Resources/
+        // directory, because the shipped app relies on Bundle.main only and
+        // the package declares no SwiftPM resources.
+        let l10n = L10n(language: .en, bundles: [try Self.resourcesBundle()])
         XCTAssertEqual(l10n(.popoverRefresh), "Refresh")
         l10n.setLanguage(.pl)
+        // Not reachable through the English fallback: "Odśwież" appears only
+        // in pl.lproj, so this fails unless the Polish table is really used.
         XCTAssertEqual(l10n(.popoverRefresh), "Odśwież")
     }
 
@@ -56,16 +60,29 @@ final class L10nTests: XCTestCase {
         }
     }
 
+    /// The repository's `Resources/` directory as a Bundle, so lookups resolve
+    /// the same `en.lproj` / `pl.lproj` that `scripts/build-app.sh` copies into
+    /// `Contents/Resources` of the assembled `.app`.
+    static func resourcesBundle() throws -> Bundle {
+        let url = repoRoot().appendingPathComponent("Resources")
+        return try XCTUnwrap(Bundle(url: url), "no bundle at \(url.path)")
+    }
+
     /// Reads the shipped .strings file straight from the repository, so the test
     /// verifies the file that actually gets bundled rather than a copy.
     static func loadStrings(code: String) throws -> [String: String] {
-        let url = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()   // ZteMenuTests
-            .deletingLastPathComponent()   // Tests
-            .deletingLastPathComponent()   // repo root
+        let url = repoRoot()
             .appendingPathComponent("Resources/\(code).lproj/Localizable.strings")
         let data = try Data(contentsOf: url)
         let plist = try PropertyListSerialization.propertyList(from: data, format: nil)
         return try XCTUnwrap(plist as? [String: String])
+    }
+
+    /// Same `#filePath` walk both helpers above depend on.
+    static func repoRoot() -> URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()   // ZteMenuTests
+            .deletingLastPathComponent()   // Tests
+            .deletingLastPathComponent()   // repo root
     }
 }
