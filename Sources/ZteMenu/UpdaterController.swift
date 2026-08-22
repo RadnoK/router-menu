@@ -2,18 +2,18 @@ import Foundation
 import Observation
 import Sparkle
 
-/// Opakowuje Sparkle na potrzeby UI ustawień.
+/// Wraps Sparkle for the settings UI.
 ///
-/// Preferencje (automatyczne sprawdzanie, interwał) trzyma sam Sparkle
-/// w UserDefaults — nie duplikujemy ich w AppSettings, żeby nie mieć
-/// dwóch rozjeżdżających się źródeł prawdy.
+/// Sparkle owns the preferences (automatic checks, interval) in UserDefaults —
+/// we deliberately do not mirror them in AppSettings, to avoid two sources of
+/// truth drifting apart.
 @MainActor
 @Observable
 public final class UpdaterController {
     private let controller: SPUStandardUpdaterController
 
-    /// Podbijane po zmianie ustawień, żeby widok przeliczył właściwości
-    /// czytane bezpośrednio ze Sparkle.
+    /// Bumped after a settings change so the view recomputes properties
+    /// read directly from Sparkle.
     private var revision = 0
 
     public init() {
@@ -48,7 +48,7 @@ public final class UpdaterController {
         }
     }
 
-    /// Interwał sprawdzania w sekundach; Sparkle wymusza minimum 1 godziny.
+    /// Check interval in seconds; Sparkle enforces a minimum of 1 hour.
     public var updateCheckInterval: TimeInterval {
         get {
             _ = revision
@@ -70,7 +70,7 @@ public final class UpdaterController {
         return updater.canCheckForUpdates
     }
 
-    /// Ręczne sprawdzenie — pokazuje UI Sparkle także gdy nie ma nowej wersji.
+    /// Manual check — shows Sparkle's UI even when there is no new version.
     public func checkForUpdates() {
         updater.checkForUpdates()
         revision += 1

@@ -7,15 +7,15 @@ OUT="dist/AppIcon.icns"
 WORK="dist/AppIcon.iconset"
 
 if [[ ! -d "$SRC" ]]; then
-  echo "Brak katalogu z ikonami: $SRC" >&2
+  echo "Icon directory not found: $SRC" >&2
   exit 1
 fi
 
-echo "==> Przygotowanie iconsetu"
+echo "==> Preparing the iconset"
 rm -rf "$WORK"
 mkdir -p "$WORK"
 
-# iconutil wymaga nazw icon_<rozmiar>@2x.png; appiconset używa -2x.png
+# iconutil requires names icon_<size>@2x.png; appiconset uses -2x.png
 for png in "$SRC"/icon_*.png; do
   name="$(basename "$png")"
   cp "$png" "$WORK/${name/-2x.png/@2x.png}"
@@ -26,4 +26,4 @@ mkdir -p dist
 iconutil -c icns "$WORK" -o "$OUT"
 rm -rf "$WORK"
 
-echo "==> Gotowe: $OUT"
+echo "==> Done: $OUT"

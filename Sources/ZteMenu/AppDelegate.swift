@@ -1,18 +1,18 @@
 import AppKit
 import SwiftUI
 
-/// Steruje cyklem życia aplikacji: trzyma współdzielony `ModemStore`,
-/// prosi o uprawnienia lokalizacji i prowadzi pętlę odświeżania — wszystko
-/// niezależnie od widoczności ikony na pasku menu.
+/// Drives the app's lifecycle: holds the shared `ModemStore`, requests
+/// location permission, and runs the refresh loop — all independent of
+/// whether the menu bar icon is currently visible.
 ///
-/// Bootstrap MUSI żyć tutaj, a nie w widoku zawartości menu: `MenuBarExtra`
-/// renderuje swoją zawartość (i jej `.task`) dopiero po otwarciu menu, a menu
-/// nie da się otworzyć, gdy ikona jest ukryta (stan startowy `.hidden`). Gdyby
-/// pętla żyła w widoku, nigdy by nie wystartowała.
+/// The bootstrap MUST live here, not in the menu content view: `MenuBarExtra`
+/// only renders its content (and its `.task`) once the menu is opened, and
+/// the menu can't be opened while the icon is hidden (the startup state is
+/// `.hidden`). If the loop lived in the view, it would never start.
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
-    /// Współdzielone, obserwowalne źródło prawdy — czyta je etykieta ikony
-    /// oraz widok popovera i okna ustawień.
+    /// Shared, observable source of truth — read by the icon label as well
+    /// as the popover view and the settings window.
     public let settings = SettingsStore()
     public let updater = UpdaterController()
     public let history = HistoryStore()
@@ -55,10 +55,11 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshTask?.cancel()
     }
 
-    /// Aplikacja menu bar NIE może zamykać się, gdy zamknie się okno ustawień.
-    /// Domyślnie SwiftUI z sceną `Window` zwraca tu `true` i kończy proces, gdy
-    /// nie ma otwartych okien — przez co ikona „znika" po chwili. Menu bar żyje
-    /// niezależnie od okien, więc zwracamy `false`.
+    /// The menu bar app must NOT quit when the settings window closes.
+    /// By default, SwiftUI's `Window` scene returns `true` here and ends the
+    /// process once there are no open windows — which makes the icon "vanish"
+    /// shortly after. The menu bar lives independently of windows, so we
+    /// return `false`.
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
     }

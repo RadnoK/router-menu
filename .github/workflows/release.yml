@@ -1,6 +1,6 @@
 name: Release
 
-# Tylko tagi vX.Y.Z — sekrety nigdy nie są dostępne dla PR-ów z forków.
+# Tags vX.Y.Z only — secrets are never available to PRs from forks.
 on:
   push:
     tags:
@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ustal wersję z tagu
+      - name: Determine version from tag
         id: ver
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Sprawdź zgodność wersji z Info.plist
+      - name: Check version matches Info.plist
         run: |
           PLIST_VER="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)"
           if [[ "$PLIST_VER" != "${{ steps.ver.outputs.version }}" ]]; then
@@ -29,11 +29,11 @@ jobs:
             exit 1
           fi
 
-      - name: Testy
+      - name: Tests
         run: swift test
 
-      # Certyfikat ląduje w tymczasowym keychainie, kasowanym po zadaniu.
-      - name: Import certyfikatu Developer ID
+      # The certificate lands in a temporary keychain, deleted after the job.
+      - name: Import Developer ID certificate
         env:
           P12_BASE64: ${{ secrets.DEVELOPER_ID_P12 }}
           P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
@@ -49,7 +49,7 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           security import "$CERT_PATH" -P "$P12_PASSWORD" -A \
             -t cert -f pkcs12 -k "$KEYCHAIN"
-          # Bez tego codesign zawiesza się na promptcie o dostęp do klucza
+          # Without this, codesign hangs on a key-access prompt
           security set-key-partition-list -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
           security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
@@ -60,12 +60,12 @@ jobs:
             | grep "Developer ID Application" | head -1 \
             | awk '{print $2}')"
           if [[ -z "$IDENTITY" ]]; then
-            echo "::error::Nie znaleziono tożsamości Developer ID w keychainie"
+            echo "::error::Developer ID identity not found in the keychain"
             exit 1
           fi
           echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
 
-      - name: Narzędzia Sparkle
+      - name: Sparkle tools
         run: |
           curl -sL -o "$RUNNER_TEMP/sparkle.tar.xz" \
             "https://github.com/sparkle-project/Sparkle/releases/download/2.9.6/Sparkle-2.9.6.tar.xz"
@@ -73,7 +73,7 @@ jobs:
           tar -xf "$RUNNER_TEMP/sparkle.tar.xz" -C "$RUNNER_TEMP/sparkle"
           echo "SPARKLE_BIN=$RUNNER_TEMP/sparkle/bin" >> "$GITHUB_ENV"
 
-      - name: Profil notarytool
+      - name: notarytool profile
         env:
           APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
@@ -84,20 +84,20 @@ jobs:
             --team-id "$TEAM_ID" \
             --password "$APP_PASSWORD"
 
-      - name: Build, notaryzacja, appcast
+      - name: Build, notarization, appcast
         env:
-          # Klucz prywatny EdDSA czytany przez generate_appcast ze zmiennej
+          # EdDSA private key read by generate_appcast from the environment
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: ./scripts/release.sh "${{ steps.ver.outputs.version }}"
 
-      # Idempotentnie — przy ponownym uruchomieniu release już istnieje
+      # Idempotent — on a re-run the release already exists
       - name: GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           ZIP: dist/ZteMenu-${{ steps.ver.outputs.version }}.zip
         run: |
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            echo "Release istnieje — podmieniam artefakt"
+            echo "Release already exists — replacing the artifact"
             gh release upload "$GITHUB_REF_NAME" "$ZIP" --clobber
           else
             gh release create "$GITHUB_REF_NAME" "$ZIP" \
@@ -105,7 +105,7 @@ jobs:
               --generate-notes
           fi
 
-      - name: Publikacja appcastu na gh-pages
+      - name: Publish appcast to gh-pages
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -116,14 +116,14 @@ jobs:
           cp dist/appcast/appcast.xml "$RUNNER_TEMP/ghp/appcast.xml"
           git -C "$RUNNER_TEMP/ghp" add appcast.xml
           if git -C "$RUNNER_TEMP/ghp" diff --cached --quiet; then
-            echo "Appcast bez zmian"
+            echo "Appcast unchanged"
           else
             git -C "$RUNNER_TEMP/ghp" commit \
-              -m "chore: appcast dla ${{ steps.ver.outputs.version }}"
+              -m "chore: appcast for ${{ steps.ver.outputs.version }}"
             git -C "$RUNNER_TEMP/ghp" push origin gh-pages
           fi
 
-      - name: Aktualizacja caska w tapie
+      - name: Update cask in the tap
         env:
           GH_TOKEN: ${{ secrets.TAP_TOKEN }}
           VERSION: ${{ steps.ver.outputs.version }}
@@ -138,12 +138,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/zte-menu.rb
           if git diff --cached --quiet; then
-            echo "Cask już aktualny — nic do zrobienia"
+            echo "Cask already up to date — nothing to do"
           else
             git commit -m "chore: zte-menu $VERSION"
             git push origin main
           fi
 
-      - name: Sprzątanie keychaina
+      - name: Clean up keychain
         if: always()
         run: security delete-keychain "$RUNNER_TEMP/build.keychain-db" || true

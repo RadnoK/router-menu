@@ -2,7 +2,7 @@ import XCTest
 @testable import ZteMenu
 
 final class ModemDataTests: XCTestCase {
-    // Fixture: realna odpowiedź modemu (patrz modem-api-findings.md)
+    // Fixture: a real modem response (see modem-api-findings.md)
     private let raw: [String: String] = [
         "network_type": "ENDC",
         "signalbar": "5",

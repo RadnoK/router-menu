@@ -15,11 +15,11 @@ final class HistoryStoreTests: XCTestCase {
         store.add(battery: 80, totalBytes: 1000)
         clock = clock.addingTimeInterval(60)
         store.add(battery: 79, totalBytes: 2000)
-        // skok o 25h — pierwsza próbka wypada
+        // jump of 25h — the first sample falls out of the window
         clock = clock.addingTimeInterval(25 * 3600)
         store.add(battery: 70, totalBytes: 3000)
 
-        // pozostają tylko próbki z ostatnich 24h (ostatnia)
+        // only samples from the last 24h remain (the last one)
         XCTAssertEqual(store.samples.count, 1)
         XCTAssertEqual(store.samples.last?.batteryPercent, 70)
     }
@@ -29,9 +29,9 @@ final class HistoryStoreTests: XCTestCase {
         let store = HistoryStore(fileURL: tempFile(), now: { clock })
         store.add(battery: 50, totalBytes: 1000)
         clock = clock.addingTimeInterval(10) // +10 s
-        store.add(battery: 50, totalBytes: 6000) // +5000 bajtów
+        store.add(battery: 50, totalBytes: 6000) // +5000 bytes
         let series = store.downloadSpeedSeries()
-        // 5000 bajtów / 10 s = 500 B/s
+        // 5000 bytes / 10 s = 500 B/s
         XCTAssertEqual(series.last?.1 ?? 0, 500, accuracy: 0.1)
     }
 

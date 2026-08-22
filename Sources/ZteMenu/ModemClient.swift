@@ -82,8 +82,8 @@ public struct ModemClient: Sendable {
             URLQueryItem(name: "cmd", value: fields.joined(separator: ",")),
             URLQueryItem(name: "multi_data", value: "1"),
         ]
-        // Modem ZTE U50 zwraca puste stringi bez nagłówka Referer wskazującego
-        // na jego panel (prosta ochrona anty-CSRF).
+        // The ZTE U50 modem returns empty strings without a Referer header
+        // pointing at its own panel (a simple anti-CSRF guard).
         var request = URLRequest(url: comps.url!)
         request.setValue(baseURL.absoluteString + "/", forHTTPHeaderField: "Referer")
         return try await http.data(for: request)

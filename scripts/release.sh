@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 
 VERSION="${1:-}"
 if [[ -z "$VERSION" ]]; then
-  echo "Użycie: ./scripts/release.sh <wersja>   (np. 0.1.0)" >&2
+  echo "Usage: ./scripts/release.sh <version>   (e.g. 0.1.0)" >&2
   exit 1
 fi
 
@@ -17,19 +17,20 @@ KEYCHAIN_PROFILE="${KEYCHAIN_PROFILE:-zte-menu-notary}"
 SPARKLE_BIN="${SPARKLE_BIN:-$HOME/.local/sparkle/bin}"
 APPCAST_DIR="$DIST/appcast"
 
-# Hash SHA-1 zamiast nazwy — lokalnie w keychainie są dwa certyfikaty
-# o identycznej nazwie. W CI hash podaje workflow po imporcie .p12.
+# SHA-1 hash instead of a name — locally the keychain has two certificates
+# with an identical name. In CI the hash is supplied by the workflow after
+# importing the .p12.
 export SIGN_IDENTITY="${SIGN_IDENTITY:-78189AA14E80C16A00C743B32112F7B6D663D714}"
 
-echo "==> Build + podpis Developer ID"
+echo "==> Build + Developer ID signature"
 ./scripts/build-app.sh
 
-echo "==> Pakowanie $ZIP"
+echo "==> Packaging $ZIP"
 rm -f "$ZIP"
-# ditto, nie zip — zachowuje metadane bundla i podpis
+# ditto, not zip — preserves the bundle's metadata and signature
 ditto -c -k --keepParent "$APP" "$ZIP"
 
-echo "==> Notaryzacja (to może potrwać kilka minut)"
+echo "==> Notarization (this may take a few minutes)"
 xcrun notarytool submit "$ZIP" \
   --keychain-profile "$KEYCHAIN_PROFILE" \
   --wait
@@ -37,42 +38,43 @@ xcrun notarytool submit "$ZIP" \
 echo "==> Stapling"
 xcrun stapler staple "$APP"
 
-echo "==> Ponowne pakowanie po staplingu"
+echo "==> Repackaging after stapling"
 rm -f "$ZIP"
 ditto -c -k --keepParent "$APP" "$ZIP"
 
-echo "==> Weryfikacja Gatekeepera"
+echo "==> Gatekeeper verification"
 spctl -a -vvv -t install "$APP"
 
-echo "==> Appcast dla Sparkle"
-# generate_appcast czyta cały katalog i podpisuje EdDSA kluczem z keychaina.
-# Musi działać po staplingu, żeby objąć ZIP z biletem notaryzacji.
+echo "==> Appcast for Sparkle"
+# generate_appcast reads the whole directory and signs with the EdDSA key from
+# the keychain. It must run after stapling, so it covers the ZIP with the
+# notarization ticket.
 if [[ ! -x "$SPARKLE_BIN/generate_appcast" ]]; then
-  echo "Brak generate_appcast w $SPARKLE_BIN" >&2
-  echo "Pobierz z https://github.com/sparkle-project/Sparkle/releases i ustaw SPARKLE_BIN" >&2
+  echo "generate_appcast not found in $SPARKLE_BIN" >&2
+  echo "Download it from https://github.com/sparkle-project/Sparkle/releases and set SPARKLE_BIN" >&2
   exit 1
 fi
 mkdir -p "$APPCAST_DIR"
 cp "$ZIP" "$APPCAST_DIR/"
 URL_PREFIX="https://github.com/RadnoK/zte-menu/releases/download/v$VERSION/"
 if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
-  # CI: klucz z sekretu przez stdin, keychain runnera go nie ma
+  # CI: key from the secret via stdin, the runner's keychain doesn't have it
   echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
     --ed-key-file - --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
 else
-  # Lokalnie: klucz prywatny siedzi w keychainie
+  # Locally: the private key lives in the keychain
   "$SPARKLE_BIN/generate_appcast" \
     --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
 fi
 
 SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
 echo
-echo "==> Gotowe"
-echo "    plik:    $ZIP"
+echo "==> Done"
+echo "    file:    $ZIP"
 echo "    sha256:  $SHA"
 echo "    appcast: $APPCAST_DIR/appcast.xml"
 echo
-echo "Następnie:"
+echo "Next:"
 echo "  1. gh release create v$VERSION \"$ZIP\" --title \"ZTE Menu $VERSION\" --generate-notes"
-echo "  2. opublikuj $APPCAST_DIR/appcast.xml na gałęzi gh-pages"
-echo "  3. zaktualizuj version/sha256 w Casks/zte-menu.rb w tapie"
+echo "  2. publish $APPCAST_DIR/appcast.xml on the gh-pages branch"
+echo "  3. update version/sha256 in Casks/zte-menu.rb in the tap"
