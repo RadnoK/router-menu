@@ -36,27 +36,27 @@ public struct PopoverView: View {
         case .error(let kind):
             label(l10n(Self.key(for: kind)), "exclamationmark.triangle")
         case .connected(let d):
-            connected(d)
+            connected(d, profile: store.activeProfile ?? settings.profile)
         }
     }
 
     @ViewBuilder
-    private func connected(_ d: ModemData) -> some View {
-        Text("ZTE U50 · \(settings.settings.ssid)")
+    private func connected(_ d: ModemData, profile: ModemProfile) -> some View {
+        Text(Self.headerText(for: profile))
             .font(.headline)
         if let p = d.provider {
             Text("\(p) · \(d.networkLabel)").foregroundStyle(.secondary)
         }
-        if settings.settings.stats.basic {
+        if profile.stats.basic {
             statSection(d)
         }
-        if settings.settings.stats.radio {
+        if profile.stats.radio {
             radioSection(d)
         }
-        if settings.settings.stats.transfer {
+        if profile.stats.transfer {
             transferSection(d)
         }
-        if settings.settings.stats.uptime, let up = d.sessionUptime {
+        if profile.stats.uptime, let up = d.sessionUptime {
             row("timer", l10n(.popoverSession), ByteFormat.uptime(up))
         }
         if !store.history.batterySeries().isEmpty {
@@ -177,5 +177,13 @@ public struct PopoverView: View {
         case .loginFailed: return .errorLoginFailed
         case .unreachable: return .errorUnreachable
         }
+    }
+
+    /// "ZTE · ZTE_B4B622" — the provider's brand plus whichever identifier
+    /// the profile matches by. Pure so the header is unit-testable.
+    static func headerText(for profile: ModemProfile) -> String {
+        let name = ProviderCatalog.descriptor(for: profile.provider).displayName
+        let identifier = profile.matchMode == .ssid ? profile.ssid : profile.modemIP
+        return "\(name) · \(identifier)"
     }
 }

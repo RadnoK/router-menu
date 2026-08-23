@@ -10,7 +10,7 @@ public struct ZteMenuApp: App {
         let settings = appDelegate.settings
         let l10n = appDelegate.l10n
         let p = MenuBarPresentation.make(for: store.state,
-                                         showBatteryPercent: settings.settings.showBatteryPercent,
+                                         showBatteryPercent: store.activeProfile?.showBatteryPercent ?? false,
                                          showWhenDisconnected: settings.settings.showWhenDisconnected)
 
         MenuBarExtra(isInserted: .constant(p.isVisible)) {
