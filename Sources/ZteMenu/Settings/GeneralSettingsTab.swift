@@ -33,18 +33,29 @@ struct GeneralSettingsTab: View {
             }
 
             Section {
-                Picker(l10n(.settingsDetectionMode), selection: $settings.settings.networkMode) {
-                    Text(l10n(.settingsDetectionBySSID)).tag(NetworkMode.bySSID)
-                    Text(l10n(.settingsDetectionByIP)).tag(NetworkMode.byIPReachable)
+                Picker(l10n(.settingsDeviceType), selection: Binding(
+                    get: { settings.profile.provider },
+                    set: { settings.profile = settings.profile.adopting(provider: $0) }
+                )) {
+                    ForEach(ProviderKind.allCases, id: \.self) { kind in
+                        Text(ProviderCatalog.descriptor(for: kind).displayName).tag(kind)
+                    }
+                }
+                Picker(l10n(.settingsDetectionMode), selection: $settings.profile.matchMode) {
+                    ForEach(ProviderCatalog.descriptor(for: settings.profile.provider)
+                                .supportedMatchModes, id: \.self) { mode in
+                        Text(l10n(mode == .ssid ? .settingsDetectionBySSID
+                                                : .settingsDetectionByIP)).tag(mode)
+                    }
                 }
                 LabeledContent(l10n(.settingsCurrentNetwork),
                                value: currentSSID ?? l10n(.placeholderDash))
 
-                if settings.settings.networkMode == .bySSID {
-                    TextField(l10n(.settingsSSIDField), text: $settings.settings.ssid)
+                if settings.profile.matchMode == .ssid {
+                    TextField(l10n(.settingsSSIDField), text: $settings.profile.ssid)
                         .help(l10n(.settingsSSIDHelp))
                 } else {
-                    TextField(l10n(.settingsModemIPField), text: $settings.settings.modemIP)
+                    TextField(l10n(.settingsModemIPField), text: $settings.profile.modemIP)
                         .help(l10n(.settingsModemIPHelp))
                 }
             }

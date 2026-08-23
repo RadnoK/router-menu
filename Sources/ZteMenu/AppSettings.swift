@@ -1,10 +1,5 @@
 import Foundation
 
-enum NetworkMode: String, Codable, CaseIterable {
-    case bySSID
-    case byIPReachable
-}
-
 struct StatVisibility: Codable, Equatable {
     var basic: Bool = true
     var radio: Bool = true
@@ -151,7 +146,7 @@ struct AppSettings: Codable, Equatable {
             // Legacy flat payload: fold every device-scoped key into one ZTE
             // profile so nothing the user configured is lost.
             var p = ModemProfile.makeDefault(provider: .zte)
-            // The raw values of the retired `NetworkMode` enum.
+            // The raw values of the retired flat network-mode enum.
             if try c.decodeIfPresent(String.self, forKey: .networkMode) == "byIPReachable" {
                 p.matchMode = .ipProbe
             }
@@ -176,34 +171,4 @@ struct AppSettings: Codable, Equatable {
     }
 
     init() {}
-}
-
-// MARK: - Transitional accessors (DELETED in the "settings UI" task)
-// The views and `ModemStore` still bind the old flat names; each forwards to
-// the single v1 profile so this schema change ships green on its own.
-extension AppSettings {
-    var networkMode: NetworkMode {
-        get { profiles[0].matchMode == .ssid ? .bySSID : .byIPReachable }
-        set { profiles[0].matchMode = (newValue == .bySSID) ? .ssid : .ipProbe }
-    }
-    var ssid: String {
-        get { profiles[0].ssid }
-        set { profiles[0].ssid = newValue }
-    }
-    var modemIP: String {
-        get { profiles[0].modemIP }
-        set { profiles[0].modemIP = newValue }
-    }
-    var stats: StatVisibility {
-        get { profiles[0].stats }
-        set { profiles[0].stats = newValue }
-    }
-    var showBatteryPercent: Bool {
-        get { profiles[0].showBatteryPercent }
-        set { profiles[0].showBatteryPercent = newValue }
-    }
-    var batteryNotifications: BatteryNotificationSettings {
-        get { profiles[0].batteryNotifications }
-        set { profiles[0].batteryNotifications = newValue }
-    }
 }

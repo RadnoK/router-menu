@@ -28,7 +28,7 @@ public struct SettingsView: View {
 
     public var body: some View {
         TabView {
-            ForEach(SettingsTab.allCases) { tab in
+            ForEach(SettingsTab.visible(for: settings.profile.provider)) { tab in
                 content(for: tab)
                     .tabItem { Label(l10n(tab.titleKey), systemImage: tab.symbolName) }
                     .tag(tab)

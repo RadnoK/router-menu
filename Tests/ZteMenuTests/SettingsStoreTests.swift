@@ -10,69 +10,67 @@ final class SettingsStoreTests: XCTestCase {
 
     func testDefaults() {
         let store = SettingsStore(defaults: freshDefaults())
-        XCTAssertEqual(store.settings.ssid, "ZTE_B4B622")
-        XCTAssertEqual(store.settings.modemIP, "192.168.0.1")
-        XCTAssertEqual(store.settings.networkMode, .bySSID)
+        XCTAssertEqual(store.profile.ssid, "ZTE_B4B622")
+        XCTAssertEqual(store.profile.modemIP, "192.168.0.1")
+        XCTAssertEqual(store.profile.matchMode, .ssid)
         XCTAssertEqual(store.settings.refreshInterval, 60)
-        XCTAssertTrue(store.settings.stats.basic)
-        XCTAssertTrue(store.settings.stats.transfer)
+        XCTAssertTrue(store.profile.stats.basic)
+        XCTAssertTrue(store.profile.stats.transfer)
         XCTAssertFalse(store.settings.showWhenDisconnected, "the icon hides by default")
     }
 
     func testPersistsAcrossInstances() {
         let d = freshDefaults()
         let a = SettingsStore(defaults: d)
-        a.settings.ssid = "MyZTE"
-        a.settings.networkMode = .byIPReachable
+        a.profile.ssid = "MyZTE"
+        a.profile.matchMode = .ipProbe
         a.save()
 
         let b = SettingsStore(defaults: d)
-        XCTAssertEqual(b.settings.ssid, "MyZTE")
-        XCTAssertEqual(b.settings.networkMode, .byIPReachable)
+        XCTAssertEqual(b.profile.ssid, "MyZTE")
+        XCTAssertEqual(b.profile.matchMode, .ipProbe)
     }
 
     func testBatteryDefaults() {
         let store = SettingsStore(defaults: freshDefaults())
-        XCTAssertFalse(store.settings.showBatteryPercent, "the percentage is opt-in")
-        let alerts = store.settings.batteryNotifications
+        XCTAssertFalse(store.profile.showBatteryPercent, "the percentage is opt-in")
+        let alerts = store.profile.batteryNotifications
         XCTAssertEqual(alerts.thresholds.map(\.percent), [20, 10])
         XCTAssertTrue(alerts.thresholds.allSatisfy(\.isEnabled))
         XCTAssertFalse(alerts.fullEnabled)
     }
 
     func testPayloadWithoutBatteryKeysStillLoads() throws {
-        // What a 0.4.x install has on disk. Every other preference must survive
-        // the upgrade rather than silently reset to defaults.
         let d = freshDefaults()
         let legacy = Data(#"{"networkMode":"byIPReachable","ssid":"MyZTE","modemIP":"10.0.0.1","refreshInterval":30,"stats":{"basic":false,"radio":true,"transfer":true,"uptime":true},"language":"pl"}"#.utf8)
         d.set(legacy, forKey: "zte.settings")
 
         let store = SettingsStore(defaults: d)
-        XCTAssertEqual(store.settings.ssid, "MyZTE")
+        XCTAssertEqual(store.profile.ssid, "MyZTE")
         XCTAssertEqual(store.settings.language, .pl)
-        XCTAssertFalse(store.settings.stats.basic)
-        XCTAssertFalse(store.settings.showBatteryPercent)
+        XCTAssertFalse(store.profile.stats.basic)
+        XCTAssertFalse(store.profile.showBatteryPercent)
         XCTAssertFalse(store.settings.showWhenDisconnected)
-        XCTAssertEqual(store.settings.batteryNotifications, BatteryNotificationSettings())
+        XCTAssertEqual(store.profile.batteryNotifications, BatteryNotificationSettings())
     }
 
     func testBatterySettingsPersist() {
         let d = freshDefaults()
         let a = SettingsStore(defaults: d)
-        a.settings.showBatteryPercent = true
-        a.settings.batteryNotifications.addThreshold(percent: 35, isUrgent: true)
-        a.settings.batteryNotifications.fullEnabled = true
+        a.profile.showBatteryPercent = true
+        a.profile.batteryNotifications.addThreshold(percent: 35, isUrgent: true)
+        a.profile.batteryNotifications.fullEnabled = true
         a.save()
 
         let b = SettingsStore(defaults: d)
-        XCTAssertTrue(b.settings.showBatteryPercent)
-        XCTAssertEqual(b.settings.batteryNotifications.thresholds.map(\.percent), [35, 20, 10])
-        XCTAssertTrue(b.settings.batteryNotifications.fullEnabled)
+        XCTAssertTrue(b.profile.showBatteryPercent)
+        XCTAssertEqual(b.profile.batteryNotifications.thresholds.map(\.percent), [35, 20, 10])
+        XCTAssertTrue(b.profile.batteryNotifications.fullEnabled)
     }
 
-    func testModemBaseURL() {
+    func testProfileBaseURL() {
         let store = SettingsStore(defaults: freshDefaults())
-        store.settings.modemIP = "192.168.1.1"
-        XCTAssertEqual(store.modemBaseURL.absoluteString, "http://192.168.1.1")
+        store.profile.modemIP = "192.168.1.1"
+        XCTAssertEqual(store.profile.baseURL.absoluteString, "http://192.168.1.1")
     }
 }

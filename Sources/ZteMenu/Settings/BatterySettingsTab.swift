@@ -10,13 +10,13 @@ struct BatterySettingsTab: View {
     let onNotificationsEnabled: () -> Void
 
     private var alerts: BatteryNotificationSettings {
-        settings.settings.batteryNotifications
+        settings.profile.batteryNotifications
     }
 
     var body: some View {
         Form {
             Section {
-                Toggle(l10n(.settingsBatteryShowPercent), isOn: $settings.settings.showBatteryPercent)
+                Toggle(l10n(.settingsBatteryShowPercent), isOn: $settings.profile.showBatteryPercent)
                     .help(l10n(.settingsBatteryShowPercentHelp))
             } header: {
                 Text(l10n(.settingsBatteryMenuBarSection))
@@ -32,7 +32,7 @@ struct BatterySettingsTab: View {
                     }
                 }
                 Button(l10n(.settingsBatteryAddThreshold), systemImage: "plus") {
-                    settings.settings.batteryNotifications
+                    settings.profile.batteryNotifications
                         .addThreshold(percent: alerts.suggestedNewThreshold)
                 }
                 .disabled(alerts.thresholds.count >= BatteryNotificationSettings.percentRange.count)
@@ -47,7 +47,7 @@ struct BatterySettingsTab: View {
             Section {
                 Toggle(l10n(.settingsBatteryFull), isOn: Binding(
                     get: { alerts.fullEnabled },
-                    set: { settings.settings.batteryNotifications.fullEnabled = $0 }
+                    set: { settings.profile.batteryNotifications.fullEnabled = $0 }
                 ))
             } header: {
                 Text(l10n(.settingsBatteryNotificationsSection))
@@ -73,7 +73,7 @@ struct BatterySettingsTab: View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Toggle("", isOn: Binding(
                 get: { threshold.isEnabled },
-                set: { settings.settings.batteryNotifications
+                set: { settings.profile.batteryNotifications
                         .updateThreshold(id: threshold.id, isEnabled: $0) }
             ))
             .labelsHidden()
@@ -88,14 +88,14 @@ struct BatterySettingsTab: View {
             // column, which would tear the text away from its controls.
             Stepper("", value: Binding(
                 get: { threshold.percent },
-                set: { settings.settings.batteryNotifications
+                set: { settings.profile.batteryNotifications
                         .updateThreshold(id: threshold.id, percent: $0) }
             ), in: BatteryNotificationSettings.percentRange)
             .labelsHidden()
 
             Picker("", selection: Binding(
                 get: { threshold.isUrgent },
-                set: { settings.settings.batteryNotifications
+                set: { settings.profile.batteryNotifications
                         .updateThreshold(id: threshold.id, isUrgent: $0) }
             )) {
                 Text(l10n(.settingsBatteryNormal)).tag(false)
@@ -105,7 +105,7 @@ struct BatterySettingsTab: View {
             .fixedSize()
 
             Button {
-                settings.settings.batteryNotifications.removeThreshold(id: threshold.id)
+                settings.profile.batteryNotifications.removeThreshold(id: threshold.id)
             } label: {
                 Image(systemName: "minus.circle")
             }

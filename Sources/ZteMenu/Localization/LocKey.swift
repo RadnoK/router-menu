@@ -43,6 +43,7 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsTabAccount = "settings.tab.account"
     case settingsTabUpdates = "settings.tab.updates"
     case settingsNetworkSection = "settings.network.section"
+    case settingsDeviceType = "settings.network.device_type"
     case settingsDetectionMode = "settings.network.detection_mode"
     case settingsDetectionBySSID = "settings.network.detection_by_ssid"
     case settingsDetectionByIP = "settings.network.detection_by_ip"

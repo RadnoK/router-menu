@@ -36,11 +36,12 @@
 "settings.tab.account" = "Konto";
 "settings.tab.updates" = "Aktualizacje";
 "settings.network.section" = "Sieć";
+"settings.network.device_type" = "Typ urządzenia";
 "settings.network.detection_mode" = "Tryb wykrywania";
 "settings.network.detection_by_ssid" = "Po nazwie Wi-Fi";
 "settings.network.detection_by_ip" = "Po osiągalności IP";
 "settings.network.current" = "Aktualna sieć";
-"settings.network.ssid_field" = "Nazwa sieci ZTE";
+"settings.network.ssid_field" = "Nazwa sieci Wi-Fi modemu";
 "settings.network.modem_ip_field" = "IP modemu";
 "settings.network.ssid_help" = "Nazwa sieci Wi-Fi rozgłaszanej przez modem. Ikona na pasku menu pojawia się tylko wtedy, gdy jesteś z nią połączony.";
 "settings.network.modem_ip_help" = "Adres panelu modemu, zwykle 192.168.0.1.";

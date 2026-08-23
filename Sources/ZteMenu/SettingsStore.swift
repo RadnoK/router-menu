@@ -34,8 +34,4 @@ public final class SettingsStore {
         get { settings.profiles[0] }
         set { settings.profiles[0] = newValue }
     }
-
-    var modemBaseURL: URL {
-        URL(string: "http://\(settings.modemIP)") ?? Config.modemBaseURL
-    }
 }

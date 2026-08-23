@@ -59,6 +59,21 @@ struct ModemProfile: Codable, Equatable, Identifiable, Sendable {
         return url
     }
 
+    /// The profile after the user switches its provider in settings: the
+    /// match mode is clamped to what the new provider supports, and only
+    /// EMPTY address fields adopt the new defaults — typed values survive.
+    func adopting(provider newProvider: ProviderKind) -> ModemProfile {
+        var p = self
+        p.provider = newProvider
+        let d = ProviderCatalog.descriptor(for: newProvider)
+        if !d.supportedMatchModes.contains(p.matchMode) {
+            p.matchMode = d.defaultMatchMode
+        }
+        if p.ssid.isEmpty { p.ssid = d.defaultSSID }
+        if p.modemIP.isEmpty { p.modemIP = d.defaultBaseURL.host ?? p.modemIP }
+        return p
+    }
+
     /// Field-by-field forgiving decode, same style as `AppSettings`: an
     /// unknown or missing key falls to its default instead of throwing away
     /// the user's whole configuration.

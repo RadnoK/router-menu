@@ -43,4 +43,26 @@ final class ModemProfileTests: XCTestCase {
         XCTAssertEqual(p.provider, .zte)
         XCTAssertEqual(p.matchMode, .ssid)
     }
+
+    func testAdoptingAProviderKeepsTypedValues() {
+        var p = ModemProfile.makeDefault(provider: .zte)
+        p.ssid = "MyNetwork"
+        p.modemIP = "10.0.0.7"
+        p.matchMode = .ipProbe
+        let adopted = p.adopting(provider: .zte)
+        XCTAssertEqual(adopted.ssid, "MyNetwork")
+        XCTAssertEqual(adopted.modemIP, "10.0.0.7")
+        XCTAssertEqual(adopted.matchMode, .ipProbe,
+                       "a supported mode survives the switch")
+        XCTAssertEqual(adopted.id, p.id, "adopting a provider is not a new device")
+    }
+
+    func testAdoptingAProviderPrefillsEmptyFields() {
+        var p = ModemProfile.makeDefault(provider: .zte)
+        p.ssid = ""
+        p.modemIP = ""
+        let adopted = p.adopting(provider: .zte)
+        XCTAssertEqual(adopted.ssid, "ZTE_B4B622")
+        XCTAssertEqual(adopted.modemIP, "192.168.0.1")
+    }
 }

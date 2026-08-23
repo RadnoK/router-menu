@@ -15,10 +15,10 @@ struct PanelSettingsTab: View {
             }
 
             Section {
-                Toggle(l10n(.settingsStatsBasic), isOn: $settings.settings.stats.basic)
-                Toggle(l10n(.settingsStatsRadio), isOn: $settings.settings.stats.radio)
-                Toggle(l10n(.settingsStatsTransfer), isOn: $settings.settings.stats.transfer)
-                Toggle(l10n(.settingsStatsUptime), isOn: $settings.settings.stats.uptime)
+                Toggle(l10n(.settingsStatsBasic), isOn: $settings.profile.stats.basic)
+                Toggle(l10n(.settingsStatsRadio), isOn: $settings.profile.stats.radio)
+                Toggle(l10n(.settingsStatsTransfer), isOn: $settings.profile.stats.transfer)
+                Toggle(l10n(.settingsStatsUptime), isOn: $settings.profile.stats.uptime)
             }
         }
         .formStyle(.grouped)

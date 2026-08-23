@@ -34,4 +34,10 @@ final class SettingsTabTests: XCTestCase {
             }
         }
     }
+
+    func testEveryTabIsVisibleForABatteryCapableProvider() {
+        // ZTE has a battery, so today every tab is visible; the filter itself
+        // is the seam a battery-less provider will flow through.
+        XCTAssertEqual(SettingsTab.visible(for: .zte), SettingsTab.allCases)
+    }
 }

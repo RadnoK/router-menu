@@ -34,4 +34,11 @@ enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
         case .updates: return .settingsTabUpdates
         }
     }
+
+    /// The tabs that make sense for the edited profile's provider — a device
+    /// without a battery simply has no battery tab.
+    static func visible(for provider: ProviderKind) -> [SettingsTab] {
+        let capabilities = ProviderCatalog.descriptor(for: provider).capabilities
+        return allCases.filter { $0 != .battery || capabilities.hasBattery }
+    }
 }
