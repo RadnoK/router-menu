@@ -122,6 +122,14 @@ struct AppSettings: Codable, Equatable {
 
     static let defaults = AppSettings()
 
+    /// The stored profile with this id — the LIVE copy, not a snapshot.
+    /// `ModemStore.activeProfile` is captured at refresh time; presentation
+    /// reads the current settings through this so a toggle flipped in the
+    /// settings window takes effect immediately, not on the next refresh.
+    func profile(with id: UUID?) -> ModemProfile? {
+        profiles.first { $0.id == id }
+    }
+
     enum CodingKeys: String, CodingKey {
         case profiles, refreshInterval, language, showWhenDisconnected
         // Legacy flat keys (≤0.4.x). Read once during migration, never written.

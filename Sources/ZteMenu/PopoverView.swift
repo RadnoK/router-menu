@@ -36,7 +36,9 @@ public struct PopoverView: View {
         case .error(let kind):
             label(l10n(Self.key(for: kind)), "exclamationmark.triangle")
         case .connected(let d):
-            connected(d, profile: store.activeProfile ?? settings.profile)
+            connected(d, profile: settings.settings.profile(with: store.activeProfile?.id)
+                ?? store.activeProfile
+                ?? settings.profile)
         }
     }
 
