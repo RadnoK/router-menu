@@ -35,10 +35,8 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: freshDefaults())
         XCTAssertFalse(store.settings.showBatteryPercent, "the percentage is opt-in")
         let alerts = store.settings.batteryNotifications
-        XCTAssertTrue(alerts.lowEnabled)
-        XCTAssertEqual(alerts.lowThreshold, 20)
-        XCTAssertTrue(alerts.criticalEnabled)
-        XCTAssertEqual(alerts.criticalThreshold, 10)
+        XCTAssertEqual(alerts.thresholds.map(\.percent), [20, 10])
+        XCTAssertTrue(alerts.thresholds.allSatisfy(\.isEnabled))
         XCTAssertFalse(alerts.fullEnabled)
     }
 
@@ -62,13 +60,13 @@ final class SettingsStoreTests: XCTestCase {
         let d = freshDefaults()
         let a = SettingsStore(defaults: d)
         a.settings.showBatteryPercent = true
-        a.settings.batteryNotifications.lowThreshold = 35
+        a.settings.batteryNotifications.addThreshold(percent: 35, isUrgent: true)
         a.settings.batteryNotifications.fullEnabled = true
         a.save()
 
         let b = SettingsStore(defaults: d)
         XCTAssertTrue(b.settings.showBatteryPercent)
-        XCTAssertEqual(b.settings.batteryNotifications.lowThreshold, 35)
+        XCTAssertEqual(b.settings.batteryNotifications.thresholds.map(\.percent), [35, 20, 10])
         XCTAssertTrue(b.settings.batteryNotifications.fullEnabled)
     }
 

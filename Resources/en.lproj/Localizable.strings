@@ -91,11 +91,15 @@
 "settings.battery.show_percent" = "Show battery percentage";
 "settings.battery.show_percent_help" = "Displays the modem's battery level next to the menu bar icon.";
 "settings.battery.notifications_section" = "Notifications";
-"settings.battery.low" = "Low battery";
-"settings.battery.critical" = "Critical battery";
+"settings.battery.thresholds_section" = "Battery thresholds";
+"settings.battery.add_threshold" = "Add threshold";
+"settings.battery.remove_threshold" = "Remove this threshold";
+"settings.battery.no_thresholds" = "No thresholds yet — add one to be notified as the battery drains.";
+"settings.battery.normal" = "Normal";
+"settings.battery.urgent" = "Urgent";
 "settings.battery.full" = "Fully charged";
 "settings.battery.threshold" = "Below %d%%";
-"settings.battery.notifications_help" = "Each alert fires once when the level crosses its threshold, and re-arms after the battery recovers.";
+"settings.battery.notifications_help" = "Each threshold fires once as the battery drops past it, and re-arms after the battery recovers. Urgent alerts break through Focus.";
 
 /* Notifications */
 "notification.battery.low_title" = "Modem battery low";

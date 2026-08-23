@@ -6,8 +6,7 @@ import UserNotifications
 /// The associated percentage is the reading that triggered the alert, so the
 /// notification text can quote the real level rather than the threshold.
 enum BatteryAlert: Equatable {
-    case low(Int)
-    case critical(Int)
+    case threshold(percent: Int, isUrgent: Bool)
     case full
 }
 
@@ -24,37 +23,41 @@ struct BatteryAlertDecider {
     /// alternate between fired and re-armed and notify on every tick.
     static let hysteresis = 5
 
-    private var lowFired = false
-    private var criticalFired = false
+    /// Thresholds that have already fired and are waiting for the battery to
+    /// recover. Keyed by identity, not by percentage, so editing a row in
+    /// settings doesn't hand its "already fired" state to a different entry.
+    private var firedThresholds: Set<UUID> = []
     private var fullFired = false
     private var hasBaseline = false
 
     init() {}
 
     /// - Returns: the alert to present, or `nil` when this reading changes
-    ///   nothing. At most one alert per reading; `critical` outranks `low`.
+    ///   nothing. At most one alert per reading: a drop past several thresholds
+    ///   at once reports the lowest one crossed, which is the most urgent news.
     mutating func decide(percent: Int,
                          isCharging: Bool,
                          settings: BatteryNotificationSettings) -> BatteryAlert? {
         defer { hasBaseline = true }
+        let crossed = settings.thresholds.filter { percent < $0.percent }
 
         if isCharging {
             // Plugged in: the level is on its way up, so a low reading is not a
-            // problem. Disarming here also means unplugging later can't fire an
-            // alert for a crossing that happened while charging.
-            lowFired = true
-            criticalFired = true
+            // problem. Marking the crossings as spent also means unplugging
+            // later can't fire an alert for a drop that happened while charging.
+            firedThresholds.formUnion(crossed.map(\.id))
         } else {
             fullFired = false
-            if percent >= settings.lowThreshold + Self.hysteresis { lowFired = false }
-            if percent >= settings.criticalThreshold + Self.hysteresis { criticalFired = false }
+            for threshold in settings.thresholds
+            where percent >= threshold.percent + Self.hysteresis {
+                firedThresholds.remove(threshold.id)
+            }
         }
 
         // The first reading only tells us where the battery is, not that it
         // moved — launching next to an empty battery is not a crossing.
         guard hasBaseline else {
-            if percent < settings.lowThreshold { lowFired = true }
-            if percent < settings.criticalThreshold { criticalFired = true }
+            firedThresholds.formUnion(crossed.map(\.id))
             if percent >= 100 { fullFired = true }
             return nil
         }
@@ -67,18 +70,16 @@ struct BatteryAlertDecider {
             return nil
         }
 
-        if settings.criticalEnabled, percent < settings.criticalThreshold, !criticalFired {
-            criticalFired = true
-            // A drop past both thresholds at once reports the urgent one, but
-            // must still mark `low` as spent so it can't fire on the way down.
-            lowFired = true
-            return .critical(percent)
-        }
-        if settings.lowEnabled, percent < settings.lowThreshold, !lowFired {
-            lowFired = true
-            return .low(percent)
-        }
-        return nil
+        // Lowest first: that is the one worth interrupting for, and every other
+        // threshold crossed by the same drop is marked spent alongside it.
+        let fresh = crossed
+            .filter { !firedThresholds.contains($0.id) }
+            .sorted { $0.percent < $1.percent }
+        guard !fresh.isEmpty else { return nil }
+        firedThresholds.formUnion(fresh.map(\.id))
+
+        guard let alert = fresh.first(where: \.isEnabled) else { return nil }
+        return .threshold(percent: percent, isUrgent: alert.isUrgent)
     }
 }
 
@@ -143,6 +144,11 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
         content.title = title(for: alert)
         content.body = body(for: alert)
         content.sound = .default
+        if case .threshold(_, isUrgent: true) = alert {
+            // Breaks through Focus: the user marked this level as one they do
+            // not want to miss.
+            content.interruptionLevel = .timeSensitive
+        }
         // No trigger: deliver now. The identifier is unique per post so a new
         // alert never replaces one the user has not seen yet.
         let request = UNNotificationRequest(identifier: "battery-\(UUID().uuidString)",
@@ -163,17 +169,20 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
 
     private func title(for alert: BatteryAlert) -> String {
         switch alert {
-        case .low: return string(.notificationBatteryLowTitle)
-        case .critical: return string(.notificationBatteryCriticalTitle)
-        case .full: return string(.notificationBatteryFullTitle)
+        case .threshold(_, let isUrgent):
+            return string(isUrgent ? .notificationBatteryCriticalTitle : .notificationBatteryLowTitle)
+        case .full:
+            return string(.notificationBatteryFullTitle)
         }
     }
 
     private func body(for alert: BatteryAlert) -> String {
         switch alert {
-        case .low(let p): return string(.notificationBatteryLowBody, percent: p)
-        case .critical(let p): return string(.notificationBatteryCriticalBody, percent: p)
-        case .full: return string(.notificationBatteryFullBody)
+        case .threshold(let p, let isUrgent):
+            return string(isUrgent ? .notificationBatteryCriticalBody : .notificationBatteryLowBody,
+                          percent: p)
+        case .full:
+            return string(.notificationBatteryFullBody)
         }
     }
 }

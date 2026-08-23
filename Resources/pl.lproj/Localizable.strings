@@ -91,11 +91,15 @@
 "settings.battery.show_percent" = "Pokazuj procent baterii";
 "settings.battery.show_percent_help" = "Wyświetla poziom baterii modemu obok ikony na pasku menu.";
 "settings.battery.notifications_section" = "Powiadomienia";
-"settings.battery.low" = "Niski poziom baterii";
-"settings.battery.critical" = "Krytyczny poziom baterii";
+"settings.battery.thresholds_section" = "Progi baterii";
+"settings.battery.add_threshold" = "Dodaj próg";
+"settings.battery.remove_threshold" = "Usuń ten próg";
+"settings.battery.no_thresholds" = "Brak progów — dodaj pierwszy, aby dostawać powiadomienia o rozładowywaniu.";
+"settings.battery.normal" = "Zwykłe";
+"settings.battery.urgent" = "Pilne";
 "settings.battery.full" = "Pełne naładowanie";
 "settings.battery.threshold" = "Poniżej %d%%";
-"settings.battery.notifications_help" = "Każde powiadomienie wysyłane jest raz po przekroczeniu progu i uzbraja się ponownie, gdy bateria się naładuje.";
+"settings.battery.notifications_help" = "Każdy próg wysyła powiadomienie raz, gdy bateria go minie, i uzbraja się ponownie po naładowaniu. Pilne alerty przebijają tryb skupienia.";
 
 /* Powiadomienia */
 "notification.battery.low_title" = "Niski poziom baterii modemu";
