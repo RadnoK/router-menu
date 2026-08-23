@@ -5,24 +5,28 @@ import Observation
 @Observable
 public final class ModemStore {
     private(set) var state: AppState = .hidden
+    /// The device the last refresh matched. The popover header and the menu
+    /// bar label read their per-device presentation preferences from it.
+    private(set) var activeProfile: ModemProfile?
     private let settings: SettingsStore
     let history: HistoryStore
-    private let detector: NetworkDetector
-    private let clientFactory: @MainActor (URL, String?) -> any ModemDriving
+    private let matcher: ModemMatcher
+    private let driverFactory: @MainActor (ModemProfile) -> any ModemDriving
     private var locationAuth: LocationAuth = .authorized
     /// Optional so tests get a store that posts nothing; the app wires one in.
     private var notifier: BatteryNotifier?
 
     init(settings: SettingsStore,
          history: HistoryStore,
-         detector: NetworkDetector = NetworkDetector(),
-         clientFactory: @escaping @MainActor (URL, String?) -> any ModemDriving = { url, pass in
-             ZTEClient(baseURL: url, http: SessionHTTP(), password: pass)
+         matcher: ModemMatcher = ModemMatcher(),
+         driverFactory: @escaping @MainActor (ModemProfile) -> any ModemDriving = { profile in
+             ProviderCatalog.descriptor(for: profile.provider)
+                 .makeDriver(profile.baseURL, Keychain.password(), SessionHTTP())
          }) {
         self.settings = settings
         self.history = history
-        self.detector = detector
-        self.clientFactory = clientFactory
+        self.matcher = matcher
+        self.driverFactory = driverFactory
     }
 
     func setBatteryNotifier(_ notifier: BatteryNotifier) {
@@ -34,26 +38,29 @@ public final class ModemStore {
     }
 
     func refresh() async {
-        let s = settings.settings
-        if s.networkMode == .bySSID && locationAuth == .denied {
+        let result = await matcher.match(in: settings.settings.profiles,
+                                         locationAuthorized: locationAuth != .denied,
+                                         probe: { await self.driverFactory($0).probe() })
+        switch result {
+        case .none(ssidSkipped: true):
+            activeProfile = nil
             state = .locationDenied
-            return
-        }
-        let onTarget = await detector.isOnTarget(mode: s.networkMode, ssid: s.ssid, modemURL: settings.modemBaseURL)
-        guard onTarget else {
+        case .none(ssidSkipped: false):
+            activeProfile = nil
             state = .hidden
-            return
-        }
-        let client = clientFactory(settings.modemBaseURL, Keychain.password())
-        do {
-            let data = try await client.fetch()
-            state = .connected(data)
-            history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
-            notifier?.handle(data)
-        } catch ModemError.loginFailed {
-            state = .error(.loginFailed)
-        } catch {
-            state = .error(.unreachable)
+        case .matched(let profile):
+            activeProfile = profile
+            let driver = driverFactory(profile)
+            do {
+                let data = try await driver.fetch()
+                state = .connected(data)
+                history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
+                notifier?.handle(data)
+            } catch ModemError.loginFailed {
+                state = .error(.loginFailed)
+            } catch {
+                state = .error(.unreachable)
+            }
         }
     }
 }

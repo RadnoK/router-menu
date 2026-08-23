@@ -3,69 +3,105 @@ import XCTest
 
 @MainActor
 final class ModemStoreV2Tests: XCTestCase {
-    private func makeStore(reachable: Bool, throwing: Error? = nil, history: HistoryStore, mode: NetworkMode = .byIPReachable) -> ModemStore {
-        let defaults = UserDefaults(suiteName: "t-\(UUID().uuidString)")!
-        let settings = SettingsStore(defaults: defaults)
-        settings.settings.networkMode = mode
-        let detector = NetworkDetector(reader: FixedSSID(value: nil), reachability: FixedReach(ok: reachable))
-        let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#.utf8)
-        let factory: @MainActor (URL, String?) -> any ModemDriving = { url, pass in
-            let http: any HTTPFetching = throwing != nil ? ThrowingHTTP(error: throwing!) : SequenceHTTP([json])
-            return ZTEClient(baseURL: url, http: http, password: pass)
+    private nonisolated static let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#.utf8)
+
+    private struct FakeDriver: ModemDriving {
+        var reachable = false
+        var error: Error?
+        func fetch() async throws -> ModemData {
+            if let error { throw error }
+            return ZTEClient.parse(try JSONDecoder()
+                .decode([String: String].self, from: ModemStoreV2Tests.json))
         }
-        return ModemStore(settings: settings, history: history, detector: detector, clientFactory: factory)
+        func probe() async -> Bool { reachable }
     }
 
-    func testConnectedAddsHistorySample() async {
-        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"),
-                                now: { Date(timeIntervalSince1970: 100) })
-        let store = makeStore(reachable: true, history: hist)
+    private func makeStore(mode: MatchMode,
+                           currentSSID: String? = nil,
+                           reachable: Bool = false,
+                           throwing: Error? = nil,
+                           history: HistoryStore) -> ModemStore {
+        let defaults = UserDefaults(suiteName: "t-\(UUID().uuidString)")!
+        let settings = SettingsStore(defaults: defaults)
+        settings.profile.matchMode = mode
+        settings.profile.ssid = "ZTE_B4B622"
+        let matcher = ModemMatcher(reader: FixedSSID(value: currentSSID))
+        return ModemStore(settings: settings, history: history, matcher: matcher,
+                          driverFactory: { _ in FakeDriver(reachable: reachable, error: throwing) })
+    }
+
+    private func tempHistory() -> HistoryStore {
+        HistoryStore(fileURL: FileManager.default.temporaryDirectory
+                        .appendingPathComponent("h-\(UUID()).json"),
+                     now: { Date(timeIntervalSince1970: 100) })
+    }
+
+    func testConnectedPublishesTheMatchedProfileAndAddsHistory() async {
+        let hist = tempHistory()
+        let store = makeStore(mode: .ipProbe, reachable: true, history: hist)
         await store.refresh()
         if case .connected(let d) = store.state {
             XCTAssertEqual(d.batteryPercent, 55)
-        } else { XCTFail("oczekiwano connected") }
+        } else { XCTFail("expected connected, got \(store.state)") }
+        XCTAssertEqual(store.activeProfile?.matchMode, .ipProbe)
         XCTAssertEqual(hist.samples.count, 1)
         XCTAssertEqual(hist.samples.last?.totalBytes, 1500)
     }
 
-    func testUnreachableIsHidden() async {
-        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
-        let store = makeStore(reachable: false, history: hist)
+    func testSSIDMatchConnects() async {
+        let store = makeStore(mode: .ssid, currentSSID: "ZTE_B4B622",
+                              reachable: false, history: tempHistory())
+        await store.refresh()
+        guard case .connected = store.state else {
+            return XCTFail("expected connected, got \(store.state)")
+        }
+    }
+
+    func testNoMatchHidesAndClearsTheProfile() async {
+        let hist = tempHistory()
+        let store = makeStore(mode: .ipProbe, reachable: false, history: hist)
         await store.refresh()
         XCTAssertEqual(store.state, .hidden)
+        XCTAssertNil(store.activeProfile)
         XCTAssertTrue(hist.samples.isEmpty)
     }
 
-    func testBySSIDDeniedIsLocationDenied() async {
-        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
-        let store = makeStore(reachable: true, history: hist, mode: .bySSID)
+    func testDeniedLocationWithSSIDProfileIsLocationDenied() async {
+        let store = makeStore(mode: .ssid, currentSSID: "ZTE_B4B622", history: tempHistory())
         store.setLocationAuth(.denied)
         await store.refresh()
         XCTAssertEqual(store.state, .locationDenied)
-        XCTAssertTrue(hist.samples.isEmpty)
+        XCTAssertNil(store.activeProfile)
     }
 
-    func testLoginFailedMapsToError() async {
-        let hist = HistoryStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("h-\(UUID()).json"))
-        let store = makeStore(reachable: true, throwing: ModemError.loginFailed, history: hist, mode: .byIPReachable)
+    func testDeniedLocationStillConnectsThroughAnIPProfile() async {
+        // The behavioural refinement this refactor buys: location only gates
+        // SSID matching, not the whole app.
+        let store = makeStore(mode: .ipProbe, reachable: true, history: tempHistory())
+        store.setLocationAuth(.denied)
+        await store.refresh()
+        guard case .connected = store.state else {
+            return XCTFail("expected connected, got \(store.state)")
+        }
+    }
+
+    func testLoginFailureMapsToError() async {
+        let store = makeStore(mode: .ipProbe, reachable: true,
+                              throwing: ModemError.loginFailed, history: tempHistory())
         await store.refresh()
         XCTAssertEqual(store.state, .error(.loginFailed))
-        XCTAssertTrue(hist.samples.isEmpty)
+    }
+
+    func testOtherFetchFailureMapsToUnreachable() async {
+        struct Boom: Error {}
+        let store = makeStore(mode: .ipProbe, reachable: true,
+                              throwing: Boom(), history: tempHistory())
+        await store.refresh()
+        XCTAssertEqual(store.state, .error(.unreachable))
     }
 }
 
-private final class SequenceHTTP: HTTPFetching, @unchecked Sendable {
-    private let responses: [Data]
-    private var i = 0
-    init(_ responses: [Data]) { self.responses = responses }
-    func data(for request: URLRequest) async throws -> Data {
-        defer { i += 1 }
-        return responses[min(i, responses.count - 1)]
-    }
+private struct FixedSSID: SSIDReading {
+    let value: String?
+    func currentSSID() -> String? { value }
 }
-private struct ThrowingHTTP: HTTPFetching {
-    let error: Error
-    func data(for request: URLRequest) async throws -> Data { throw error }
-}
-private struct FixedSSID: SSIDReading { let value: String?; func currentSSID() -> String? { value } }
-private struct FixedReach: ReachabilityChecking { let ok: Bool; func isReachable(_ url: URL) async -> Bool { ok } }
