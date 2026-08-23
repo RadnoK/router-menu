@@ -1,7 +1,7 @@
 import XCTest
 @testable import ZteMenu
 
-final class ModemDataTests: XCTestCase {
+final class ZTEClientParseTests: XCTestCase {
     // Fixture: a real modem response (see modem-api-findings.md)
     private let raw: [String: String] = [
         "network_type": "ENDC",
@@ -15,20 +15,20 @@ final class ModemDataTests: XCTestCase {
     ]
 
     func testParsesBattery() {
-        let d = ModemData.parse(raw)
+        let d = ZTEClient.parse(raw)
         XCTAssertEqual(d.batteryPercent, 60)
         XCTAssertFalse(d.isCharging)
     }
 
     func testParsesSignal() {
-        let d = ModemData.parse(raw)
+        let d = ZTEClient.parse(raw)
         XCTAssertEqual(d.signalBars, 5)
         XCTAssertEqual(d.rsrp, -81)
         XCTAssertEqual(d.sinr, 33.0)
     }
 
     func testParsesNetworkAndProvider() {
-        let d = ModemData.parse(raw)
+        let d = ZTEClient.parse(raw)
         XCTAssertEqual(d.networkType, "ENDC")
         XCTAssertEqual(d.networkLabel, "5G")
         XCTAssertEqual(d.provider, "T-Mobile.pl")
@@ -36,7 +36,7 @@ final class ModemDataTests: XCTestCase {
     }
 
     func testEmptyStringsBecomeNil() {
-        let d = ModemData.parse([
+        let d = ZTEClient.parse([
             "signalbar": "3",
             "battery_value": "",
             "Z5g_rsrp": "",
@@ -53,25 +53,25 @@ final class ModemDataTests: XCTestCase {
 
     func testChargingFlag() {
         var r = raw; r["battery_charging"] = "1"
-        XCTAssertTrue(ModemData.parse(r).isCharging)
+        XCTAssertTrue(ZTEClient.parse(r).isCharging)
     }
 
     func testUnknownNetworkTypeFallsBackToRaw() {
         var r = raw; r["network_type"] = "WCDMA"
-        XCTAssertEqual(ModemData.parse(r).networkLabel, "WCDMA")
+        XCTAssertEqual(ZTEClient.parse(r).networkLabel, "WCDMA")
     }
 
     func testSignalQuality() {
         var r = raw; r["signalbar"] = "5"
-        XCTAssertEqual(ModemData.parse(r).signalQuality, .veryGood)
+        XCTAssertEqual(ZTEClient.parse(r).signalQuality, .veryGood)
         r["signalbar"] = "0"
-        XCTAssertEqual(ModemData.parse(r).signalQuality, .noSignal)
+        XCTAssertEqual(ZTEClient.parse(r).signalQuality, .noSignal)
         r["signalbar"] = "3"
-        XCTAssertEqual(ModemData.parse(r).signalQuality, .medium)
+        XCTAssertEqual(ZTEClient.parse(r).signalQuality, .medium)
     }
 
     func testParsesTransferFields() {
-        let d = ModemData.parse([
+        let d = ZTEClient.parse([
             "signalbar": "5", "network_type": "ENDC", "ppp_status": "ppp_connected",
             "realtime_rx_thrpt": "6149", "realtime_tx_thrpt": "60709",
             "realtime_rx_bytes": "1008395299", "realtime_tx_bytes": "1850536546",
@@ -90,7 +90,7 @@ final class ModemDataTests: XCTestCase {
     }
 
     func testTransferFieldsNilWhenAbsent() {
-        let d = ModemData.parse(["signalbar": "3", "network_type": "LTE"])
+        let d = ZTEClient.parse(["signalbar": "3", "network_type": "LTE"])
         XCTAssertNil(d.rxSpeed)
         XCTAssertNil(d.totalRx)
         XCTAssertNil(d.totalBytesForHistory)

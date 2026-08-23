@@ -9,9 +9,9 @@ final class ModemStoreV2Tests: XCTestCase {
         settings.settings.networkMode = mode
         let detector = NetworkDetector(reader: FixedSSID(value: nil), reachability: FixedReach(ok: reachable))
         let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#.utf8)
-        let factory: @MainActor (URL, String?) -> ModemClient = { url, pass in
+        let factory: @MainActor (URL, String?) -> any ModemDriving = { url, pass in
             let http: any HTTPFetching = throwing != nil ? ThrowingHTTP(error: throwing!) : SequenceHTTP([json])
-            return ModemClient(baseURL: url, http: http, password: pass)
+            return ZTEClient(baseURL: url, http: http, password: pass)
         }
         return ModemStore(settings: settings, history: history, detector: detector, clientFactory: factory)
     }

@@ -5,7 +5,7 @@ final class MenuBarPresentationTests: XCTestCase {
     private func data(bars: Int, battery: Int? = nil) -> ModemData {
         var raw = ["signalbar": "\(bars)", "network_type": "ENDC", "ppp_status": "ppp_connected"]
         if let battery { raw["battery_value"] = "\(battery)" }
-        return ModemData.parse(raw)
+        return ZTEClient.parse(raw)
     }
 
     func testHiddenIsInvisible() {

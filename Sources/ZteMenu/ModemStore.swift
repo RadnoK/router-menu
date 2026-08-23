@@ -8,17 +8,17 @@ public final class ModemStore {
     private let settings: SettingsStore
     let history: HistoryStore
     private let detector: NetworkDetector
-    private let clientFactory: @MainActor (URL, String?) -> ModemClient
+    private let clientFactory: @MainActor (URL, String?) -> any ModemDriving
     private var locationAuth: LocationAuth = .authorized
     /// Optional so tests get a store that posts nothing; the app wires one in.
     private var notifier: BatteryNotifier?
 
-    public init(settings: SettingsStore,
-                history: HistoryStore,
-                detector: NetworkDetector = NetworkDetector(),
-                clientFactory: @escaping @MainActor (URL, String?) -> ModemClient = { url, pass in
-                    ModemClient(baseURL: url, http: SessionHTTP(), password: pass)
-                }) {
+    init(settings: SettingsStore,
+         history: HistoryStore,
+         detector: NetworkDetector = NetworkDetector(),
+         clientFactory: @escaping @MainActor (URL, String?) -> any ModemDriving = { url, pass in
+             ZTEClient(baseURL: url, http: SessionHTTP(), password: pass)
+         }) {
         self.settings = settings
         self.history = history
         self.detector = detector
