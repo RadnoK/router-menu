@@ -118,37 +118,92 @@ struct BatteryNotificationSettings: Codable, Equatable {
 }
 
 struct AppSettings: Codable, Equatable {
-    var networkMode: NetworkMode = .bySSID
-    var ssid: String = Config.targetSSID
-    var modemIP: String = "192.168.0.1"
+    /// The user's configured devices, first match wins. Never empty — v1's UI
+    /// edits exactly `profiles[0]`.
+    var profiles: [ModemProfile] = [.makeDefault(provider: .zte)]
     var refreshInterval: TimeInterval = Config.refreshInterval
-    var stats: StatVisibility = StatVisibility()
     var language: AppLanguage = .system
-    var showBatteryPercent: Bool = false
     var showWhenDisconnected: Bool = false
-    var batteryNotifications: BatteryNotificationSettings = BatteryNotificationSettings()
 
     static let defaults = AppSettings()
 
-    /// Settings saved by earlier versions carry no `language`,
-    /// `showBatteryPercent`, `showWhenDisconnected` or
-    /// `batteryNotifications` key. Decoding each field
-    /// individually keeps those payloads loadable instead of throwing and
-    /// silently resetting every preference.
+    enum CodingKeys: String, CodingKey {
+        case profiles, refreshInterval, language, showWhenDisconnected
+        // Legacy flat keys (≤0.4.x). Read once during migration, never written.
+        case networkMode, ssid, modemIP, stats, showBatteryPercent, batteryNotifications
+    }
+
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = AppSettings.defaults
-        networkMode = try c.decodeIfPresent(NetworkMode.self, forKey: .networkMode) ?? d.networkMode
-        ssid = try c.decodeIfPresent(String.self, forKey: .ssid) ?? d.ssid
-        modemIP = try c.decodeIfPresent(String.self, forKey: .modemIP) ?? d.modemIP
         refreshInterval = try c.decodeIfPresent(TimeInterval.self, forKey: .refreshInterval) ?? d.refreshInterval
-        stats = try c.decodeIfPresent(StatVisibility.self, forKey: .stats) ?? d.stats
         language = try c.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .system
-        showBatteryPercent = try c.decodeIfPresent(Bool.self, forKey: .showBatteryPercent) ?? d.showBatteryPercent
-        showWhenDisconnected = try c.decodeIfPresent(Bool.self, forKey: .showWhenDisconnected) ?? d.showWhenDisconnected
-        batteryNotifications = try c.decodeIfPresent(BatteryNotificationSettings.self, forKey: .batteryNotifications)
-            ?? d.batteryNotifications
+        showWhenDisconnected = try c.decodeIfPresent(Bool.self, forKey: .showWhenDisconnected)
+            ?? d.showWhenDisconnected
+
+        if let stored = try c.decodeIfPresent([ModemProfile].self, forKey: .profiles),
+           !stored.isEmpty {
+            profiles = stored
+        } else if c.contains(.profiles) {
+            // Stored but empty: repair the never-empty invariant.
+            profiles = d.profiles
+        } else {
+            // Legacy flat payload: fold every device-scoped key into one ZTE
+            // profile so nothing the user configured is lost.
+            var p = ModemProfile.makeDefault(provider: .zte)
+            // The raw values of the retired `NetworkMode` enum.
+            if try c.decodeIfPresent(String.self, forKey: .networkMode) == "byIPReachable" {
+                p.matchMode = .ipProbe
+            }
+            p.ssid = try c.decodeIfPresent(String.self, forKey: .ssid) ?? p.ssid
+            p.modemIP = try c.decodeIfPresent(String.self, forKey: .modemIP) ?? p.modemIP
+            p.stats = try c.decodeIfPresent(StatVisibility.self, forKey: .stats) ?? p.stats
+            p.showBatteryPercent = try c.decodeIfPresent(Bool.self, forKey: .showBatteryPercent)
+                ?? p.showBatteryPercent
+            p.batteryNotifications = try c.decodeIfPresent(BatteryNotificationSettings.self,
+                                                           forKey: .batteryNotifications)
+                ?? p.batteryNotifications
+            profiles = [p]
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(profiles, forKey: .profiles)
+        try c.encode(refreshInterval, forKey: .refreshInterval)
+        try c.encode(language, forKey: .language)
+        try c.encode(showWhenDisconnected, forKey: .showWhenDisconnected)
     }
 
     init() {}
+}
+
+// MARK: - Transitional accessors (DELETED in the "settings UI" task)
+// The views and `ModemStore` still bind the old flat names; each forwards to
+// the single v1 profile so this schema change ships green on its own.
+extension AppSettings {
+    var networkMode: NetworkMode {
+        get { profiles[0].matchMode == .ssid ? .bySSID : .byIPReachable }
+        set { profiles[0].matchMode = (newValue == .bySSID) ? .ssid : .ipProbe }
+    }
+    var ssid: String {
+        get { profiles[0].ssid }
+        set { profiles[0].ssid = newValue }
+    }
+    var modemIP: String {
+        get { profiles[0].modemIP }
+        set { profiles[0].modemIP = newValue }
+    }
+    var stats: StatVisibility {
+        get { profiles[0].stats }
+        set { profiles[0].stats = newValue }
+    }
+    var showBatteryPercent: Bool {
+        get { profiles[0].showBatteryPercent }
+        set { profiles[0].showBatteryPercent = newValue }
+    }
+    var batteryNotifications: BatteryNotificationSettings {
+        get { profiles[0].batteryNotifications }
+        set { profiles[0].batteryNotifications = newValue }
+    }
 }

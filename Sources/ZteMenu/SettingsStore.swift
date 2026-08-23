@@ -18,12 +18,21 @@ public final class SettingsStore {
         } else {
             settings = AppSettings.defaults
         }
+        // Persist immediately: a legacy payload migrates on first read, and
+        // writing it back pins the migrated profile's UUID across launches.
+        save()
     }
 
     func save() {
         if let data = try? JSONEncoder().encode(settings) {
             defaults.set(data, forKey: key)
         }
+    }
+
+    /// v1 manages exactly one device; the settings window edits this profile.
+    var profile: ModemProfile {
+        get { settings.profiles[0] }
+        set { settings.profiles[0] = newValue }
     }
 
     var modemBaseURL: URL {
