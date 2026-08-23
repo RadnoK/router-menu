@@ -55,7 +55,7 @@ public final class ModemStore {
                 let data = try await driver.fetch()
                 state = .connected(data)
                 history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
-                notifier?.handle(data)
+                notifier?.handle(data, profile: profile)
             } catch ModemError.loginFailed {
                 state = .error(.loginFailed)
             } catch {

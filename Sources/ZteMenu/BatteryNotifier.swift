@@ -99,6 +99,9 @@ protocol BatteryAlertPresenting: AnyObject {
 @MainActor
 final class BatteryNotifier {
     private var decider = BatteryAlertDecider()
+    /// Which device the decider's memory belongs to. The hysteresis state is
+    /// per-device: one modem's charge level must not arm or silence another's.
+    private var deciderProfileID: UUID?
     private let settings: SettingsStore
     private let presenter: any BatteryAlertPresenting
 
@@ -111,18 +114,28 @@ final class BatteryNotifier {
         self.init(settings: settings, presenter: UserNotificationPresenter(l10n: l10n))
     }
 
-    func handle(_ data: ModemData) {
-        let config = settings.settings.batteryNotifications
+    func handle(_ data: ModemData, profile: ModemProfile) {
+        // Defence in depth next to the nil-percent guard: a provider without
+        // a battery has no alerts, whatever the profile's stored config says.
+        guard ProviderCatalog.descriptor(for: profile.provider).capabilities.hasBattery else { return }
+        if deciderProfileID != profile.id {
+            decider = BatteryAlertDecider()
+            deciderProfileID = profile.id
+        }
         guard let percent = data.batteryPercent else { return }
         guard let alert = decider.decide(percent: percent,
                                          isCharging: data.isCharging,
-                                         settings: config) else { return }
+                                         settings: profile.batteryNotifications) else { return }
         presenter.present(alert)
     }
 
-    /// Called when the user turns an alert on in settings.
+    /// Called when the user turns an alert on in settings, and at launch.
     func requestAuthorizationIfNeeded() {
-        guard settings.settings.batteryNotifications.isAnyEnabled else { return }
+        let armed = settings.settings.profiles.contains { profile in
+            ProviderCatalog.descriptor(for: profile.provider).capabilities.hasBattery
+                && profile.batteryNotifications.isAnyEnabled
+        }
+        guard armed else { return }
         presenter.requestAuthorization()
     }
 }
