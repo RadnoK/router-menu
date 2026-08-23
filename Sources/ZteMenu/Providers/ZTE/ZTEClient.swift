@@ -31,7 +31,7 @@ public struct ZTEClient: ModemDriving {
         "realtime_time", "monthly_time",
     ]
 
-    public init(baseURL: URL = Config.modemBaseURL,
+    public init(baseURL: URL,
                 http: HTTPFetching = URLSession.shared,
                 password: String? = nil) {
         self.baseURL = baseURL
