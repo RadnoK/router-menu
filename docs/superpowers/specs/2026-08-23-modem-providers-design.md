@@ -121,6 +121,8 @@ struct ModemProfile: Codable, Equatable, Identifiable, Sendable {
     var modemIP: String    // the driver's address, and the .ipProbe target
     // Device-scoped preferences ("contextual" settings):
     var showBatteryPercent: Bool
+    /// The user-managed discharge-threshold list (`BatteryThreshold` entries
+    /// with stable UUIDs) plus the full-charge alert — the 0.5 battery model.
     var batteryNotifications: BatteryNotificationSettings
     var stats: StatVisibility
 }
@@ -211,7 +213,12 @@ Migration, in the same tolerant custom-decoder style the struct already uses:
   `.ipProbe`, decoded via a private legacy enum), `ssid`, `modemIP`,
   `showBatteryPercent`, `batteryNotifications`, `stats` — each falling back to
   its default when missing. A fresh `UUID` is generated for the migrated
-  profile. Nothing the user configured is lost.
+  profile. Nothing the user configured is lost. The `batteryNotifications`
+  value decodes through `BatteryNotificationSettings`' own forgiving
+  `init(from:)`, so the two migrations compose: a 0.5 payload carries its
+  threshold list into the profile verbatim, and an older fixed low/critical
+  payload lands as the default thresholds — exactly what the standalone
+  battery upgrade already does.
 - Encoding writes only the new keys; the legacy keys disappear on first save.
 
 `SettingsStore` gains a `profile` accessor (get/set on `profiles[0]`) so v1 UI
@@ -251,10 +258,15 @@ any ModemDriving` so tests keep stubbing at the same seam.
 - `BatteryNotifier.handle(_:profile:)` reads `profile.batteryNotifications`
   and returns early when the profile's provider has `hasBattery == false`
   (defence in depth next to the existing nil-percent guard).
-- The `BatteryAlertDecider` is a hysteresis state machine, so its state is
-  per-device: the notifier tracks the profile id it last handled and resets
-  the decider when the active profile changes. One device's charge level must
-  not arm or silence another device's alerts.
+- The `BatteryAlertDecider` keeps per-threshold state — a fired
+  `Set<UUID>` keyed by `BatteryThreshold.id`, plus the hysteresis re-arm
+  rule — so its memory is inherently per-device: threshold UUIDs belong to
+  one profile's list. The notifier tracks the profile id it last handled and
+  resets the decider when the active profile changes; without the reset, the
+  new device's threshold ids would all read as fresh crossings, and a device
+  merely *sitting* at 15% would fire the moment you walked up to it. The
+  reset turns that first reading into a baseline, matching the decider's
+  existing launch behaviour.
 - Notification permission: `requestAuthorizationIfNeeded()` prompts when *any*
   profile of a battery-capable provider has an alert armed.
 
@@ -280,9 +292,11 @@ any ModemDriving` so tests keep stubbing at the same seam.
 - **Panel**: `showWhenDisconnected` stays (app scope); the four stat toggles
   bind to `$settings.profile.stats` (device scope).
 - **Battery**: the tab is included only when the edited profile's provider has
-  `hasBattery`; its controls bind to `$settings.profile.batteryNotifications`
-  and `$settings.profile.showBatteryPercent`. With ZTE only, nothing visibly
-  changes.
+  `hasBattery`. The threshold-list controls (add/edit/remove rows, the
+  full-charge toggle) write through `settings.profile.batteryNotifications`'
+  validating mutators, and the percentage toggle binds to
+  `$settings.profile.showBatteryPercent` — only the binding paths change; the
+  0.5 list UI keeps its layout. With ZTE only, nothing visibly changes.
 - **Account**: UX unchanged; the footer copy can later vary by `passwordRole`.
 - New `LocKey` cases (EN + PL): the device section header and the provider
   picker label. Brand names come from the descriptor and are not localized.
@@ -355,6 +369,7 @@ header shows "ZTE · <ssid>".
 - **Driver extraction** could silently change a request. Mitigated by keeping
   `ModemClientTests`' golden assertions byte-for-byte through the rename.
 - **Decider reset on profile switch** is new stateful behaviour; covered by a
-  dedicated notifier test.
+  dedicated notifier test (a device already below a threshold on first
+  contact must stay quiet — that reading is a baseline, not a crossing).
 - The popover header changes user-visible text from "ZTE U50" to the
   provider's display name — intentional, noted for release notes.
