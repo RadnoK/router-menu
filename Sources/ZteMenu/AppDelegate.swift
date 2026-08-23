@@ -16,6 +16,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     public let settings = SettingsStore()
     public let updater = UpdaterController()
     public let history = HistoryStore()
+    public let loginItem = LoginItemController()
     public lazy var l10n = L10n(language: settings.settings.language)
     public lazy var store = ModemStore(settings: settings, history: history)
     private lazy var batteryNotifier = BatteryNotifier(settings: settings, l10n: l10n)

@@ -81,6 +81,10 @@
 "settings.panel.show_when_disconnected" = "Show icon when disconnected";
 "settings.panel.show_when_disconnected_help" = "Keeps the menu bar icon in place while the modem is out of reach, instead of hiding the app.";
 
+"settings.general.launch_at_login" = "Launch at login";
+"settings.general.launch_at_login_help" = "Adds ZTE Menu to the system's login items, so it starts with your Mac.";
+"settings.general.launch_at_login_error" = "The system refused to register the app: %@";
+
 /* Settings — battery */
 "settings.tab.battery" = "Battery";
 "settings.battery.menu_bar_section" = "Menu bar";

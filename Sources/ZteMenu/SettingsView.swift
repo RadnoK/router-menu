@@ -11,15 +11,18 @@ public struct SettingsView: View {
     @Bindable private var settings: SettingsStore
     @Bindable private var updater: UpdaterController
     private let l10n: L10n
+    @Bindable private var loginItem: LoginItemController
     private let onNotificationsEnabled: () -> Void
 
     public init(settings: SettingsStore,
                 updater: UpdaterController,
                 l10n: L10n,
+                loginItem: LoginItemController,
                 onNotificationsEnabled: @escaping () -> Void = {}) {
         self.settings = settings
         self.updater = updater
         self.l10n = l10n
+        self.loginItem = loginItem
         self.onNotificationsEnabled = onNotificationsEnabled
     }
 
@@ -41,7 +44,7 @@ public struct SettingsView: View {
     private func content(for tab: SettingsTab) -> some View {
         switch tab {
         case .general:
-            GeneralSettingsTab(settings: settings, l10n: l10n)
+            GeneralSettingsTab(settings: settings, l10n: l10n, loginItem: loginItem)
         case .panel:
             PanelSettingsTab(settings: settings, l10n: l10n)
         case .battery:

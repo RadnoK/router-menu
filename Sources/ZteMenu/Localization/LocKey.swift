@@ -52,6 +52,12 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsSSIDHelp = "settings.network.ssid_help"
     case settingsModemIPHelp = "settings.network.modem_ip_help"
 
+    // Settings — startup
+    case settingsLaunchAtLogin = "settings.general.launch_at_login"
+    case settingsLaunchAtLoginHelp = "settings.general.launch_at_login_help"
+    /// Takes one argument: the system's failure message.
+    case settingsLaunchAtLoginError = "settings.general.launch_at_login_error"
+
     // Settings — menu bar visibility
     case settingsShowWhenDisconnected = "settings.panel.show_when_disconnected"
     case settingsShowWhenDisconnectedHelp = "settings.panel.show_when_disconnected_help"
