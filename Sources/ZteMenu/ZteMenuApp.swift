@@ -10,7 +10,8 @@ public struct ZteMenuApp: App {
         let settings = appDelegate.settings
         let l10n = appDelegate.l10n
         let p = MenuBarPresentation.make(for: store.state,
-                                         showBatteryPercent: settings.settings.showBatteryPercent)
+                                         showBatteryPercent: settings.settings.showBatteryPercent,
+                                         showWhenDisconnected: settings.settings.showWhenDisconnected)
 
         MenuBarExtra(isInserted: .constant(p.isVisible)) {
             PopoverView(store: store, settings: settings, l10n: l10n) {

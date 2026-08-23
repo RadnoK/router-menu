@@ -16,6 +16,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.settings.refreshInterval, 60)
         XCTAssertTrue(store.settings.stats.basic)
         XCTAssertTrue(store.settings.stats.transfer)
+        XCTAssertFalse(store.settings.showWhenDisconnected, "the icon hides by default")
     }
 
     func testPersistsAcrossInstances() {
@@ -53,6 +54,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.settings.language, .pl)
         XCTAssertFalse(store.settings.stats.basic)
         XCTAssertFalse(store.settings.showBatteryPercent)
+        XCTAssertFalse(store.settings.showWhenDisconnected)
         XCTAssertEqual(store.settings.batteryNotifications, BatteryNotificationSettings())
     }
 

@@ -12,6 +12,27 @@ final class MenuBarPresentationTests: XCTestCase {
         XCTAssertFalse(MenuBarPresentation.make(for: .hidden).isVisible)
     }
 
+    func testHiddenStaysVisibleWhenTheUserAsksForIt() {
+        let p = MenuBarPresentation.make(for: .hidden, showWhenDisconnected: true)
+        XCTAssertTrue(p.isVisible)
+        XCTAssertEqual(p.symbolName, "antenna.radiowaves.left.and.right.slash")
+        XCTAssertEqual(p.variableValue, 0)
+    }
+
+    func testHiddenCarriesNoBatteryTextEvenWhenBothOptionsAreOn() {
+        // Nothing was read from the modem, so there is no level to show.
+        let p = MenuBarPresentation.make(for: .hidden,
+                                         showBatteryPercent: true,
+                                         showWhenDisconnected: true)
+        XCTAssertNil(p.batteryText)
+    }
+
+    func testShowWhenDisconnectedLeavesConnectedUntouched() {
+        let p = MenuBarPresentation.make(for: .connected(data(bars: 4)), showWhenDisconnected: true)
+        XCTAssertEqual(p.symbolName, "cellularbars")
+        XCTAssertEqual(p.variableValue, 0.8, accuracy: 0.001)
+    }
+
     func testConnectedUsesCellularbars() {
         let p = MenuBarPresentation.make(for: .connected(data(bars: 4)))
         XCTAssertTrue(p.isVisible)

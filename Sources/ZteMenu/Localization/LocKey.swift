@@ -52,6 +52,10 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsSSIDHelp = "settings.network.ssid_help"
     case settingsModemIPHelp = "settings.network.modem_ip_help"
 
+    // Settings — menu bar visibility
+    case settingsShowWhenDisconnected = "settings.panel.show_when_disconnected"
+    case settingsShowWhenDisconnectedHelp = "settings.panel.show_when_disconnected_help"
+
     // Settings — stats section
     case settingsStatsSection = "settings.stats.section"
     case settingsStatsBasic = "settings.stats.basic"

@@ -78,6 +78,9 @@
 "settings.appearance.language_polish" = "Polski";
 "settings.appearance.language_english" = "English";
 
+"settings.panel.show_when_disconnected" = "Pokazuj ikonę przy braku połączenia";
+"settings.panel.show_when_disconnected_help" = "Zostawia ikonę na pasku menu, gdy modem jest poza zasięgiem, zamiast ukrywać aplikację.";
+
 /* Ustawienia — bateria */
 "settings.tab.battery" = "Bateria";
 "settings.battery.menu_bar_section" = "Pasek menu";

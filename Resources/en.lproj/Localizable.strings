@@ -78,6 +78,9 @@
 "settings.appearance.language_polish" = "Polski";
 "settings.appearance.language_english" = "English";
 
+"settings.panel.show_when_disconnected" = "Show icon when disconnected";
+"settings.panel.show_when_disconnected_help" = "Keeps the menu bar icon in place while the modem is out of reach, instead of hiding the app.";
+
 /* Settings — battery */
 "settings.tab.battery" = "Battery";
 "settings.battery.menu_bar_section" = "Menu bar";

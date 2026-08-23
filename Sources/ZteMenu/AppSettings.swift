@@ -68,12 +68,14 @@ struct AppSettings: Codable, Equatable {
     var stats: StatVisibility = StatVisibility()
     var language: AppLanguage = .system
     var showBatteryPercent: Bool = false
+    var showWhenDisconnected: Bool = false
     var batteryNotifications: BatteryNotificationSettings = BatteryNotificationSettings()
 
     static let defaults = AppSettings()
 
     /// Settings saved by earlier versions carry no `language`,
-    /// `showBatteryPercent` or `batteryNotifications` key. Decoding each field
+    /// `showBatteryPercent`, `showWhenDisconnected` or
+    /// `batteryNotifications` key. Decoding each field
     /// individually keeps those payloads loadable instead of throwing and
     /// silently resetting every preference.
     init(from decoder: Decoder) throws {
@@ -86,6 +88,7 @@ struct AppSettings: Codable, Equatable {
         stats = try c.decodeIfPresent(StatVisibility.self, forKey: .stats) ?? d.stats
         language = try c.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .system
         showBatteryPercent = try c.decodeIfPresent(Bool.self, forKey: .showBatteryPercent) ?? d.showBatteryPercent
+        showWhenDisconnected = try c.decodeIfPresent(Bool.self, forKey: .showWhenDisconnected) ?? d.showWhenDisconnected
         batteryNotifications = try c.decodeIfPresent(BatteryNotificationSettings.self, forKey: .batteryNotifications)
             ?? d.batteryNotifications
     }
