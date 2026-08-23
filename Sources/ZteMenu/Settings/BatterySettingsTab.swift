@@ -67,7 +67,10 @@ struct BatterySettingsTab: View {
     /// another row has to be rejected, not stored.
     @ViewBuilder
     private func thresholdRow(_ threshold: BatteryThreshold) -> some View {
-        HStack(spacing: 10) {
+        // `.firstTextBaseline`, not the default centre: these controls have
+        // different heights, so centring them lines up their boxes while their
+        // text drifts apart. The baseline is what the eye actually reads.
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
             Toggle("", isOn: Binding(
                 get: { threshold.isEnabled },
                 set: { settings.settings.batteryNotifications
@@ -75,14 +78,20 @@ struct BatterySettingsTab: View {
             ))
             .labelsHidden()
 
-            Stepper(value: Binding(
+            Text(l10n(.settingsBatteryThreshold, threshold.percent))
+                .monospacedDigit()
+
+            Spacer(minLength: 8)
+
+            // The stepper's own label is left empty: inside a Form, macOS
+            // treats it as the row's form label and moves it to the leading
+            // column, which would tear the text away from its controls.
+            Stepper("", value: Binding(
                 get: { threshold.percent },
                 set: { settings.settings.batteryNotifications
                         .updateThreshold(id: threshold.id, percent: $0) }
-            ), in: BatteryNotificationSettings.percentRange) {
-                Text(l10n(.settingsBatteryThreshold, threshold.percent))
-                    .monospacedDigit()
-            }
+            ), in: BatteryNotificationSettings.percentRange)
+            .labelsHidden()
 
             Picker("", selection: Binding(
                 get: { threshold.isUrgent },
