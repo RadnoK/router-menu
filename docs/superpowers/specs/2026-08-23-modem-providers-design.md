@@ -159,8 +159,10 @@ instead of the whole app, and `.locationDenied` is shown only when nothing
 matched *and* an SSID profile had to be skipped. With a single SSID-matched
 profile — today's setup — behaviour is identical to current.
 
-`SSIDReading`, `CoreWLANReader`, and the `URLReachability` helper move into the
-`Modem/` folder unchanged.
+`SSIDReading` and `CoreWLANReader` move into the `Modem/` folder unchanged.
+`URLReachability` retires: probing goes through each driver's own HTTP stack
+(see the ZTE provider below), which keeps it stubbed by the same test seam as
+`fetch()`.
 
 ### ZTE provider — `Sources/ZteMenu/Providers/ZTE/`
 
@@ -168,8 +170,10 @@ profile — today's setup — behaviour is identical to current.
   `ModemDriving`. Same goform endpoints, field lists, Referer header, LD/SHA256
   login (`ZTEAuth`), and cookie-session requirement (`SessionHTTP`). The ZTE
   key mapping (`ModemData.parse`) lives here.
-- `probe()` in v1 delegates to `URLReachability` (HEAD against the base URL) —
-  exactly today's `byIPReachable` behaviour.
+- `probe()` in v1 issues a HEAD against the base URL through the client's
+  injected `HTTPFetching`, with the same 3-second budget the old
+  `URLReachability` used — today's `byIPReachable` behaviour, now testable
+  through the driver's own seam.
 - Descriptor values: displayName `"ZTE"`, defaultBaseURL `http://192.168.0.1`,
   defaultSSID `"ZTE_B4B622"` (today's shipped default), modes
   `[.ssid, .ipProbe]` with `.ssid` default, capabilities
@@ -290,7 +294,7 @@ One SwiftPM target; folders only.
 ```
 Sources/ZteMenu/Modem/
   ModemData.swift        (moved; parse(_:) removed)
-  ModemDriving.swift     (protocol + URLReachability)
+  ModemDriving.swift     (the driver protocol)
   ModemProfile.swift     (MatchMode + ModemProfile)
   Provider.swift         (ProviderKind, PasswordRole, ModemCapabilities,
                           ProviderDescriptor, ProviderCatalog)
@@ -338,7 +342,7 @@ battery tab, menu bar %, and notifications disappear for the Asus profile via
   profile switch; `hasBattery == false` short-circuits; cross-profile
   `requestAuthorizationIfNeeded`.
 
-Verification: `swift build && swift test` (currently 105 tests; no
+Verification: `swift build && swift test` (currently 119 tests; no
 regressions), then `./scripts/build-app.sh` and a manual smoke test: icon
 appears on the ZTE network, settings round-trip, battery % toggle, popover
 header shows "ZTE · <ssid>".
