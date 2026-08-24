@@ -62,7 +62,10 @@ public final class ModemStore {
                 let sameDeviceAsLastSample = lastSampledProfileID == nil
                     || lastSampledProfileID == profile.id
                 history.add(battery: data.batteryPercent,
-                            totalBytes: sameDeviceAsLastSample ? data.totalBytesForHistory : nil)
+                            totalRx: sameDeviceAsLastSample ? data.totalRx : nil,
+                            totalTx: sameDeviceAsLastSample ? data.totalTx : nil,
+                            rsrp: data.rsrp,
+                            sinr: data.sinr)
                 lastSampledProfileID = profile.id
                 notifier?.handle(data, profile: profile)
             } catch ModemError.loginFailed {

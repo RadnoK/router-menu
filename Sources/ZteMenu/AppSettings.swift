@@ -5,6 +5,31 @@ struct StatVisibility: Codable, Equatable {
     var radio: Bool = true
     var transfer: Bool = true
     var uptime: Bool = true
+    /// The session data counters row (devices that report them).
+    var session: Bool = true
+    // Chart toggles, one per popover chart. Capability-gated in the UI —
+    // a router without a battery never shows the battery chart toggle.
+    var transferChart: Bool = true
+    var signalChart: Bool = true
+    var batteryChart: Bool = true
+
+    init() {}
+
+    /// Forgiving decode like the rest of the settings tree: a payload written
+    /// before a toggle existed decodes to that toggle's default instead of
+    /// throwing the user's whole configuration away.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = StatVisibility()
+        basic = try c.decodeIfPresent(Bool.self, forKey: .basic) ?? d.basic
+        radio = try c.decodeIfPresent(Bool.self, forKey: .radio) ?? d.radio
+        transfer = try c.decodeIfPresent(Bool.self, forKey: .transfer) ?? d.transfer
+        uptime = try c.decodeIfPresent(Bool.self, forKey: .uptime) ?? d.uptime
+        session = try c.decodeIfPresent(Bool.self, forKey: .session) ?? d.session
+        transferChart = try c.decodeIfPresent(Bool.self, forKey: .transferChart) ?? d.transferChart
+        signalChart = try c.decodeIfPresent(Bool.self, forKey: .signalChart) ?? d.signalChart
+        batteryChart = try c.decodeIfPresent(Bool.self, forKey: .batteryChart) ?? d.batteryChart
+    }
 }
 
 /// One battery level the user wants to hear about on the way down.

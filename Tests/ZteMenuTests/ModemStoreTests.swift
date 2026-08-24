@@ -3,7 +3,7 @@ import XCTest
 
 @MainActor
 final class ModemStoreV2Tests: XCTestCase {
-    private nonisolated static let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500"}"#.utf8)
+    private nonisolated static let json = Data(#"{"battery_value":"55","signalbar":"5","network_type":"ENDC","total_rx_bytes":"1000","total_tx_bytes":"500","Z5g_rsrp":"-95","Z5g_SINR":"12"}"#.utf8)
 
     private struct FakeDriver: ModemDriving {
         var reachable = false
@@ -46,6 +46,10 @@ final class ModemStoreV2Tests: XCTestCase {
         XCTAssertEqual(store.activeProfile?.matchMode, .ipProbe)
         XCTAssertEqual(hist.samples.count, 1)
         XCTAssertEqual(hist.samples.last?.totalBytes, 1500)
+        XCTAssertEqual(hist.samples.last?.totalRx, 1000)
+        XCTAssertEqual(hist.samples.last?.totalTx, 500)
+        XCTAssertEqual(hist.samples.last?.rsrp, -95)
+        XCTAssertEqual(hist.samples.last?.sinr, 12)
     }
 
     func testSSIDMatchConnects() async {

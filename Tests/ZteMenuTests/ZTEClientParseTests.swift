@@ -86,13 +86,13 @@ final class ZTEClientParseTests: XCTestCase {
         XCTAssertEqual(d.monthlyTx, 3998344877)
         XCTAssertEqual(d.sessionUptime, 7100)
         XCTAssertEqual(d.monthlyUptime, 127070)
-        XCTAssertEqual(d.totalBytesForHistory, 111604507190 + 22997555141)
+        XCTAssertEqual(d.totalTx, 22997555141)
     }
 
     func testTransferFieldsNilWhenAbsent() {
         let d = ZTEClient.parse(["signalbar": "3", "network_type": "LTE"])
         XCTAssertNil(d.rxSpeed)
         XCTAssertNil(d.totalRx)
-        XCTAssertNil(d.totalBytesForHistory)
+        XCTAssertNil(d.totalTx)
     }
 }

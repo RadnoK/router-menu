@@ -46,9 +46,4 @@ struct ModemData: Equatable {
         default: return .veryGood
         }
     }
-
-    var totalBytesForHistory: Int? {
-        guard let rx = totalRx, let tx = totalTx else { return nil }
-        return rx + tx
-    }
 }
