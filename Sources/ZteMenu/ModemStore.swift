@@ -21,7 +21,7 @@ public final class ModemStore {
          matcher: ModemMatcher = ModemMatcher(),
          driverFactory: @escaping @MainActor (ModemProfile) -> any ModemDriving = { profile in
              ProviderCatalog.descriptor(for: profile.provider)
-                 .makeDriver(profile.baseURL, Keychain.password(), SessionHTTP())
+                 .makeDriver(profile.baseURL, Keychain.password(for: profile.id), SessionHTTP())
          }) {
         self.settings = settings
         self.history = history

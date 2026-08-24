@@ -25,6 +25,10 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         l10n.setLanguage(settings.settings.language)
+        // One-time: the pre-device-manager app kept a single password slot.
+        // profiles[0] is the profile the settings migration built from those
+        // same legacy settings, so the password belongs to it.
+        Keychain.migrateLegacyPassword(to: settings.settings.profiles[0].id)
         store.setBatteryNotifier(batteryNotifier)
         // Only if the user already armed an alert in a previous run — a fresh
         // install shows no prompt until they turn one on.
