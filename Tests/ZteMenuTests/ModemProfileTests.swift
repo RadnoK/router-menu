@@ -65,4 +65,29 @@ final class ModemProfileTests: XCTestCase {
         XCTAssertEqual(adopted.ssid, "ZTE_B4B622")
         XCTAssertEqual(adopted.modemIP, "192.168.0.1")
     }
+
+    func testNameAndUsernameDefaults() {
+        let p = ModemProfile.makeDefault(provider: .zte)
+        XCTAssertEqual(p.name, "", "no custom name until the user types one")
+        XCTAssertEqual(p.username, "admin")
+    }
+
+    func testNameAndUsernameSurviveCodableAndAdopting() throws {
+        var p = ModemProfile.makeDefault(provider: .zte)
+        p.name = "Modem w plecaku"
+        p.username = "root"
+        let decoded = try JSONDecoder().decode(ModemProfile.self,
+                                               from: try JSONEncoder().encode(p))
+        XCTAssertEqual(decoded.name, "Modem w plecaku")
+        XCTAssertEqual(decoded.username, "root")
+        let adopted = p.adopting(provider: .zte)
+        XCTAssertEqual(adopted.name, "Modem w plecaku", "a name belongs to the user, not the brand")
+        XCTAssertEqual(adopted.username, "root")
+    }
+
+    func testLegacyPayloadWithoutNewFieldsDecodesToDefaults() throws {
+        let p = try JSONDecoder().decode(ModemProfile.self, from: Data("{}".utf8))
+        XCTAssertEqual(p.name, "")
+        XCTAssertEqual(p.username, "admin")
+    }
 }

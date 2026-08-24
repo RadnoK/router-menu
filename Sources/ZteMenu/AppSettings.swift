@@ -180,3 +180,31 @@ struct AppSettings: Codable, Equatable {
 
     init() {}
 }
+
+// MARK: - Profile list operations
+
+/// The only mutation paths for the profile list; views never index into
+/// `profiles` directly. Stored order is matcher priority (first match wins).
+extension AppSettings {
+    /// Appends a fresh descriptor-prefilled profile; returns its id so the
+    /// UI can select it.
+    mutating func addProfile(provider: ProviderKind) -> UUID {
+        let profile = ModemProfile.makeDefault(provider: provider)
+        profiles.append(profile)
+        return profile.id
+    }
+
+    /// Refuses to delete the last profile — the never-empty invariant that
+    /// the decoder repairs is also enforced at the mutation edge.
+    @discardableResult
+    mutating func removeProfile(id: UUID) -> Bool {
+        guard profiles.count > 1,
+              let index = profiles.firstIndex(where: { $0.id == id }) else { return false }
+        profiles.remove(at: index)
+        return true
+    }
+
+    mutating func moveProfiles(fromOffsets: IndexSet, toOffset: Int) {
+        profiles.move(fromOffsets: fromOffsets, toOffset: toOffset)
+    }
+}
