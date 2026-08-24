@@ -23,6 +23,11 @@ enum LocKey: String, CaseIterable, Sendable {
     case popoverSectionSignal = "popover.section.signal"
     case popoverSectionTransfer = "popover.section.transfer"
     case popoverSectionBattery = "popover.section.battery"
+    case popoverSectionLocal = "popover.section.local"
+
+    // Popover — local network pane
+    case popoverLocalIP = "popover.local_ip"
+    case popoverCopy = "popover.copy"
 
     // Popover — actions
     case popoverRefresh = "popover.refresh"
@@ -91,6 +96,7 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsStatsTransfer = "settings.stats.transfer"
     case settingsStatsUptime = "settings.stats.uptime"
     case settingsStatsSession = "settings.stats.session"
+    case settingsStatsLocalIP = "settings.stats.local_ip"
     case settingsStatsChartsSection = "settings.stats.charts_section"
     case settingsStatsChartTransfer = "settings.stats.chart_transfer"
     case settingsStatsChartSignal = "settings.stats.chart_signal"

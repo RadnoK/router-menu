@@ -132,6 +132,7 @@ struct DeviceDetailView: View {
                 Toggle(l10n(.settingsStatsSession), isOn: $settings.profile.stats.session)
             }
             Toggle(l10n(.settingsStatsUptime), isOn: $settings.profile.stats.uptime)
+            Toggle(l10n(.settingsStatsLocalIP), isOn: $settings.profile.stats.localIP)
         } header: {
             Text(l10n(.settingsStatsSection))
         }

@@ -12,6 +12,8 @@ struct StatVisibility: Codable, Equatable {
     var transferChart: Bool = true
     var signalChart: Bool = true
     var batteryChart: Bool = true
+    /// This Mac's own address on the device's network, with a copy button.
+    var localIP: Bool = true
 
     init() {}
 
@@ -29,6 +31,7 @@ struct StatVisibility: Codable, Equatable {
         transferChart = try c.decodeIfPresent(Bool.self, forKey: .transferChart) ?? d.transferChart
         signalChart = try c.decodeIfPresent(Bool.self, forKey: .signalChart) ?? d.signalChart
         batteryChart = try c.decodeIfPresent(Bool.self, forKey: .batteryChart) ?? d.batteryChart
+        localIP = try c.decodeIfPresent(Bool.self, forKey: .localIP) ?? d.localIP
     }
 }
 

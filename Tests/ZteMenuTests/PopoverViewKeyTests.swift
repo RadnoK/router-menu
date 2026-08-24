@@ -82,6 +82,13 @@ final class PopoverViewKeyTests: XCTestCase {
         XCTAssertFalse(PopoverView.showsTransferPane(stats: allOff, hasChartData: true))
     }
 
+    func testLocalIPPaneNeedsToggleAndAResolvedAddress() {
+        XCTAssertTrue(PopoverView.showsLocalIPPane(stats: stats(), resolvedIP: "192.168.50.20"))
+        XCTAssertFalse(PopoverView.showsLocalIPPane(stats: stats { $0.localIP = false },
+                                                    resolvedIP: "192.168.50.20"))
+        XCTAssertFalse(PopoverView.showsLocalIPPane(stats: stats(), resolvedIP: nil))
+    }
+
     func testBatteryPaneNeedsCapabilityToggleAndData() {
         XCTAssertTrue(PopoverView.showsBatteryPane(stats: stats(), hasBattery: true,
                                                    hasChartData: true))

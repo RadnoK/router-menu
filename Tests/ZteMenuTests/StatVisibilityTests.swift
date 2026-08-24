@@ -6,6 +6,7 @@ final class StatVisibilityTests: XCTestCase {
         let v = StatVisibility()
         XCTAssertTrue(v.basic && v.radio && v.transfer && v.uptime)
         XCTAssertTrue(v.session && v.transferChart && v.signalChart && v.batteryChart)
+        XCTAssertTrue(v.localIP)
     }
 
     func testLegacyPayloadWithoutChartKeysDecodesToDefaults() throws {
@@ -19,6 +20,7 @@ final class StatVisibilityTests: XCTestCase {
         XCTAssertTrue(v.transferChart)
         XCTAssertTrue(v.signalChart)
         XCTAssertTrue(v.batteryChart)
+        XCTAssertTrue(v.localIP)
     }
 
     func testRoundTripPreservesEveryToggle() throws {

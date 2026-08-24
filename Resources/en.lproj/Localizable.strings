@@ -18,6 +18,9 @@
 "popover.section.signal" = "Signal";
 "popover.section.transfer" = "Transfer";
 "popover.section.battery" = "Battery";
+"popover.section.local" = "This Mac";
+"popover.local_ip" = "IP address";
+"popover.copy" = "Copy";
 
 /* Popover — actions */
 "popover.refresh" = "Refresh";
@@ -74,6 +77,7 @@
 "settings.stats.transfer" = "Transfer";
 "settings.stats.uptime" = "Connection time";
 "settings.stats.session" = "Session data";
+"settings.stats.local_ip" = "This Mac's local IP";
 "settings.stats.charts_section" = "Charts";
 "settings.stats.chart_transfer" = "Transfer chart";
 "settings.stats.chart_signal" = "Signal chart (RSRP)";

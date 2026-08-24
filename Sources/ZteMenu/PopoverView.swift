@@ -64,6 +64,10 @@ public struct PopoverView: View {
         hasBattery && stats.batteryChart && hasChartData
     }
 
+    static func showsLocalIPPane(stats: StatVisibility, resolvedIP: String?) -> Bool {
+        stats.localIP && resolvedIP != nil
+    }
+
     // MARK: Connected layout
 
     @ViewBuilder
@@ -96,6 +100,22 @@ public struct PopoverView: View {
                 if profile.stats.uptime, let up = d.sessionUptime {
                     row("timer", l10n(.popoverSession), ByteFormat.uptime(up))
                 }
+            }
+        }
+
+        // Instantaneous kernel lookup (no traffic), so calling it during
+        // body is fine — and it must precede the pane-visibility decision.
+        let localIP = LocalIP.address(towards: profile.modemIP)
+        if Self.showsLocalIPPane(stats: profile.stats, resolvedIP: localIP), let localIP {
+            pane(l10n(.popoverSectionLocal)) {
+                HStack(spacing: 6) {
+                    icon("desktopcomputer")
+                    Text(l10n(.popoverLocalIP))
+                    Spacer()
+                    Text(localIP).monospacedDigit().textSelection(.enabled)
+                    CopyIconButton(text: localIP, help: l10n(.popoverCopy))
+                }
+                .font(.callout)
             }
         }
 
@@ -278,5 +298,33 @@ public struct PopoverView: View {
 
     static func headerText(for profile: ModemProfile) -> String {
         profile.displayTitle
+    }
+}
+
+/// A small borderless copy button that flips to a checkmark for a moment,
+/// so the click visibly did something.
+private struct CopyIconButton: View {
+    let text: String
+    let help: String
+    @State private var copied = false
+
+    var body: some View {
+        Button {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(text, forType: .string)
+            copied = true
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                copied = false
+            }
+        } label: {
+            Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                .foregroundStyle(copied ? AnyShapeStyle(.green)
+                                        : AnyShapeStyle(.secondary))
+                .font(.caption)
+        }
+        .buttonStyle(.borderless)
+        .help(help)
     }
 }

@@ -18,6 +18,9 @@
 "popover.section.signal" = "Sygnał";
 "popover.section.transfer" = "Transfer";
 "popover.section.battery" = "Bateria";
+"popover.section.local" = "Ten Mac";
+"popover.local_ip" = "Adres IP";
+"popover.copy" = "Kopiuj";
 
 /* Popover — akcje */
 "popover.refresh" = "Odśwież";
@@ -74,6 +77,7 @@
 "settings.stats.transfer" = "Transfer";
 "settings.stats.uptime" = "Czas połączenia";
 "settings.stats.session" = "Dane sesji";
+"settings.stats.local_ip" = "IP tego Maca w sieci";
 "settings.stats.charts_section" = "Wykresy";
 "settings.stats.chart_transfer" = "Wykres transferu";
 "settings.stats.chart_signal" = "Wykres sygnału (RSRP)";
