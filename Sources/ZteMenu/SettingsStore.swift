@@ -38,6 +38,9 @@ public final class SettingsStore {
             settings.profiles.first { $0.id == editedProfileID } ?? settings.profiles[0]
         }
         set {
+            // Writes for a profile that no longer exists are dropped on
+            // purpose — a stale copy captured across a removal must not
+            // resurrect the device.
             guard let index = settings.profiles.firstIndex(where: { $0.id == newValue.id })
             else { return }
             settings.profiles[index] = newValue

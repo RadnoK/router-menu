@@ -61,7 +61,8 @@ public struct PopoverView: View {
         if profile.stats.uptime, let up = d.sessionUptime {
             row("timer", l10n(.popoverSession), ByteFormat.uptime(up))
         }
-        if !store.history.batterySeries().isEmpty {
+        if ProviderCatalog.descriptor(for: profile.provider).capabilities.hasBattery,
+           !store.history.batterySeries().isEmpty {
             BatteryChartView(samples: store.history.batterySeries())
                 .frame(height: 60)
         }

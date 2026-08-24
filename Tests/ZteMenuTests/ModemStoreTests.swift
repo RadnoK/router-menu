@@ -99,6 +99,30 @@ final class ModemStoreV2Tests: XCTestCase {
         await store.refresh()
         XCTAssertEqual(store.state, .error(.unreachable))
     }
+
+    func testDeviceSwitchBreaksTheTransferDiffChain() async {
+        let hist = tempHistory()
+        let defaults = UserDefaults(suiteName: "t-\(UUID().uuidString)")!
+        let settings = SettingsStore(defaults: defaults)
+        settings.profile.matchMode = .ssid
+        settings.profile.ssid = "ZTE_B4B622"
+        let asusID = settings.settings.addProfile(provider: .asus)
+        let matcher = ModemMatcher(reader: FixedSSID(value: "ZTE_B4B622"))
+        let store = ModemStore(settings: settings, history: hist, matcher: matcher,
+                               driverFactory: { _ in FakeDriver(reachable: true) })
+
+        await store.refresh()   // matches the ZTE profile (SSID)
+        // Stop the SSID from matching so the ipProbe Asus profile wins next.
+        settings.profile.ssid = "SomewhereElse"
+        _ = asusID
+        await store.refresh()   // matches the Asus profile
+        await store.refresh()   // Asus again — same device as last sample
+
+        XCTAssertEqual(hist.samples.count, 3)
+        XCTAssertNotNil(hist.samples[0].totalBytes, "first device's first sample carries totals")
+        XCTAssertNil(hist.samples[1].totalBytes, "device boundary must break the diff chain")
+        XCTAssertNotNil(hist.samples[2].totalBytes, "same device again — chain resumes")
+    }
 }
 
 private struct FixedSSID: SSIDReading {

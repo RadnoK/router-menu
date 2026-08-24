@@ -56,7 +56,10 @@ struct DeviceSignInSection: View {
     }
 
     private func save() {
-        guard !password.isEmpty else { return }
+        // A removal deletes the slot and tears this view down; the disappear-
+        // save must not resurrect the credential for a device that is gone.
+        guard !password.isEmpty,
+              settings.settings.profiles.contains(where: { $0.id == profileID }) else { return }
         Keychain.setPassword(password, for: profileID)
     }
 }

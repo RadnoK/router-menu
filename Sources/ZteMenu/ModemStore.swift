@@ -15,6 +15,9 @@ public final class ModemStore {
     private var locationAuth: LocationAuth = .authorized
     /// Optional so tests get a store that posts nothing; the app wires one in.
     private var notifier: BatteryNotifier?
+    /// Which device produced the previous history sample. Totals from two
+    /// different devices must never be diffed into a transfer-speed point.
+    private var lastSampledProfileID: UUID?
 
     init(settings: SettingsStore,
          history: HistoryStore,
@@ -54,7 +57,13 @@ public final class ModemStore {
             do {
                 let data = try await driver.fetch()
                 state = .connected(data)
-                history.add(battery: data.batteryPercent, totalBytes: data.totalBytesForHistory)
+                // No prior sample at all is not a device boundary — only a
+                // *different* previous device must break the diff chain.
+                let sameDeviceAsLastSample = lastSampledProfileID == nil
+                    || lastSampledProfileID == profile.id
+                history.add(battery: data.batteryPercent,
+                            totalBytes: sameDeviceAsLastSample ? data.totalBytesForHistory : nil)
+                lastSampledProfileID = profile.id
                 notifier?.handle(data, profile: profile)
             } catch ModemError.loginFailed {
                 state = .error(.loginFailed)
