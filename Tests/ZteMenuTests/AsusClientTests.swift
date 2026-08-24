@@ -45,6 +45,11 @@ final class AsusClientLoginTests: XCTestCase {
                        "http://192.168.50.1/Main_Login.asp")
         XCTAssertEqual(login.value(forHTTPHeaderField: "Content-Type"),
                        "application/x-www-form-urlencoded")
+        // Newer Asuswrt firmware only engages the JSON login API for an
+        // asusrouter-style user agent — a default UA gets the HTML redirect
+        // (verified live against the target router).
+        XCTAssertEqual(login.value(forHTTPHeaderField: "User-Agent"),
+                       "asusrouter--DUTUtil-")
         let body = String(data: login.httpBody ?? Data(), encoding: .utf8) ?? ""
         // base64("admin:haslo") — the credential pair, never logged elsewhere.
         XCTAssertEqual(body, "login_authorization=YWRtaW46aGFzbG8=")
@@ -58,6 +63,8 @@ final class AsusClientLoginTests: XCTestCase {
         for request in http.requests.dropFirst() {
             XCTAssertEqual(request.value(forHTTPHeaderField: "Cookie"),
                            "asus_token=AbCdEf123456")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "User-Agent"),
+                           "asusrouter--DUTUtil-")
         }
         let hooks = http.requests[1].url?.absoluteString ?? ""
         XCTAssertTrue(hooks.hasPrefix("http://192.168.50.1/appGet.cgi?hook="))

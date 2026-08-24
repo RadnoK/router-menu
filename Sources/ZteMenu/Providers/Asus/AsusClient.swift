@@ -51,6 +51,14 @@ struct AsusClient: ModemDriving {
 
     // MARK: Protocol steps
 
+    /// Newer Asuswrt firmware gates the JSON login/data API on an
+    /// asusrouter-style user agent — with a browser-like UA, `login.cgi`
+    /// answers with the HTML redirect instead of JSON (verified live:
+    /// default UA → `<script>parent.location.href='/Main_Login.asp'…`,
+    /// this UA → `{"error_status":…}`). Same value the asusrouter /
+    /// Home Assistant integrations ship.
+    static let userAgent = "asusrouter--DUTUtil-"
+
     private func login() async throws -> String {
         guard let password else { throw ModemError.loginFailed }
         var request = URLRequest(url: baseURL.appendingPathComponent("login.cgi"))
@@ -61,6 +69,7 @@ struct AsusClient: ModemDriving {
                          forHTTPHeaderField: "Referer")
         request.setValue("application/x-www-form-urlencoded",
                          forHTTPHeaderField: "Content-Type")
+        request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
         let credentials = Data("\(username):\(password)".utf8).base64EncodedString()
         request.httpBody = Data("login_authorization=\(credentials)".utf8)
         let data = try await http.data(for: request)
@@ -79,6 +88,7 @@ struct AsusClient: ModemDriving {
         // Sent explicitly rather than relying on cookie storage, so the
         // driver works with any HTTPFetching.
         request.setValue("asus_token=\(token)", forHTTPHeaderField: "Cookie")
+        request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
         let data = try await http.data(for: request)
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             // An expired session answers with the login-redirect HTML.
