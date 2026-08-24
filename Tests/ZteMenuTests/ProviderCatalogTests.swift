@@ -45,4 +45,31 @@ final class ProviderCatalogTests: XCTestCase {
         XCTAssertEqual(MatchMode.ssid.rawValue, "ssid")
         XCTAssertEqual(MatchMode.ipProbe.rawValue, "ipProbe")
     }
+
+    func testAsusDescriptorMatchesAsuswrt() {
+        let d = ProviderCatalog.descriptor(for: .asus)
+        XCTAssertEqual(d.displayName, "Asus")
+        XCTAssertEqual(d.defaultBaseURL.absoluteString, "http://192.168.50.1")
+        XCTAssertEqual(d.defaultSSID, "", "no factory SSID exists for user-named networks")
+        XCTAssertEqual(d.supportedMatchModes, [.ssid, .ipProbe])
+        XCTAssertEqual(d.defaultMatchMode, .ipProbe)
+        XCTAssertFalse(d.capabilities.hasBattery)
+        XCTAssertEqual(d.capabilities.passwordRole, .requiredForAll)
+        XCTAssertTrue(d.capabilities.needsUsername)
+        XCTAssertFalse(d.capabilities.hasRadioSignal)
+    }
+
+    func testAsusFactoryBuildsAnAsusDriverFromAProfile() {
+        let profile = ModemProfile.makeDefault(provider: .asus)
+        XCTAssertEqual(profile.modemIP, "192.168.50.1")
+        XCTAssertEqual(profile.matchMode, .ipProbe)
+        let driver = ProviderCatalog.descriptor(for: .asus)
+            .makeDriver(profile, "haslo", URLSession.shared)
+        XCTAssertTrue(driver is AsusClient)
+    }
+
+    func testProviderRawValuesAreStable() {
+        XCTAssertEqual(ProviderKind.zte.rawValue, "zte")
+        XCTAssertEqual(ProviderKind.asus.rawValue, "asus")
+    }
 }

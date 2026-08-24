@@ -3,6 +3,7 @@ import Foundation
 /// Which device family a profile talks to. Raw values are persisted.
 enum ProviderKind: String, Codable, CaseIterable, Sendable {
     case zte
+    case asus
 }
 
 /// What the panel password unlocks on a device, so credential UI can be
@@ -45,6 +46,7 @@ enum ProviderCatalog {
     static func descriptor(for kind: ProviderKind) -> ProviderDescriptor {
         switch kind {
         case .zte: return ZTEProvider.descriptor
+        case .asus: return AsusProvider.descriptor
         }
     }
 }
