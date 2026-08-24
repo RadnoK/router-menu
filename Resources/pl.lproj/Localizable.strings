@@ -54,6 +54,11 @@
 "settings.account.username_field" = "Login";
 "settings.signin.section" = "Logowanie";
 "settings.account.password_help_required" = "Wymagane, aby cokolwiek odczytać z tego urządzenia.";
+"settings.device.tab.info" = "Informacje";
+"settings.device.tab.stats" = "Statystyki";
+"settings.device.tab.battery" = "Bateria";
+"settings.device.test_connection" = "Testuj połączenie";
+"settings.device.test_connection_ok" = "Połączenie działa";
 
 /* Ustawienia — statystyki */
 "settings.stats.section" = "Statystyki w panelu";

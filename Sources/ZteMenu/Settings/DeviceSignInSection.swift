@@ -44,6 +44,13 @@ struct DeviceSignInSection: View {
                 password = ""
             }
             .disabled(password.isEmpty)
+
+            HStack {
+                Button(l10n(.settingsTestConnection), action: runTest)
+                    .disabled(testState == .testing)
+                Spacer()
+                testResult
+            }
         } header: {
             Text(l10n(.settingsSignInSection))
         } footer: {
@@ -53,6 +60,65 @@ struct DeviceSignInSection: View {
                 .foregroundStyle(.secondary)
         }
         .onDisappear(perform: save)
+    }
+
+    // MARK: Connection test
+
+    /// A live end-to-end check against the device: full login + data read
+    /// through the profile's real driver, with whatever is typed in the
+    /// fields right now.
+    enum TestState: Equatable {
+        case idle
+        case testing
+        case success
+        case failure(LocKey)
+    }
+
+    @State private var testState: TestState = .idle
+
+    /// Which error copy a failed test shows. Static and pure so it is
+    /// unit-testable without a view.
+    static func failureKey(for error: Error) -> LocKey {
+        if case ModemError.loginFailed = error { return .errorLoginFailed }
+        return .errorUnreachable
+    }
+
+    @ViewBuilder
+    private var testResult: some View {
+        switch testState {
+        case .idle:
+            EmptyView()
+        case .testing:
+            ProgressView()
+                .controlSize(.small)
+        case .success:
+            Label(l10n(.settingsTestConnectionOK), systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+                .font(.callout)
+        case .failure(let key):
+            Label(l10n(key), systemImage: "xmark.circle.fill")
+                .foregroundStyle(.red)
+                .font(.callout)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+    }
+
+    private func runTest() {
+        save()
+        testState = .testing
+        let profile = settings.profile
+        let password = password.isEmpty ? nil : password
+        Task { @MainActor in
+            let driver = ProviderCatalog.descriptor(for: profile.provider)
+                .makeDriver(profile, password, SessionHTTP())
+            do {
+                _ = try await driver.fetch()
+                testState = .success
+            } catch {
+                testState = .failure(Self.failureKey(for: error))
+            }
+        }
     }
 
     private func save() {

@@ -54,6 +54,11 @@
 "settings.account.username_field" = "Username";
 "settings.signin.section" = "Sign-in";
 "settings.account.password_help_required" = "Required to read anything from this device.";
+"settings.device.tab.info" = "Information";
+"settings.device.tab.stats" = "Statistics";
+"settings.device.tab.battery" = "Battery";
+"settings.device.test_connection" = "Test connection";
+"settings.device.test_connection_ok" = "Connection OK";
 
 /* Settings — stats */
 "settings.stats.section" = "Panel statistics";
