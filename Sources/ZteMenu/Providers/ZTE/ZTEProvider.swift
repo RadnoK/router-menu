@@ -7,9 +7,12 @@ enum ZTEProvider {
         defaultSSID: "ZTE_B4B622",
         supportedMatchModes: [.ssid, .ipProbe],
         defaultMatchMode: .ssid,
-        capabilities: ModemCapabilities(hasBattery: true, passwordRole: .unlocksTraffic),
-        makeDriver: { baseURL, password, http in
-            ZTEClient(baseURL: baseURL, http: http, password: password)
+        capabilities: ModemCapabilities(hasBattery: true,
+                                        passwordRole: .unlocksTraffic,
+                                        needsUsername: false,
+                                        hasRadioSignal: true),
+        makeDriver: { profile, password, http in
+            ZTEClient(baseURL: profile.baseURL, http: http, password: password)
         }
     )
 }

@@ -12,7 +12,10 @@ final class ProviderCatalogTests: XCTestCase {
             XCTAssertFalse(d.supportedMatchModes.isEmpty, "\(kind) supports no match mode")
             XCTAssertTrue(d.supportedMatchModes.contains(d.defaultMatchMode),
                           "\(kind)'s default match mode is not among its supported modes")
-            XCTAssertFalse(d.defaultSSID.isEmpty, "\(kind) has no default SSID")
+            if d.defaultMatchMode == .ssid {
+                XCTAssertFalse(d.defaultSSID.isEmpty,
+                               "\(kind) matches by SSID by default but ships no default SSID")
+            }
         }
     }
 
@@ -25,11 +28,15 @@ final class ProviderCatalogTests: XCTestCase {
         XCTAssertEqual(d.defaultMatchMode, .ssid)
         XCTAssertTrue(d.capabilities.hasBattery)
         XCTAssertEqual(d.capabilities.passwordRole, .unlocksTraffic)
+        XCTAssertFalse(d.capabilities.needsUsername)
+        XCTAssertTrue(d.capabilities.hasRadioSignal)
     }
 
-    func testZTEFactoryBuildsAZTEDriver() {
+    func testZTEFactoryBuildsAZTEDriverFromAProfile() {
+        var profile = ModemProfile.makeDefault(provider: .zte)
+        profile.modemIP = "10.0.0.1"
         let d = ProviderCatalog.descriptor(for: .zte)
-        let driver = d.makeDriver(URL(string: "http://10.0.0.1")!, "secret", URLSession.shared)
+        let driver = d.makeDriver(profile, "secret", URLSession.shared)
         XCTAssertTrue(driver is ZTEClient)
     }
 

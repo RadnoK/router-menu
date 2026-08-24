@@ -19,6 +19,12 @@ enum PasswordRole: Sendable, Equatable {
 struct ModemCapabilities: Sendable, Equatable {
     let hasBattery: Bool
     let passwordRole: PasswordRole
+    /// Whether the device's login has a username component (Asus) or is
+    /// password-only (ZTE). Drives the credentials UI.
+    let needsUsername: Bool
+    /// Cellular modems report bars/RSRP; a wired router has no radio to
+    /// grade. Drives the menu bar symbol and the popover's signal row.
+    let hasRadioSignal: Bool
 }
 
 /// How a provider describes itself: identity for the UI, defaults for fresh
@@ -30,7 +36,7 @@ struct ProviderDescriptor: Sendable {
     let supportedMatchModes: [MatchMode]
     let defaultMatchMode: MatchMode
     let capabilities: ModemCapabilities
-    let makeDriver: @Sendable (_ baseURL: URL, _ password: String?, _ http: any HTTPFetching) -> any ModemDriving
+    let makeDriver: @Sendable (_ profile: ModemProfile, _ password: String?, _ http: any HTTPFetching) -> any ModemDriving
 }
 
 enum ProviderCatalog {
