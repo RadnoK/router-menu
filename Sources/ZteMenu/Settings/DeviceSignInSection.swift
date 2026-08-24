@@ -39,17 +39,16 @@ struct DeviceSignInSection: View {
                     if wasFocused && !isFocused { save() }
                 }
 
-            Button(l10n(.settingsDeletePassword), role: .destructive) {
-                Keychain.deletePassword(for: profileID)
-                password = ""
-            }
-            .disabled(password.isEmpty)
-
             HStack {
                 Button(l10n(.settingsTestConnection), action: runTest)
                     .disabled(testState == .testing)
-                Spacer()
                 testResult
+                Spacer()
+                Button(l10n(.settingsDeletePassword), role: .destructive) {
+                    Keychain.deletePassword(for: profileID)
+                    password = ""
+                }
+                .disabled(password.isEmpty)
             }
         } header: {
             Text(l10n(.settingsSignInSection))
