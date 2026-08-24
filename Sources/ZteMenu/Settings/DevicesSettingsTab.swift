@@ -14,11 +14,9 @@ struct DevicesSettingsTab: View {
     @State private var confirmingRemoval = false
 
     var body: some View {
-        HStack(spacing: 0) {
-            sidebar
-                .frame(width: 224)
-
-            Divider()
+        HStack(alignment: .top, spacing: 12) {
+            deviceBox
+                .frame(width: 232)
 
             // `.id` re-creates the detail (and its @State password) when the
             // selection moves to another device — without it, the sign-in
@@ -28,12 +26,15 @@ struct DevicesSettingsTab: View {
                 .id(settings.profile.id)
                 .frame(maxWidth: .infinity)
         }
+        .padding(12)
         // Fixed pane height: the grouped Form on the right scrolls within it,
         // which is exactly System Settings' behaviour.
         .frame(height: 480)
     }
 
-    private var sidebar: some View {
+    /// The Mail-style device box: a bordered, inset list with the add/remove
+    /// strip attached to its bottom edge — one framed control, not a sidebar.
+    private var deviceBox: some View {
         VStack(spacing: 0) {
             List(selection: Binding(
                 get: { settings.editedProfileID ?? settings.settings.profiles.first?.id },
@@ -46,13 +47,14 @@ struct DevicesSettingsTab: View {
                     settings.settings.moveProfiles(fromOffsets: offsets, toOffset: destination)
                 }
             }
-            .listStyle(.sidebar)
+            .listStyle(.inset)
+            .scrollContentBackground(.hidden)
 
             Divider()
 
-            // System-Settings-style footer: icon-only add/remove, the
-            // localized labels surviving as tooltips.
-            HStack(spacing: 12) {
+            // The classic add/remove strip: bare glyphs split by a hairline,
+            // the localized labels surviving as tooltips.
+            HStack(spacing: 0) {
                 Menu {
                     ForEach(ProviderKind.allCases, id: \.self) { kind in
                         Button(ProviderCatalog.descriptor(for: kind).displayName) {
@@ -61,15 +63,23 @@ struct DevicesSettingsTab: View {
                     }
                 } label: {
                     Image(systemName: "plus")
+                        .frame(width: 24, height: 20)
+                        .contentShape(Rectangle())
                 }
                 .menuIndicator(.hidden)
+                .menuStyle(.borderlessButton)
                 .fixedSize()
                 .help(l10n(.settingsDeviceAdd))
 
-                Button(role: .destructive) {
+                Divider()
+                    .frame(height: 14)
+
+                Button {
                     confirmingRemoval = true
                 } label: {
                     Image(systemName: "minus")
+                        .frame(width: 24, height: 20)
+                        .contentShape(Rectangle())
                 }
                 .disabled(settings.settings.profiles.count <= 1)
                 .help(l10n(.settingsDeviceRemove))
@@ -81,9 +91,15 @@ struct DevicesSettingsTab: View {
                 Spacer()
             }
             .buttonStyle(.borderless)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
         }
+        .background(Color(nsColor: .controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+        )
     }
 
     private func row(for profile: ModemProfile) -> some View {
