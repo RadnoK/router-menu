@@ -10,7 +10,8 @@ enum AsusProvider {
         capabilities: ModemCapabilities(hasBattery: false,
                                         passwordRole: .requiredForAll,
                                         needsUsername: true,
-                                        hasRadioSignal: false),
+                                        hasRadioSignal: false,
+                                        hasSessionCounters: false),
         makeDriver: { profile, password, http in
             AsusClient(baseURL: profile.baseURL,
                        username: profile.username,

@@ -26,6 +26,9 @@ struct ModemCapabilities: Sendable, Equatable {
     /// Cellular modems report bars/RSRP; a wired router has no radio to
     /// grade. Drives the menu bar symbol and the popover's signal row.
     let hasRadioSignal: Bool
+    /// Whether the device reports per-session data counters (ZTE's
+    /// realtime_*_bytes). Drives the session row and its settings toggle.
+    let hasSessionCounters: Bool
 }
 
 /// How a provider describes itself: identity for the UI, defaults for fresh

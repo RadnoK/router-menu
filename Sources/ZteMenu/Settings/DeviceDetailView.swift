@@ -116,14 +116,38 @@ struct DeviceDetailView: View {
         }
     }
 
+    /// Only toggles the device can honour: an Asus router has no radio,
+    /// battery, or session counters to chart, so those switches never appear.
+    @ViewBuilder
     private var statsSection: some View {
+        let capabilities = ProviderCatalog
+            .descriptor(for: settings.profile.provider).capabilities
         Section {
             Toggle(l10n(.settingsStatsBasic), isOn: $settings.profile.stats.basic)
-            Toggle(l10n(.settingsStatsRadio), isOn: $settings.profile.stats.radio)
+            if capabilities.hasRadioSignal {
+                Toggle(l10n(.settingsStatsRadio), isOn: $settings.profile.stats.radio)
+            }
             Toggle(l10n(.settingsStatsTransfer), isOn: $settings.profile.stats.transfer)
+            if capabilities.hasSessionCounters {
+                Toggle(l10n(.settingsStatsSession), isOn: $settings.profile.stats.session)
+            }
             Toggle(l10n(.settingsStatsUptime), isOn: $settings.profile.stats.uptime)
         } header: {
             Text(l10n(.settingsStatsSection))
+        }
+        Section {
+            Toggle(l10n(.settingsStatsChartTransfer),
+                   isOn: $settings.profile.stats.transferChart)
+            if capabilities.hasRadioSignal {
+                Toggle(l10n(.settingsStatsChartSignal),
+                       isOn: $settings.profile.stats.signalChart)
+            }
+            if capabilities.hasBattery {
+                Toggle(l10n(.settingsStatsChartBattery),
+                       isOn: $settings.profile.stats.batteryChart)
+            }
+        } header: {
+            Text(l10n(.settingsStatsChartsSection))
         }
     }
 }

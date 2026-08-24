@@ -11,6 +11,13 @@
 "popover.monthly" = "W tym miesiącu";
 "popover.total" = "Łącznie";
 "popover.session" = "Sesja";
+"popover.session_data" = "W tej sesji";
+
+/* Popover — nagłówki paneli */
+"popover.section.status" = "Status";
+"popover.section.signal" = "Sygnał";
+"popover.section.transfer" = "Transfer";
+"popover.section.battery" = "Bateria";
 
 /* Popover — akcje */
 "popover.refresh" = "Odśwież";
@@ -66,6 +73,11 @@
 "settings.stats.radio" = "Szczegóły radiowe (RSRP/SINR)";
 "settings.stats.transfer" = "Transfer";
 "settings.stats.uptime" = "Czas połączenia";
+"settings.stats.session" = "Dane sesji";
+"settings.stats.charts_section" = "Wykresy";
+"settings.stats.chart_transfer" = "Wykres transferu";
+"settings.stats.chart_signal" = "Wykres sygnału (RSRP)";
+"settings.stats.chart_battery" = "Wykres baterii";
 
 /* Ustawienia — konto */
 "settings.account.password_field" = "Hasło do panelu";

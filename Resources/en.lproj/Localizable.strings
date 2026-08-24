@@ -11,6 +11,13 @@
 "popover.monthly" = "This month";
 "popover.total" = "Total";
 "popover.session" = "Session";
+"popover.session_data" = "This session";
+
+/* Popover — pane headers */
+"popover.section.status" = "Status";
+"popover.section.signal" = "Signal";
+"popover.section.transfer" = "Transfer";
+"popover.section.battery" = "Battery";
 
 /* Popover — actions */
 "popover.refresh" = "Refresh";
@@ -66,6 +73,11 @@
 "settings.stats.radio" = "Radio details (RSRP/SINR)";
 "settings.stats.transfer" = "Transfer";
 "settings.stats.uptime" = "Connection time";
+"settings.stats.session" = "Session data";
+"settings.stats.charts_section" = "Charts";
+"settings.stats.chart_transfer" = "Transfer chart";
+"settings.stats.chart_signal" = "Signal chart (RSRP)";
+"settings.stats.chart_battery" = "Battery chart";
 
 /* Settings — account */
 "settings.account.password_field" = "Web panel password";

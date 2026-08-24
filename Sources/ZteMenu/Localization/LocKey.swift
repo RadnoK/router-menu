@@ -16,6 +16,13 @@ enum LocKey: String, CaseIterable, Sendable {
     case popoverMonthly = "popover.monthly"
     case popoverTotal = "popover.total"
     case popoverSession = "popover.session"
+    case popoverSessionData = "popover.session_data"
+
+    // Popover — pane headers
+    case popoverSectionStatus = "popover.section.status"
+    case popoverSectionSignal = "popover.section.signal"
+    case popoverSectionTransfer = "popover.section.transfer"
+    case popoverSectionBattery = "popover.section.battery"
 
     // Popover — actions
     case popoverRefresh = "popover.refresh"
@@ -83,6 +90,11 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsStatsRadio = "settings.stats.radio"
     case settingsStatsTransfer = "settings.stats.transfer"
     case settingsStatsUptime = "settings.stats.uptime"
+    case settingsStatsSession = "settings.stats.session"
+    case settingsStatsChartsSection = "settings.stats.charts_section"
+    case settingsStatsChartTransfer = "settings.stats.chart_transfer"
+    case settingsStatsChartSignal = "settings.stats.chart_signal"
+    case settingsStatsChartBattery = "settings.stats.chart_battery"
 
     // Settings — account section
     case settingsPasswordField = "settings.account.password_field"

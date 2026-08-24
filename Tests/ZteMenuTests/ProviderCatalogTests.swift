@@ -30,6 +30,7 @@ final class ProviderCatalogTests: XCTestCase {
         XCTAssertEqual(d.capabilities.passwordRole, .unlocksTraffic)
         XCTAssertFalse(d.capabilities.needsUsername)
         XCTAssertTrue(d.capabilities.hasRadioSignal)
+        XCTAssertTrue(d.capabilities.hasSessionCounters)
     }
 
     func testZTEFactoryBuildsAZTEDriverFromAProfile() {
@@ -57,6 +58,8 @@ final class ProviderCatalogTests: XCTestCase {
         XCTAssertEqual(d.capabilities.passwordRole, .requiredForAll)
         XCTAssertTrue(d.capabilities.needsUsername)
         XCTAssertFalse(d.capabilities.hasRadioSignal)
+        XCTAssertFalse(d.capabilities.hasSessionCounters,
+                       "netdev counters are since-boot totals, not a session")
     }
 
     func testAsusFactoryBuildsAnAsusDriverFromAProfile() {

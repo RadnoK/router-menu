@@ -10,7 +10,8 @@ enum ZTEProvider {
         capabilities: ModemCapabilities(hasBattery: true,
                                         passwordRole: .unlocksTraffic,
                                         needsUsername: false,
-                                        hasRadioSignal: true),
+                                        hasRadioSignal: true,
+                                        hasSessionCounters: true),
         makeDriver: { profile, password, http in
             ZTEClient(baseURL: profile.baseURL, http: http, password: password)
         }
