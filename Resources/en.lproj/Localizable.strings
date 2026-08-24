@@ -46,6 +46,17 @@
 "settings.network.ssid_help" = "The Wi-Fi network name the modem broadcasts. The menu bar icon appears only while you are connected to it.";
 "settings.network.modem_ip_help" = "Address of the modem's web panel, usually 192.168.0.1.";
 
+/* Settings — device manager */
+"settings.tab.devices" = "Devices";
+"settings.device.name" = "Name";
+"settings.device.add" = "Add device";
+"settings.device.remove" = "Remove device";
+"settings.device.remove_confirm" = "Remove this device? Its settings and saved password are deleted.";
+"settings.device.active_now" = "Connected now";
+"settings.account.username_field" = "Username";
+"settings.signin.section" = "Sign-in";
+"settings.account.password_help_required" = "Required to read anything from this device.";
+
 /* Settings — stats */
 "settings.stats.section" = "Panel statistics";
 "settings.stats.basic" = "Battery, signal, network, carrier";

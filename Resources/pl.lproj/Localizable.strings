@@ -46,6 +46,17 @@
 "settings.network.ssid_help" = "Nazwa sieci Wi-Fi rozgłaszanej przez modem. Ikona na pasku menu pojawia się tylko wtedy, gdy jesteś z nią połączony.";
 "settings.network.modem_ip_help" = "Adres panelu modemu, zwykle 192.168.0.1.";
 
+/* Ustawienia — menedżer urządzeń */
+"settings.tab.devices" = "Urządzenia";
+"settings.device.name" = "Nazwa";
+"settings.device.add" = "Dodaj urządzenie";
+"settings.device.remove" = "Usuń urządzenie";
+"settings.device.remove_confirm" = "Usunąć to urządzenie? Jego ustawienia i zapisane hasło zostaną skasowane.";
+"settings.device.active_now" = "Połączone teraz";
+"settings.account.username_field" = "Login";
+"settings.signin.section" = "Logowanie";
+"settings.account.password_help_required" = "Wymagane, aby cokolwiek odczytać z tego urządzenia.";
+
 /* Ustawienia — statystyki */
 "settings.stats.section" = "Statystyki w panelu";
 "settings.stats.basic" = "Bateria, sygnał, sieć, operator";

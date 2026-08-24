@@ -29,9 +29,18 @@ public final class SettingsStore {
         }
     }
 
-    /// v1 manages exactly one device; the settings window edits this profile.
+    /// Which profile the settings window is editing. UI-session state, not
+    /// persisted; nil (or a deleted id) falls back to the first profile.
+    var editedProfileID: UUID?
+
     var profile: ModemProfile {
-        get { settings.profiles[0] }
-        set { settings.profiles[0] = newValue }
+        get {
+            settings.profiles.first { $0.id == editedProfileID } ?? settings.profiles[0]
+        }
+        set {
+            guard let index = settings.profiles.firstIndex(where: { $0.id == newValue.id })
+            else { return }
+            settings.profiles[index] = newValue
+        }
     }
 }

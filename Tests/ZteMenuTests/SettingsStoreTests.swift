@@ -73,4 +73,24 @@ final class SettingsStoreTests: XCTestCase {
         store.profile.modemIP = "192.168.1.1"
         XCTAssertEqual(store.profile.baseURL.absoluteString, "http://192.168.1.1")
     }
+
+    func testProfileAccessorFollowsTheSelection() {
+        let store = SettingsStore(defaults: freshDefaults())
+        let secondID = store.settings.addProfile(provider: .asus)
+        XCTAssertEqual(store.profile.provider, .zte, "nil selection falls back to the first profile")
+
+        store.editedProfileID = secondID
+        XCTAssertEqual(store.profile.provider, .asus)
+
+        store.profile.name = "Router"
+        XCTAssertEqual(store.settings.profiles[1].name, "Router",
+                       "the setter writes back to the SELECTED profile by id")
+        XCTAssertEqual(store.settings.profiles[0].name, "")
+    }
+
+    func testStaleSelectionFallsBackToTheFirstProfile() {
+        let store = SettingsStore(defaults: freshDefaults())
+        store.editedProfileID = UUID()
+        XCTAssertEqual(store.profile.id, store.settings.profiles[0].id)
+    }
 }
