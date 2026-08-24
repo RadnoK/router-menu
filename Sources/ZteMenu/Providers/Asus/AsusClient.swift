@@ -31,9 +31,18 @@ struct AsusClient: ModemDriving {
 
     func fetch() async throws -> ModemData {
         let token = try await login()
-        let first = try await appGet(
-            "nvram_get(wan0_state_t);nvram_get(wan0_proto);uptime();netdev(appobj)",
-            token: token)
+        // One request per hook: semicolon-chained hooks come back with empty
+        // fields on some firmware builds (observed live on the target
+        // router), while single hooks answer reliably. An individual hook
+        // that fails degrades to nil fields; only the final speed sample is
+        // load-bearing enough to fail the whole reading.
+        var first: [String: Any] = [:]
+        for hook in ["nvram_get(wan0_state_t)", "nvram_get(wan0_proto)",
+                     "uptime()", "netdev(appobj)"] {
+            if let object = try? await appGet(hook, token: token) {
+                first.merge(object) { _, new in new }
+            }
+        }
         await pause(Self.speedSampleInterval)
         let second = try await appGet("netdev(appobj)", token: token)
         return Self.parse(first: first, second: second, interval: Self.speedSampleInterval)

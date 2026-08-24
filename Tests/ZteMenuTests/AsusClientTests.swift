@@ -21,12 +21,14 @@ private struct ThrowingHTTP: HTTPFetching {
 
 private let asusURL = URL(string: "http://192.168.50.1")!
 private let loginOK = #"{"asus_token":"AbCdEf123456"}"#
-private let dataOK = #"""
-{"wan0_state_t":"2","wan0_proto":"dhcp",
- "uptime":"Mon, 24 Aug 2026 21:40:12 +0200(1234567 secs since boot)",
- "netdev":{"INTERNET_rx":"0x0000000000001000","INTERNET_tx":"0x0000000000000800"}}
-"""#
-private let dataSecond = #"{"netdev":{"INTERNET_rx":"0x0000000000002000","INTERNET_tx":"0x0000000000000C00"}}"#
+// One response per hook: chained semicolon hooks return empty fields on
+// some firmware builds, so the driver asks one hook at a time.
+private let rState = #"{"wan0_state_t":"2"}"#
+private let rProto = #"{"wan0_proto":"dhcp"}"#
+private let rUptime = #"{"uptime":"Mon, 24 Aug 2026 21:40:12 +0200(1234567 secs since boot)"}"#
+private let rNetdev1 = #"{"netdev":{"INTERNET_rx":"0x0000000000001000","INTERNET_tx":"0x0000000000000800"}}"#
+private let rNetdev2 = #"{"netdev":{"INTERNET_rx":"0x0000000000002000","INTERNET_tx":"0x0000000000000C00"}}"#
+private let happySequence = [loginOK, rState, rProto, rUptime, rNetdev1, rNetdev2]
 
 private func makeClient(_ http: any HTTPFetching, password: String? = "haslo") -> AsusClient {
     AsusClient(baseURL: asusURL, username: "admin", password: password,
@@ -35,7 +37,7 @@ private func makeClient(_ http: any HTTPFetching, password: String? = "haslo") -
 
 final class AsusClientLoginTests: XCTestCase {
     func testLoginRequestShape() async throws {
-        let http = SequenceHTTP([loginOK, dataOK, dataSecond])
+        let http = SequenceHTTP(happySequence)
         _ = try await makeClient(http).fetch()
 
         let login = http.requests[0]
@@ -56,23 +58,26 @@ final class AsusClientLoginTests: XCTestCase {
     }
 
     func testTokenEchoedAsCookieOnDataRequests() async throws {
-        let http = SequenceHTTP([loginOK, dataOK, dataSecond])
+        let http = SequenceHTTP(happySequence)
         _ = try await makeClient(http).fetch()
 
-        XCTAssertEqual(http.requests.count, 3, "login + two samples")
+        XCTAssertEqual(http.requests.count, 6, "login + four hook reads + the speed sample")
         for request in http.requests.dropFirst() {
             XCTAssertEqual(request.value(forHTTPHeaderField: "Cookie"),
                            "asus_token=AbCdEf123456")
             XCTAssertEqual(request.value(forHTTPHeaderField: "User-Agent"),
                            "asusrouter--DUTUtil-")
+            XCTAssertTrue(request.url!.absoluteString
+                            .hasPrefix("http://192.168.50.1/appGet.cgi?hook="))
         }
-        let hooks = http.requests[1].url?.absoluteString ?? ""
-        XCTAssertTrue(hooks.hasPrefix("http://192.168.50.1/appGet.cgi?hook="))
-        for hook in ["nvram_get(wan0_state_t)", "nvram_get(wan0_proto)",
-                     "uptime()", "netdev(appobj)"] {
-            XCTAssertTrue(hooks.contains(hook), "missing hook \(hook)")
+        // One hook per request — chained hooks return empty fields on some
+        // firmware builds (observed live on the target router).
+        let expected = ["nvram_get(wan0_state_t)", "nvram_get(wan0_proto)",
+                        "uptime()", "netdev(appobj)", "netdev(appobj)"]
+        for (offset, hook) in expected.enumerated() {
+            XCTAssertTrue(http.requests[offset + 1].url!.absoluteString.contains(hook),
+                          "request \(offset + 1) should carry \(hook)")
         }
-        XCTAssertTrue(http.requests[2].url!.absoluteString.contains("netdev(appobj)"))
     }
 
     func testMissingPasswordFailsBeforeAnyRequest() async {
@@ -112,8 +117,8 @@ final class AsusClientLoginTests: XCTestCase {
 }
 
 final class AsusClientParseTests: XCTestCase {
-    private func fetch(first: String = dataOK, second: String = dataSecond) async throws -> ModemData {
-        let http = SequenceHTTP([loginOK, first, second])
+    private func fetch(_ sequence: [String] = happySequence) async throws -> ModemData {
+        let http = SequenceHTTP(sequence)
         return try await makeClient(http).fetch()
     }
 
@@ -138,16 +143,27 @@ final class AsusClientParseTests: XCTestCase {
         XCTAssertEqual(d.txSpeed, 1024)
     }
 
+    func testASingleFailedHookDegradesInsteadOfFailing() async throws {
+        // The uptime hook answers with the login-redirect HTML; everything
+        // else is healthy — the reading survives with that one field nil.
+        let html = "<HTML><HEAD><script>window.top.location.href='/Main_Login.asp';</script></HEAD></HTML>"
+        let d = try await fetch([loginOK, rState, rProto, html, rNetdev1, rNetdev2])
+        XCTAssertTrue(d.isOnline)
+        XCTAssertNil(d.sessionUptime)
+        XCTAssertEqual(d.rxSpeed, 4096)
+    }
+
     func testCounterResetBetweenSamplesYieldsNilSpeeds() async throws {
         let rebooted = #"{"netdev":{"INTERNET_rx":"0x10","INTERNET_tx":"0x10"}}"#
-        let d = try await fetch(second: rebooted)
+        let d = try await fetch([loginOK, rState, rProto, rUptime, rNetdev1, rebooted])
         XCTAssertNil(d.rxSpeed)
         XCTAssertNil(d.txSpeed)
     }
 
     func testOfflineAndUnknownFieldsDegradeGracefully() async throws {
-        let sparse = #"{"wan0_state_t":"0","netdev":{"INTERNET_rx":"junk","INTERNET_tx":"0xZZ"}}"#
-        let d = try await fetch(first: sparse, second: sparse)
+        let junkNetdev = #"{"netdev":{"INTERNET_rx":"junk","INTERNET_tx":"0xZZ"}}"#
+        let d = try await fetch([loginOK, #"{"wan0_state_t":"0"}"#, "{}", "{}",
+                                 junkNetdev, junkNetdev])
         XCTAssertFalse(d.isOnline)
         XCTAssertEqual(d.networkType, "")
         XCTAssertNil(d.sessionUptime)
