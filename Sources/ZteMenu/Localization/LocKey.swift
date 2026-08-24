@@ -115,6 +115,11 @@ enum LocKey: String, CaseIterable, Sendable {
     /// Takes one argument: the relative date, e.g. "2 hours ago".
     case settingsLastChecked = "settings.updates.last_checked"
 
+    // Settings — about section
+    case settingsAboutSection = "settings.about.section"
+    case settingsAboutWebsite = "settings.about.website"
+    case settingsAboutContact = "settings.about.contact"
+
     // Settings — appearance section
     case settingsAppearanceSection = "settings.appearance.section"
     case settingsLanguage = "settings.appearance.language"

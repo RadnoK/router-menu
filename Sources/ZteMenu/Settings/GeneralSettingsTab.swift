@@ -40,6 +40,18 @@ struct GeneralSettingsTab: View {
                     Text(l10n(.settingsLanguageEnglish)).tag(AppLanguage.en)
                 }
             }
+
+            Section {
+                LabeledContent(l10n(.settingsVersion), value: AppInfo.version)
+                LabeledContent(l10n(.settingsAboutWebsite)) {
+                    Link(AppInfo.websiteLabel, destination: AppInfo.websiteURL)
+                }
+                LabeledContent(l10n(.settingsAboutContact)) {
+                    Link(AppInfo.contactEmail, destination: AppInfo.contactURL)
+                }
+            } header: {
+                Text(l10n(.settingsAboutSection))
+            }
         }
         .formStyle(.grouped)
         .task {

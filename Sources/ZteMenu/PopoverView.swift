@@ -108,6 +108,7 @@ public struct PopoverView: View {
                 if profile.stats.signalChart, rsrpSeries.count >= 2 {
                     SignalChartView(rsrp: rsrpSeries)
                         .frame(height: 56)
+                        .padding(.top, 6)
                 }
             }
         }
@@ -124,11 +125,15 @@ public struct PopoverView: View {
                         ByteFormat.bytes(sessionRx + sessionTx))
                 }
                 if profile.stats.transferChart, downloadSeries.count >= 2 {
+                    // Breathing room above the chart: the topmost axis label
+                    // sits flush with the frame and would otherwise crowd the
+                    // last stat row.
                     TransferChartView(download: downloadSeries,
                                       upload: store.history.uploadSpeedSeries(),
                                       downloadLabel: l10n(.popoverDownload),
                                       uploadLabel: l10n(.popoverUpload))
                         .frame(height: 88)
+                        .padding(.top, 6)
                 }
             }
         }

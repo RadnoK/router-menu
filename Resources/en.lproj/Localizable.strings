@@ -81,7 +81,7 @@
 
 /* Settings — account */
 "settings.account.password_field" = "Web panel password";
-"settings.account.delete_password" = "Delete password";
+"settings.account.delete_password" = "Reset";
 "settings.account.password_help" = "Saved to your keychain. Needed only for the total and monthly data counters.";
 
 /* Settings — updates */
@@ -96,6 +96,11 @@
 "settings.updates.check_now" = "Check now";
 "settings.updates.never_checked" = "Never checked";
 "settings.updates.last_checked" = "Checked %@";
+
+/* Settings — about */
+"settings.about.section" = "About";
+"settings.about.website" = "Website";
+"settings.about.contact" = "Contact";
 
 /* Settings — appearance */
 "settings.appearance.section" = "Appearance";

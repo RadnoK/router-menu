@@ -8,8 +8,8 @@ struct UpdatesSettingsTab: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent(l10n(.settingsVersion), value: Self.appVersion)
-                LabeledContent(l10n(.settingsBuild), value: Self.appBuild)
+                LabeledContent(l10n(.settingsVersion), value: AppInfo.version)
+                LabeledContent(l10n(.settingsBuild), value: AppInfo.build)
             }
 
             Section {
@@ -36,14 +36,6 @@ struct UpdatesSettingsTab: View {
             }
         }
         .formStyle(.grouped)
-    }
-
-    static var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
-    }
-
-    static var appBuild: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
     }
 
     static func lastCheckLabel(_ date: Date?, l10n: L10n) -> String {

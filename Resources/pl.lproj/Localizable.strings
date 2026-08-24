@@ -81,7 +81,7 @@
 
 /* Ustawienia — konto */
 "settings.account.password_field" = "Hasło do panelu";
-"settings.account.delete_password" = "Usuń hasło";
+"settings.account.delete_password" = "Resetuj";
 "settings.account.password_help" = "Zapisywane w pęku kluczy. Potrzebne tylko do liczników łącznego i miesięcznego transferu.";
 
 /* Ustawienia — aktualizacje */
@@ -96,6 +96,11 @@
 "settings.updates.check_now" = "Sprawdź teraz";
 "settings.updates.never_checked" = "Nie sprawdzano";
 "settings.updates.last_checked" = "Sprawdzono %@";
+
+/* Ustawienia — o aplikacji */
+"settings.about.section" = "O aplikacji";
+"settings.about.website" = "Strona";
+"settings.about.contact" = "Kontakt";
 
 /* Ustawienia — wygląd */
 "settings.appearance.section" = "Wygląd";
