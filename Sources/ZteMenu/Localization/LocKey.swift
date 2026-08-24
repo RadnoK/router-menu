@@ -39,8 +39,6 @@ enum LocKey: String, CaseIterable, Sendable {
 
     // Tab names.
     case settingsTabGeneral = "settings.tab.general"
-    case settingsTabPanel = "settings.tab.panel"
-    case settingsTabAccount = "settings.tab.account"
     case settingsTabUpdates = "settings.tab.updates"
     case settingsNetworkSection = "settings.network.section"
     case settingsDeviceType = "settings.network.device_type"
@@ -82,7 +80,6 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsStatsUptime = "settings.stats.uptime"
 
     // Settings — account section
-    case settingsAccountSection = "settings.account.section"
     case settingsPasswordField = "settings.account.password_field"
     case settingsDeletePassword = "settings.account.delete_password"
     case settingsPasswordHelp = "settings.account.password_help"
@@ -109,7 +106,6 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsLanguageEnglish = "settings.appearance.language_english"
 
     // Settings — battery tab
-    case settingsTabBattery = "settings.tab.battery"
     case settingsBatteryMenuBarSection = "settings.battery.menu_bar_section"
     case settingsBatteryShowPercent = "settings.battery.show_percent"
     case settingsBatteryShowPercentHelp = "settings.battery.show_percent_help"

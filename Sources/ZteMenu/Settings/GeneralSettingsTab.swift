@@ -1,18 +1,13 @@
 import SwiftUI
 
-/// Startup, network detection and interface language — the settings a user is
-/// most likely to open the window for.
+/// Startup, menu-bar visibility and interface language — the settings a user
+/// is most likely to open the window for.
 struct GeneralSettingsTab: View {
     @Bindable var settings: SettingsStore
     let l10n: L10n
     /// Owns the login-item registration; the toggle reads the system's state
     /// through it rather than keeping a preference of its own.
     @Bindable var loginItem: LoginItemController
-
-    /// Read once at appear rather than at init: the current network can change
-    /// while the window is open, and reading it in `body` would hit CoreWLAN on
-    /// every redraw.
-    @State private var currentSSID: String?
 
     var body: some View {
         Form {
@@ -33,31 +28,9 @@ struct GeneralSettingsTab: View {
             }
 
             Section {
-                Picker(l10n(.settingsDeviceType), selection: Binding(
-                    get: { settings.profile.provider },
-                    set: { settings.profile = settings.profile.adopting(provider: $0) }
-                )) {
-                    ForEach(ProviderKind.allCases, id: \.self) { kind in
-                        Text(ProviderCatalog.descriptor(for: kind).displayName).tag(kind)
-                    }
-                }
-                Picker(l10n(.settingsDetectionMode), selection: $settings.profile.matchMode) {
-                    ForEach(ProviderCatalog.descriptor(for: settings.profile.provider)
-                                .supportedMatchModes, id: \.self) { mode in
-                        Text(l10n(mode == .ssid ? .settingsDetectionBySSID
-                                                : .settingsDetectionByIP)).tag(mode)
-                    }
-                }
-                LabeledContent(l10n(.settingsCurrentNetwork),
-                               value: currentSSID ?? l10n(.placeholderDash))
-
-                if settings.profile.matchMode == .ssid {
-                    TextField(l10n(.settingsSSIDField), text: $settings.profile.ssid)
-                        .help(l10n(.settingsSSIDHelp))
-                } else {
-                    TextField(l10n(.settingsModemIPField), text: $settings.profile.modemIP)
-                        .help(l10n(.settingsModemIPHelp))
-                }
+                Toggle(l10n(.settingsShowWhenDisconnected),
+                       isOn: $settings.settings.showWhenDisconnected)
+                    .help(l10n(.settingsShowWhenDisconnectedHelp))
             }
 
             Section {
@@ -70,7 +43,6 @@ struct GeneralSettingsTab: View {
         }
         .formStyle(.grouped)
         .task {
-            currentSSID = CoreWLANReader().currentSSID()
             // The user may have removed the app from Login Items while this
             // window was closed.
             loginItem.refresh()

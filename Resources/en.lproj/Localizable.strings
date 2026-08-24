@@ -32,8 +32,6 @@
 /* Settings — network */
 "settings.window_title" = "ZTE Menu Settings";
 "settings.tab.general" = "General";
-"settings.tab.panel" = "Panel";
-"settings.tab.account" = "Account";
 "settings.tab.updates" = "Updates";
 "settings.network.section" = "Network";
 "settings.network.device_type" = "Device type";
@@ -65,7 +63,6 @@
 "settings.stats.uptime" = "Connection time";
 
 /* Settings — account */
-"settings.account.section" = "Modem account (for transfer counters)";
 "settings.account.password_field" = "Web panel password";
 "settings.account.delete_password" = "Delete password";
 "settings.account.password_help" = "Saved to your keychain. Needed only for the total and monthly data counters.";
@@ -98,7 +95,6 @@
 "settings.general.launch_at_login_error" = "The system refused to register the app: %@";
 
 /* Settings — battery */
-"settings.tab.battery" = "Battery";
 "settings.battery.menu_bar_section" = "Menu bar";
 "settings.battery.show_percent" = "Show battery percentage";
 "settings.battery.show_percent_help" = "Displays the modem's battery level next to the menu bar icon.";

@@ -43,6 +43,7 @@ public struct ZteMenuApp: App {
         Settings {
             SettingsView(settings: settings,
                          updater: appDelegate.updater,
+                         store: appDelegate.store,
                          l10n: l10n,
                          loginItem: appDelegate.loginItem,
                          onNotificationsEnabled: appDelegate.requestNotificationAuthorization)

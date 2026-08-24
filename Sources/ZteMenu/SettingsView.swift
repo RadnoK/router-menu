@@ -10,17 +10,20 @@ import SwiftUI
 public struct SettingsView: View {
     @Bindable private var settings: SettingsStore
     @Bindable private var updater: UpdaterController
+    private let store: ModemStore
     private let l10n: L10n
     @Bindable private var loginItem: LoginItemController
     private let onNotificationsEnabled: () -> Void
 
     public init(settings: SettingsStore,
                 updater: UpdaterController,
+                store: ModemStore,
                 l10n: L10n,
                 loginItem: LoginItemController,
                 onNotificationsEnabled: @escaping () -> Void = {}) {
         self.settings = settings
         self.updater = updater
+        self.store = store
         self.l10n = l10n
         self.loginItem = loginItem
         self.onNotificationsEnabled = onNotificationsEnabled
@@ -28,13 +31,13 @@ public struct SettingsView: View {
 
     public var body: some View {
         TabView {
-            ForEach(SettingsTab.visible(for: settings.profile.provider)) { tab in
+            ForEach(SettingsTab.allCases) { tab in
                 content(for: tab)
                     .tabItem { Label(l10n(tab.titleKey), systemImage: tab.symbolName) }
                     .tag(tab)
             }
         }
-        .frame(width: 460)
+        .frame(width: 560)
         .onChange(of: settings.settings.language) { _, new in
             l10n.setLanguage(new)
         }
@@ -45,14 +48,9 @@ public struct SettingsView: View {
         switch tab {
         case .general:
             GeneralSettingsTab(settings: settings, l10n: l10n, loginItem: loginItem)
-        case .panel:
-            PanelSettingsTab(settings: settings, l10n: l10n)
-        case .battery:
-            BatterySettingsTab(settings: settings,
-                               l10n: l10n,
+        case .devices:
+            DevicesSettingsTab(settings: settings, store: store, l10n: l10n,
                                onNotificationsEnabled: onNotificationsEnabled)
-        case .account:
-            AccountSettingsTab(l10n: l10n)
         case .updates:
             UpdatesSettingsTab(updater: updater, l10n: l10n)
         }

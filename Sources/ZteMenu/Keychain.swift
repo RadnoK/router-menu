@@ -71,12 +71,4 @@ enum Keychain {
         ]
         SecItemDelete(query as CFDictionary)
     }
-
-    // MARK: Transitional single-slot API — DELETED in Task 8 together with
-    // AccountSettingsTab, its last caller. Reads the legacy "modem" account,
-    // which the launch migration empties; mid-plan the old Account tab may
-    // therefore show an empty field. Harmless and short-lived.
-    static func password() -> String? { item(account: "modem") }
-    static func setPassword(_ password: String) { setItem(password, account: "modem") }
-    static func deletePassword() { deleteItem(account: "modem") }
 }

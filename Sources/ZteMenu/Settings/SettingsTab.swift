@@ -4,12 +4,11 @@ import Foundation
 ///
 /// A plain model rather than an inline list so the toolbar and the content
 /// switch cannot drift apart, and so the pairing of tab to icon and label is
-/// unit testable.
+/// unit testable. Per-device settings live inside the Devices tab's detail
+/// view, so no tab is capability-gated anymore.
 enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
     case general
-    case panel
-    case battery
-    case account
+    case devices
     case updates
 
     var id: String { rawValue }
@@ -18,9 +17,7 @@ enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
     var symbolName: String {
         switch self {
         case .general: return "gearshape"
-        case .panel: return "menubar.rectangle"
-        case .battery: return "battery.75percent"
-        case .account: return "key"
+        case .devices: return "wifi.router"
         case .updates: return "arrow.triangle.2.circlepath"
         }
     }
@@ -28,17 +25,8 @@ enum SettingsTab: String, CaseIterable, Identifiable, Sendable {
     var titleKey: LocKey {
         switch self {
         case .general: return .settingsTabGeneral
-        case .panel: return .settingsTabPanel
-        case .battery: return .settingsTabBattery
-        case .account: return .settingsTabAccount
+        case .devices: return .settingsTabDevices
         case .updates: return .settingsTabUpdates
         }
-    }
-
-    /// The tabs that make sense for the edited profile's provider — a device
-    /// without a battery simply has no battery tab.
-    static func visible(for provider: ProviderKind) -> [SettingsTab] {
-        let capabilities = ProviderCatalog.descriptor(for: provider).capabilities
-        return allCases.filter { $0 != .battery || capabilities.hasBattery }
     }
 }

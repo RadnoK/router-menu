@@ -6,7 +6,7 @@ import XCTest
 final class SettingsTabTests: XCTestCase {
     func testTabOrderIsStable() {
         XCTAssertEqual(SettingsTab.allCases.map(\.rawValue),
-                       ["general", "panel", "battery", "account", "updates"])
+                       ["general", "devices", "updates"])
     }
 
     func testEveryTabHasADistinctSymbol() {
@@ -33,11 +33,5 @@ final class SettingsTabTests: XCTestCase {
                 XCTAssertFalse(value?.isEmpty ?? true, "\(tab) \(code) title is empty")
             }
         }
-    }
-
-    func testEveryTabIsVisibleForABatteryCapableProvider() {
-        // ZTE has a battery, so today every tab is visible; the filter itself
-        // is the seam a battery-less provider will flow through.
-        XCTAssertEqual(SettingsTab.visible(for: .zte), SettingsTab.allCases)
     }
 }
