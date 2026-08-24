@@ -379,6 +379,14 @@ enum Keychain {
         ]
         SecItemDelete(query as CFDictionary)
     }
+
+    // MARK: Transitional single-slot API — DELETED in Task 8 together with
+    // AccountSettingsTab, its last caller. Reads the legacy "modem" account,
+    // which the launch migration empties; mid-plan the old Account tab may
+    // therefore show an empty field. Harmless and short-lived.
+    static func password() -> String? { item(account: "modem") }
+    static func setPassword(_ password: String) { setItem(password, account: "modem") }
+    static func deletePassword() { deleteItem(account: "modem") }
 }
 ```
 
@@ -1254,7 +1262,8 @@ import SwiftUI
 struct DeviceBatterySection: View {
     @Bindable var settings: SettingsStore
     let l10n: L10n
-    let onNotificationsEnabled: () -> Void
+    // Note: the notification-permission hook lives in DeviceDetailView's
+    // .onChange, which wraps this whole section — no callback needed here.
 
     private var alerts: BatteryNotificationSettings {
         settings.profile.batteryNotifications
@@ -1443,8 +1452,7 @@ struct DeviceDetailView: View {
             }
 
             if capabilities.hasBattery {
-                DeviceBatterySection(settings: settings, l10n: l10n,
-                                     onNotificationsEnabled: onNotificationsEnabled)
+                DeviceBatterySection(settings: settings, l10n: l10n)
             }
         }
         .formStyle(.grouped)
@@ -1686,6 +1694,8 @@ git rm Sources/ZteMenu/Settings/PanelSettingsTab.swift \
        Sources/ZteMenu/Settings/BatterySettingsTab.swift \
        Sources/ZteMenu/Settings/AccountSettingsTab.swift
 ```
+
+Then delete the transitional single-slot block from `Sources/ZteMenu/Keychain.swift` (the `// MARK: Transitional single-slot API` comment and the three zero-arg functions below it) — `AccountSettingsTab` was its last caller.
 
 Localization cleanup — delete from `LocKey.swift` the cases `settingsTabPanel`, `settingsTabAccount`, `settingsTabBattery`, `settingsAccountSection`, and remove the same four keys (`settings.tab.panel`, `settings.tab.account`, `settings.tab.battery`, `settings.account.section`) from BOTH `.strings` files. (The completeness tests fail on any orphan in either direction — that is the net.)
 
