@@ -37,7 +37,7 @@ public struct SettingsView: View {
                     .tag(tab)
             }
         }
-        .frame(width: 560)
+        .frame(width: 680)
         .onChange(of: settings.settings.language) { _, new in
             l10n.setLanguage(new)
         }

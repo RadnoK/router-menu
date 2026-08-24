@@ -219,7 +219,7 @@ its test are deleted.
 `SettingsTab` becomes `general / devices / updates` (symbols: `gearshape`,
 `wifi.router`, `arrow.triangle.2.circlepath`).
 `SettingsTab.visible(for:)` is deleted — no tab is capability-gated anymore;
-gating happens inside the device detail. The window widens to 560 pt to give
+gating happens inside the device detail. The window widens to 680 pt to give
 the master–detail room.
 
 - **General**: launch-at-login, `showWhenDisconnected` (moved from the
@@ -235,7 +235,13 @@ the master–detail room.
 ModemStore` parameter so the Devices tab can mark the currently matched
 device.
 
-Master (top): a `List` bound to `settings.editedProfileID` selection. Each
+Layout is System-Settings style: the list is a 224 pt sidebar on the LEFT
+with an icon-only add/remove footer, the detail form fills the right pane
+(fixed 480 pt pane height; the grouped form scrolls inside), window width
+680 pt. (Originally speced as a stacked top/bottom split; reworked on user
+feedback — the stacked layout was cramped.)
+
+Master (left sidebar): a `List` bound to `settings.editedProfileID` selection. Each
 row: green dot when the profile is the store's `activeProfile` (matched right
 now), title (`name`, fallback `brand · identifier`), subtitle with the match
 rule ("SSID: ZTE_B4B622" / "IP: 192.168.50.1"), trailing provider badge

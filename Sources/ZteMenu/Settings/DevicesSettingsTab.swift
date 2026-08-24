@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// The device manager: every configured profile in matcher-priority order,
-/// with the selected one edited below. Stored order IS priority — the first
-/// matching profile wins, so the rows support drag reordering.
+/// The device manager, System-Settings style: the profile list as a sidebar
+/// on the left, the selected device's settings filling the right pane.
+/// Stored order IS matcher priority — the first matching profile wins, so
+/// the rows support drag reordering.
 struct DevicesSettingsTab: View {
     @Bindable var settings: SettingsStore
     /// Read-only: marks the profile the last refresh actually matched.
@@ -13,6 +14,26 @@ struct DevicesSettingsTab: View {
     @State private var confirmingRemoval = false
 
     var body: some View {
+        HStack(spacing: 0) {
+            sidebar
+                .frame(width: 224)
+
+            Divider()
+
+            // `.id` re-creates the detail (and its @State password) when the
+            // selection moves to another device — without it, the sign-in
+            // field would keep showing the previous device's credential.
+            DeviceDetailView(settings: settings, l10n: l10n,
+                             onNotificationsEnabled: onNotificationsEnabled)
+                .id(settings.profile.id)
+                .frame(maxWidth: .infinity)
+        }
+        // Fixed pane height: the grouped Form on the right scrolls within it,
+        // which is exactly System Settings' behaviour.
+        .frame(height: 480)
+    }
+
+    private var sidebar: some View {
         VStack(spacing: 0) {
             List(selection: Binding(
                 get: { settings.editedProfileID ?? settings.settings.profiles.first?.id },
@@ -25,8 +46,12 @@ struct DevicesSettingsTab: View {
                     settings.settings.moveProfiles(fromOffsets: offsets, toOffset: destination)
                 }
             }
-            .frame(height: 148)
+            .listStyle(.sidebar)
 
+            Divider()
+
+            // System-Settings-style footer: icon-only add/remove, the
+            // localized labels surviving as tooltips.
             HStack(spacing: 12) {
                 Menu {
                     ForEach(ProviderKind.allCases, id: \.self) { kind in
@@ -35,35 +60,29 @@ struct DevicesSettingsTab: View {
                         }
                     }
                 } label: {
-                    Label(l10n(.settingsDeviceAdd), systemImage: "plus")
+                    Image(systemName: "plus")
                 }
+                .menuIndicator(.hidden)
                 .fixedSize()
+                .help(l10n(.settingsDeviceAdd))
 
                 Button(role: .destructive) {
                     confirmingRemoval = true
                 } label: {
-                    Label(l10n(.settingsDeviceRemove), systemImage: "minus")
+                    Image(systemName: "minus")
                 }
                 .disabled(settings.settings.profiles.count <= 1)
+                .help(l10n(.settingsDeviceRemove))
                 .confirmationDialog(l10n(.settingsDeviceRemoveConfirm),
                                     isPresented: $confirmingRemoval) {
                     Button(l10n(.settingsDeviceRemove), role: .destructive, action: removeSelected)
                 }
+
                 Spacer()
             }
             .buttonStyle(.borderless)
-            .labelStyle(.titleAndIcon)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-
-            Divider()
-
-            // `.id` re-creates the detail (and its @State password) when the
-            // selection moves to another device — without it, the sign-in
-            // field would keep showing the previous device's credential.
-            DeviceDetailView(settings: settings, l10n: l10n,
-                             onNotificationsEnabled: onNotificationsEnabled)
-                .id(settings.profile.id)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
         }
     }
 
@@ -75,11 +94,15 @@ struct DevicesSettingsTab: View {
                 .help(l10n(.settingsDeviceActiveNow))
             VStack(alignment: .leading, spacing: 2) {
                 Text(profile.displayTitle)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                 Text(profile.matchMode == .ssid
                         ? "SSID: \(profile.ssid)"
                         : "IP: \(profile.modemIP)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
             Spacer()
             Text(ProviderCatalog.descriptor(for: profile.provider).displayName)
