@@ -119,6 +119,7 @@ enum LocKey: String, CaseIterable, Sendable {
     case settingsAboutSection = "settings.about.section"
     case settingsAboutWebsite = "settings.about.website"
     case settingsAboutContact = "settings.about.contact"
+    case settingsAboutSendEmail = "settings.about.send_email"
 
     // Settings — appearance section
     case settingsAppearanceSection = "settings.appearance.section"

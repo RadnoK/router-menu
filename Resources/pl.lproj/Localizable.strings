@@ -101,6 +101,7 @@
 "settings.about.section" = "O aplikacji";
 "settings.about.website" = "Strona";
 "settings.about.contact" = "Kontakt";
+"settings.about.send_email" = "Wyślij e-mail";
 
 /* Ustawienia — wygląd */
 "settings.appearance.section" = "Wygląd";

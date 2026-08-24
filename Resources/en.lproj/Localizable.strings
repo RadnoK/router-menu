@@ -101,6 +101,7 @@
 "settings.about.section" = "About";
 "settings.about.website" = "Website";
 "settings.about.contact" = "Contact";
+"settings.about.send_email" = "Send email";
 
 /* Settings — appearance */
 "settings.appearance.section" = "Appearance";

@@ -46,8 +46,15 @@ struct GeneralSettingsTab: View {
                 LabeledContent(l10n(.settingsAboutWebsite)) {
                     Link(AppInfo.websiteLabel, destination: AppInfo.websiteURL)
                 }
+                // "GitHub" is a proper noun, same in every language.
+                LabeledContent("GitHub") {
+                    Link(AppInfo.githubLabel, destination: AppInfo.githubURL)
+                }
                 LabeledContent(l10n(.settingsAboutContact)) {
-                    Link(AppInfo.contactEmail, destination: AppInfo.contactURL)
+                    Button(l10n(.settingsAboutSendEmail)) {
+                        NSWorkspace.shared.open(AppInfo.contactURL)
+                    }
+                    .buttonStyle(.bordered)
                 }
             } header: {
                 Text(l10n(.settingsAboutSection))
