@@ -76,4 +76,27 @@ final class MenuBarPresentationTests: XCTestCase {
             XCTAssertNil(MenuBarPresentation.make(for: state, showBatteryPercent: true).batteryText)
         }
     }
+
+    func testConnectedRadiolessDeviceShowsTheRouterSymbol() {
+        let d = ZTEClient.parse(["signalbar": "0", "network_type": "DHCP",
+                                 "battery_value": ""])
+        let p = MenuBarPresentation.make(for: .connected(d),
+                                         showBatteryPercent: true,
+                                         showWhenDisconnected: false,
+                                         showsRadioSignal: false)
+        XCTAssertTrue(p.isVisible)
+        XCTAssertEqual(p.symbolName, "wifi.router")
+        XCTAssertNil(p.batteryText, "a battery-less reading shows no percentage")
+    }
+
+    func testConnectedRadioDeviceKeepsTheExistingSymbols() {
+        let d = ZTEClient.parse(["signalbar": "4", "network_type": "ENDC",
+                                 "battery_value": "80"])
+        let p = MenuBarPresentation.make(for: .connected(d),
+                                         showBatteryPercent: true,
+                                         showWhenDisconnected: false,
+                                         showsRadioSignal: true)
+        XCTAssertEqual(p.symbolName, "cellularbars")
+        XCTAssertEqual(p.batteryText, "80%")
+    }
 }

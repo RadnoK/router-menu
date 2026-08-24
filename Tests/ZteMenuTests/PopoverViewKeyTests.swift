@@ -30,4 +30,16 @@ final class PopoverViewKeyTests: XCTestCase {
         p.modemIP = "10.0.0.1"
         XCTAssertEqual(PopoverView.headerText(for: p), "ZTE · 10.0.0.1")
     }
+
+    func testHeaderPrefersTheCustomName() {
+        var p = ModemProfile.makeDefault(provider: .asus)
+        p.name = "Router domowy"
+        XCTAssertEqual(PopoverView.headerText(for: p), "Router domowy")
+    }
+
+    func testHeaderFallsBackToBrandAndIdentifier() {
+        var p = ModemProfile.makeDefault(provider: .asus)
+        p.name = ""
+        XCTAssertEqual(PopoverView.headerText(for: p), "Asus · 192.168.50.1")
+    }
 }

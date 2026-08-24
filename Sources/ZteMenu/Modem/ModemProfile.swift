@@ -69,6 +69,15 @@ struct ModemProfile: Codable, Equatable, Identifiable, Sendable {
         return url
     }
 
+    /// What lists and headers call this device: the user's name, or the
+    /// brand plus whichever identifier the profile matches by.
+    var displayTitle: String {
+        guard name.isEmpty else { return name }
+        let brand = ProviderCatalog.descriptor(for: provider).displayName
+        let identifier = matchMode == .ssid ? ssid : modemIP
+        return "\(brand) · \(identifier)"
+    }
+
     /// The profile after the user switches its provider in settings: the
     /// match mode is clamped to what the new provider supports, and only
     /// EMPTY address fields adopt the new defaults — typed values survive.

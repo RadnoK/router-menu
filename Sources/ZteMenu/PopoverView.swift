@@ -50,7 +50,7 @@ public struct PopoverView: View {
             Text("\(p) · \(d.networkLabel)").foregroundStyle(.secondary)
         }
         if profile.stats.basic {
-            statSection(d)
+            statSection(d, profile: profile)
         }
         if profile.stats.radio {
             radioSection(d)
@@ -68,13 +68,15 @@ public struct PopoverView: View {
     }
 
     @ViewBuilder
-    private func statSection(_ d: ModemData) -> some View {
+    private func statSection(_ d: ModemData, profile: ModemProfile) -> some View {
         if let b = d.batteryPercent {
             row(batterySymbol(b, d.isCharging), l10n(.popoverBattery),
                 "\(b)%\(d.isCharging ? " ⚡" : "")")
         }
-        row("cellularbars", l10n(.popoverSignal),
-            "\(l10n(Self.key(for: d.signalQuality))) (\(d.signalBars)/5)")
+        if ProviderCatalog.descriptor(for: profile.provider).capabilities.hasRadioSignal {
+            row("cellularbars", l10n(.popoverSignal),
+                "\(l10n(Self.key(for: d.signalQuality))) (\(d.signalBars)/5)")
+        }
         row("antenna.radiowaves.left.and.right", l10n(.popoverNetwork), d.networkLabel)
     }
 
@@ -181,11 +183,7 @@ public struct PopoverView: View {
         }
     }
 
-    /// "ZTE · ZTE_B4B622" — the provider's brand plus whichever identifier
-    /// the profile matches by. Pure so the header is unit-testable.
     static func headerText(for profile: ModemProfile) -> String {
-        let name = ProviderCatalog.descriptor(for: profile.provider).displayName
-        let identifier = profile.matchMode == .ssid ? profile.ssid : profile.modemIP
-        return "\(name) · \(identifier)"
+        profile.displayTitle
     }
 }

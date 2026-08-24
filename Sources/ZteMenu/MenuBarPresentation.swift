@@ -17,7 +17,8 @@ struct MenuBarPresentation: Equatable {
     ///     the missing connection and offers the settings window.
     static func make(for state: AppState,
                      showBatteryPercent: Bool = false,
-                     showWhenDisconnected: Bool = false) -> MenuBarPresentation {
+                     showWhenDisconnected: Bool = false,
+                     showsRadioSignal: Bool = true) -> MenuBarPresentation {
         func presentation(symbolName: String, variableValue: Double, battery: Int? = nil) -> MenuBarPresentation {
             MenuBarPresentation(isVisible: true,
                                 symbolName: symbolName,
@@ -37,6 +38,13 @@ struct MenuBarPresentation: Equatable {
             return presentation(symbolName: "antenna.radiowaves.left.and.right.slash",
                                 variableValue: 0)
         case .connected(let d):
+            guard showsRadioSignal else {
+                // A wired router has no bars to grade — a healthy connection
+                // shows the router symbol, full stop.
+                return presentation(symbolName: "wifi.router",
+                                    variableValue: 0,
+                                    battery: d.batteryPercent)
+            }
             if d.signalBars <= 0 {
                 return presentation(symbolName: "antenna.radiowaves.left.and.right.slash",
                                     variableValue: 0,

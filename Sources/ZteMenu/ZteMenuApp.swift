@@ -11,9 +11,13 @@ public struct ZteMenuApp: App {
         let l10n = appDelegate.l10n
         let activeProfile = settings.settings.profile(with: store.activeProfile?.id)
             ?? store.activeProfile
+        let showsRadioSignal = activeProfile
+            .map { ProviderCatalog.descriptor(for: $0.provider).capabilities.hasRadioSignal }
+            ?? true
         let p = MenuBarPresentation.make(for: store.state,
                                          showBatteryPercent: activeProfile?.showBatteryPercent ?? false,
-                                         showWhenDisconnected: settings.settings.showWhenDisconnected)
+                                         showWhenDisconnected: settings.settings.showWhenDisconnected,
+                                         showsRadioSignal: showsRadioSignal)
 
         MenuBarExtra(isInserted: .constant(p.isVisible)) {
             PopoverView(store: store, settings: settings, l10n: l10n) {
