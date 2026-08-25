@@ -37,7 +37,11 @@ public struct SettingsView: View {
                     .tag(tab)
             }
         }
-        .frame(width: 680)
+        // One fixed size for every tab. Height on the TabView, not inside a
+        // tab: the window opens at the FIRST tab's natural height, so a
+        // short General page would open the window small and it would only
+        // grow after visiting Devices. Devices' pane fills this instead.
+        .frame(width: 680, height: 480)
         .onChange(of: settings.settings.language) { _, new in
             l10n.setLanguage(new)
         }

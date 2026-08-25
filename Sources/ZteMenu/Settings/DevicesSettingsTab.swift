@@ -27,9 +27,8 @@ struct DevicesSettingsTab: View {
                 .frame(maxWidth: .infinity)
         }
         .padding(12)
-        // Fixed pane height: the grouped Form on the right scrolls within it,
-        // which is exactly System Settings' behaviour.
-        .frame(height: 480)
+        // Height comes from SettingsView's fixed tab frame; the grouped Form
+        // on the right scrolls within it, System Settings style.
     }
 
     /// The Mail-style device box: a bordered, inset list with the add/remove
