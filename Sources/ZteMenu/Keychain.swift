@@ -5,7 +5,7 @@ import Security
 /// profile's UUID). The pre-device-manager app used a single "modem"
 /// account; `migrateLegacyPassword` retires it on first launch.
 enum Keychain {
-    private static let service = "io.8lines.zte-menu"
+    private static let service = "io.8lines.router-menu"
 
     // MARK: Per-profile API
 

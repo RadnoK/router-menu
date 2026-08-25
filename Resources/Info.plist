@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.8lines.zte-menu</string>
+	<string>io.8lines.router-menu</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>

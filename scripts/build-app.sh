@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 APP_NAME="ZTE Menu"
-BUNDLE_ID="io.8lines.zte-menu"
+BUNDLE_ID="io.8lines.router-menu"
 EXECUTABLE="zte-menu"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
