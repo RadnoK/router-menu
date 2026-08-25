@@ -1,14 +1,14 @@
 <?xml version="1.0" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
-        <title>ZTE Menu</title>
+        <title>Router Menu</title>
         <item>
-            <title>0.5.0</title>
-            <pubDate>Tue, 25 Aug 2026 12:22:39 +0000</pubDate>
-            <sparkle:version>0.5.0</sparkle:version>
-            <sparkle:shortVersionString>0.5.0</sparkle:shortVersionString>
+            <title>0.5.1</title>
+            <pubDate>Tue, 25 Aug 2026 12:35:05 +0000</pubDate>
+            <sparkle:version>0.5.1</sparkle:version>
+            <sparkle:shortVersionString>0.5.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.0/ZteMenu-0.5.0.zip" length="2358398" type="application/octet-stream" sparkle:edSignature="iTRUUw5W7lPETsnTmFsceGgOiVwMIWlNCPxAdXl+3WK0gnua3v+Ue3JRiHSdRLtKTsYV/GfLWnUE23Nenx17Ag=="/>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.1/RouterMenu-0.5.1.zip" length="2361265" type="application/octet-stream" sparkle:edSignature="i0TFjq6+crDIkeff6UnnKXcD+d0XUXOchEZhP50M1Clo13xP+4cBR+Wc3R2Hht0dgomcM7Lam1uafjdZ5Q5pBQ=="/>
         </item>
     </channel>
 </rss>
