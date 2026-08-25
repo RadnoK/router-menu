@@ -1,4 +1,6 @@
-# ZTE Menu
+![Router Menu — signal, band and throughput, always one glance away](docs/assets/readme-banner-1280x400.png)
+
+# Router Menu
 
 Keep an eye on your ZTE 5G modem from the macOS menu bar — battery, signal,
 and how much data you've used, without opening the modem's web panel.
@@ -9,6 +11,10 @@ out of the way the rest of the time.
 [![Release](https://img.shields.io/github/v/release/RadnoK/router-menu)](https://github.com/RadnoK/router-menu/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-lightgrey)](#requirements)
+
+## How it looks
+
+![The menu bar icon next to live signal strength and battery readings](docs/assets/readme-strip-1280x360.png)
 
 ## Install
 
