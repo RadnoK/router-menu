@@ -30,8 +30,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         // same legacy settings, so the password belongs to it.
         Keychain.migrateLegacyPassword(to: settings.settings.profiles[0].id)
         store.setBatteryNotifier(batteryNotifier)
-        // Only if the user already armed an alert in a previous run — a fresh
-        // install shows no prompt until they turn one on.
+        // The default profile ships with battery thresholds armed, so on a
+        // fresh install this asks for notification permission on first launch;
+        // afterwards it is a no-op (macOS only ever prompts once).
         batteryNotifier.requestAuthorizationIfNeeded()
         // A location-permission change (e.g. the user taps "Allow") must refresh
         // state IMMEDIATELY — otherwise the icon would only appear on the next
@@ -77,5 +78,15 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     /// return `false`.
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    /// Launching the app again while it runs (Finder, Dock, `open -a`) lands
+    /// here. With "hide the icon when disconnected" on and the Mac away from
+    /// the configured network there is no icon to click, so this is the only
+    /// way back into the app — route it to the settings window.
+    public func applicationShouldHandleReopen(_ sender: NSApplication,
+                                              hasVisibleWindows: Bool) -> Bool {
+        SettingsWindowOpener.open()
+        return false
     }
 }

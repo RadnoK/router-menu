@@ -149,7 +149,11 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
     init(l10n: L10n?) { self.l10n = l10n }
 
     func requestAuthorization() {
-        center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        // The async API, not the completion-handler one: the center invokes
+        // completion blocks on a private queue, and a closure formed in this
+        // @MainActor type carries a main-thread executor check — the mismatch
+        // crashed at launch (dispatch assertion) when the request errored.
+        Task { try? await center.requestAuthorization(options: [.alert, .sound]) }
     }
 
     func present(_ alert: BatteryAlert) {
@@ -167,7 +171,8 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
         let request = UNNotificationRequest(identifier: "battery-\(UUID().uuidString)",
                                             content: content,
                                             trigger: nil)
-        center.add(request) { _ in }
+        // Async for the same queue-isolation reason as requestAuthorization.
+        Task { try? await center.add(request) }
     }
 
     /// Falls back to the raw key when no `L10n` was injected, matching how the
