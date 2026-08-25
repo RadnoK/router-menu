@@ -94,6 +94,16 @@ if [[ "$SMOKE_ALIVE" -ne 0 ]]; then
     echo "--- output ---"
     cat "$SMOKE_LOG"
     echo "--------------"
+    # stderr is often empty here: dispatch assertions and Swift runtime traps
+    # log only to the crash report, so surface the newest one.
+    sleep 5
+    CRASH="$(ls -t "$HOME/Library/Logs/DiagnosticReports/$EXECUTABLE"*.ips 2>/dev/null | head -1)"
+    if [[ -n "$CRASH" ]]; then
+      echo "--- crash report: $CRASH ---"
+      cat "$CRASH"
+    else
+      echo "(no crash report appeared within 5s)"
+    fi
   } >&2
   rm -f "$SMOKE_LOG"
   exit 1
