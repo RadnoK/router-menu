@@ -101,7 +101,7 @@ jobs:
             gh release upload "$GITHUB_REF_NAME" "$ZIP" --clobber
           else
             gh release create "$GITHUB_REF_NAME" "$ZIP" \
-              --title "ZTE Menu ${{ steps.ver.outputs.version }}" \
+              --title "Router Menu ${{ steps.ver.outputs.version }}" \
               --generate-notes
           fi
 

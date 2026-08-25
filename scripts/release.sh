@@ -75,6 +75,6 @@ echo "    sha256:  $SHA"
 echo "    appcast: $APPCAST_DIR/appcast.xml"
 echo
 echo "Next:"
-echo "  1. gh release create v$VERSION \"$ZIP\" --title \"ZTE Menu $VERSION\" --generate-notes"
+echo "  1. gh release create v$VERSION \"$ZIP\" --title \"Router Menu $VERSION\" --generate-notes"
 echo "  2. publish $APPCAST_DIR/appcast.xml on the gh-pages branch"
 echo "  3. update version/sha256 in Casks/router-menu.rb in the tap"
