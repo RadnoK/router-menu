@@ -94,16 +94,37 @@ if [[ "$SMOKE_ALIVE" -ne 0 ]]; then
     echo "--- output ---"
     cat "$SMOKE_LOG"
     echo "--------------"
-    # stderr is often empty here: dispatch assertions and Swift runtime traps
-    # log only to the crash report, so surface the newest one.
-    sleep 5
-    CRASH="$(ls -t "$HOME/Library/Logs/DiagnosticReports/$EXECUTABLE"*.ips 2>/dev/null | head -1)"
+    # stderr is often empty here: dispatch assertions, Swift runtime traps
+    # and ObjC exceptions land in the crash report and unified log instead.
+    CRASH=""
+    for _ in 1 2 3 4 5 6; do
+      sleep 5
+      CRASH="$(ls -t "$HOME/Library/Logs/DiagnosticReports/"*.ips \
+                     /Library/Logs/DiagnosticReports/*.ips 2>/dev/null | head -1 || true)"
+      [[ -n "$CRASH" ]] && break
+    done
     if [[ -n "$CRASH" ]]; then
       echo "--- crash report: $CRASH ---"
-      cat "$CRASH"
+      cat "$CRASH" || true
     else
-      echo "(no crash report appeared within 5s)"
+      echo "(no crash report appeared within 30s)"
     fi
+    echo "--- unified log (last 3m, $EXECUTABLE) ---"
+    log show --last 3m --style compact \
+      --predicate "process == \"$EXECUTABLE\"" 2>/dev/null | tail -60 || true
+    # Hardened runtime forbids attaching, so debug an ad-hoc re-signed copy.
+    # If that copy survives instead, the crash is signing-related — also news.
+    echo "--- lldb backtrace (ad-hoc re-signed copy) ---"
+    LLDB_APP="$DIST/smoke-debug.app"
+    rm -rf "$LLDB_APP"
+    cp -R "$APP" "$LLDB_APP"
+    codesign --force --deep --sign - "$LLDB_APP" 2>/dev/null || true
+    ( sleep 30; pkill -f smoke-debug ) &
+    KILLER=$!
+    lldb --batch -o run -k 'thread backtrace all' -k quit \
+      "$LLDB_APP/Contents/MacOS/$EXECUTABLE" 2>&1 | tail -60 || true
+    kill "$KILLER" 2>/dev/null || true
+    rm -rf "$LLDB_APP"
   } >&2
   rm -f "$SMOKE_LOG"
   exit 1
