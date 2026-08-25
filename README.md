@@ -14,7 +14,15 @@ out of the way the rest of the time.
 
 ## How it looks
 
-![The Router Menu popover — connection status, this Mac's IP, and live transfer speeds with a 24-hour chart](docs/assets/readme-popover@2x.png)
+**A regular router (ASUS)** — network status, this Mac's address, and live
+transfer with a 24-hour chart:
+
+![The popover for an ASUS router — network status, this Mac's IP, and live transfer speeds with a 24-hour chart](docs/assets/readme-popover-asus@2x.png)
+
+**A mobile modem (ZTE)** — the same, plus signal quality, network type, and a
+battery with its own history:
+
+![The popover for a mobile ZTE modem — battery level, signal strength, network type, transfer speeds, and a battery history chart](docs/assets/readme-popover-zte@2x.png)
 
 ## Install
 
