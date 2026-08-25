@@ -75,9 +75,10 @@ struct DeviceSignInSection: View {
 
     @State private var testState: TestState = .idle
 
-    /// Which error copy a failed test shows. Static and pure so it is
-    /// unit-testable without a view.
-    static func failureKey(for error: Error) -> LocKey {
+    /// Which error copy a failed test shows. Static, pure and nonisolated so
+    /// it is unit-testable without a view — SDKs that isolate all of `View`
+    /// to the main actor would otherwise reject the call from tests.
+    nonisolated static func failureKey(for error: Error) -> LocKey {
         if case ModemError.loginFailed = error { return .errorLoginFailed }
         return .errorUnreachable
     }
