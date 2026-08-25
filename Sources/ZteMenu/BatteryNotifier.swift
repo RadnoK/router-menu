@@ -149,11 +149,12 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
     init(l10n: L10n?) { self.l10n = l10n }
 
     func requestAuthorization() {
-        // The async API, not the completion-handler one: the center invokes
-        // completion blocks on a private queue, and a closure formed in this
-        // @MainActor type carries a main-thread executor check — the mismatch
-        // crashed at launch (dispatch assertion) when the request errored.
-        Task { try? await center.requestAuthorization(options: [.alert, .sound]) }
+        // @Sendable, and only because of it nonisolated: a plain closure here
+        // would inherit @MainActor and carry a main-thread executor check,
+        // which the center trips by invoking completions on a private queue —
+        // that dispatch assertion killed the app at first launch whenever the
+        // request errored.
+        center.requestAuthorization(options: [.alert, .sound]) { @Sendable _, _ in }
     }
 
     func present(_ alert: BatteryAlert) {
@@ -171,8 +172,8 @@ final class UserNotificationPresenter: BatteryAlertPresenting {
         let request = UNNotificationRequest(identifier: "battery-\(UUID().uuidString)",
                                             content: content,
                                             trigger: nil)
-        // Async for the same queue-isolation reason as requestAuthorization.
-        Task { try? await center.add(request) }
+        // @Sendable for the same queue-isolation reason as requestAuthorization.
+        center.add(request) { @Sendable _ in }
     }
 
     /// Falls back to the raw key when no `L10n` was injected, matching how the
