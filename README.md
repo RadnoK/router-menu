@@ -14,7 +14,7 @@ out of the way the rest of the time.
 
 ## How it looks
 
-![The menu bar icon next to live signal strength and battery readings](docs/assets/readme-strip-1280x360.png)
+![The Router Menu popover — connection status, this Mac's IP, and live transfer speeds with a 24-hour chart](docs/assets/readme-popover@2x.png)
 
 ## Install
 
