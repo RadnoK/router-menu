@@ -7,7 +7,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-REPO="RadnoK/zte-menu"
+REPO="RadnoK/router-menu"
 CERT_HASH="78189AA14E80C16A00C743B32112F7B6D663D714"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT

@@ -13,7 +13,7 @@ enum AppInfo {
 
     static let websiteLabel = "8lines.io"
     static let websiteURL = URL(string: "https://8lines.io")!
-    static let githubLabel = "RadnoK/zte-menu"
-    static let githubURL = URL(string: "https://github.com/RadnoK/zte-menu")!
+    static let githubLabel = "RadnoK/router-menu"
+    static let githubURL = URL(string: "https://github.com/RadnoK/router-menu")!
     static let contactURL = URL(string: "mailto:konrad+wifimenu@8lines.io")!
 }

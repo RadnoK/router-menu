@@ -56,7 +56,7 @@ if [[ ! -x "$SPARKLE_BIN/generate_appcast" ]]; then
 fi
 mkdir -p "$APPCAST_DIR"
 cp "$ZIP" "$APPCAST_DIR/"
-URL_PREFIX="https://github.com/RadnoK/zte-menu/releases/download/v$VERSION/"
+URL_PREFIX="https://github.com/RadnoK/router-menu/releases/download/v$VERSION/"
 if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
   # CI: key from the secret via stdin, the runner's keychain doesn't have it
   echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
@@ -77,4 +77,4 @@ echo
 echo "Next:"
 echo "  1. gh release create v$VERSION \"$ZIP\" --title \"ZTE Menu $VERSION\" --generate-notes"
 echo "  2. publish $APPCAST_DIR/appcast.xml on the gh-pages branch"
-echo "  3. update version/sha256 in Casks/zte-menu.rb in the tap"
+echo "  3. update version/sha256 in Casks/router-menu.rb in the tap"

@@ -6,7 +6,7 @@ and how much data you've used, without opening the modem's web panel.
 The icon shows up only while you're actually connected to the modem, and stays
 out of the way the rest of the time.
 
-[![Release](https://img.shields.io/github/v/release/RadnoK/zte-menu)](https://github.com/RadnoK/zte-menu/releases)
+[![Release](https://img.shields.io/github/v/release/RadnoK/router-menu)](https://github.com/RadnoK/router-menu/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-lightgrey)](#requirements)
 
@@ -14,10 +14,10 @@ out of the way the rest of the time.
 
 ```bash
 brew tap RadnoK/tap
-brew install --cask zte-menu
+brew install --cask router-menu
 ```
 
-Or grab the `.zip` from [Releases](https://github.com/RadnoK/zte-menu/releases)
+Or grab the `.zip` from [Releases](https://github.com/RadnoK/router-menu/releases)
 and drag `ZTE Menu.app` into `/Applications`.
 
 The app is signed and notarized by Apple, so it opens without Gatekeeper
@@ -50,7 +50,7 @@ you can pick one in Settings.
 - macOS 14 or newer
 - A ZTE 5G modem with a web panel at `192.168.0.1` — developed against the
   **ZTE U50**, and likely to work with related models that share the same web
-  panel. If you try another one, [let me know how it goes](https://github.com/RadnoK/zte-menu/issues).
+  panel. If you try another one, [let me know how it goes](https://github.com/RadnoK/router-menu/issues).
 
 ## Setup
 
@@ -111,7 +111,7 @@ the modem — that's usually the explanation.
 ## Contributing
 
 Bug reports and pull requests are welcome. If something's broken or your modem
-isn't supported, [open an issue](https://github.com/RadnoK/zte-menu/issues).
+isn't supported, [open an issue](https://github.com/RadnoK/router-menu/issues).
 
 ### Building from source
 

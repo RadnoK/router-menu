@@ -34,7 +34,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://radnok.github.io/zte-menu/appcast.xml</string>
+	<string>https://radnok.github.io/router-menu/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>ALXbpEEByW2KIAMtGC69OHKfoA0ghWfqNkvT0xXTIvA=</string>
 	<key>SUScheduledCheckInterval</key>
