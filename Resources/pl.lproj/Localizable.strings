@@ -40,7 +40,7 @@
 "error.unreachable" = "Nie można połączyć z modemem";
 
 /* Ustawienia — sieć */
-"settings.window_title" = "Ustawienia ZTE Menu";
+"settings.window_title" = "Ustawienia Router Menu";
 "settings.tab.general" = "Ogólne";
 "settings.tab.updates" = "Aktualizacje";
 "settings.network.section" = "Sieć";
@@ -118,7 +118,7 @@
 "settings.panel.show_when_disconnected_help" = "Zostawia ikonę na pasku menu, gdy modem jest poza zasięgiem, zamiast ukrywać aplikację.";
 
 "settings.general.launch_at_login" = "Uruchamiaj przy logowaniu";
-"settings.general.launch_at_login_help" = "Dodaje ZTE Menu do systemowych elementów logowania, więc uruchomi się razem z Makiem.";
+"settings.general.launch_at_login_help" = "Dodaje Router Menu do systemowych elementów logowania, więc uruchomi się razem z Makiem.";
 "settings.general.launch_at_login_error" = "System odmówił zarejestrowania aplikacji: %@";
 
 /* Ustawienia — bateria */

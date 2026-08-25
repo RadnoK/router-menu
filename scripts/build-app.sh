@@ -2,9 +2,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-APP_NAME="ZTE Menu"
+APP_NAME="Router Menu"
 BUNDLE_ID="io.8lines.router-menu"
-EXECUTABLE="zte-menu"
+EXECUTABLE="router-menu"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
 
@@ -77,7 +77,7 @@ echo "==> Launch smoke test"
 # Nothing else in this pipeline ever runs the assembled app, so a bundle that
 # fatal-errors at startup (e.g. a missing SwiftPM resource bundle) used to ship
 # silently: the app is LSUIElement, so a dead process looks like "no icon yet".
-SMOKE_LOG="$(mktemp -t zte-menu-smoke)"
+SMOKE_LOG="$(mktemp -t router-menu-smoke)"
 set +e
 "$APP/Contents/MacOS/$EXECUTABLE" >"$SMOKE_LOG" 2>&1 &
 SMOKE_PID=$!

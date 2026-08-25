@@ -8,10 +8,10 @@ if [[ -z "$VERSION" ]]; then
   exit 1
 fi
 
-APP_NAME="ZTE Menu"
+APP_NAME="Router Menu"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
-ZIP="$DIST/ZteMenu-$VERSION.zip"
+ZIP="$DIST/RouterMenu-$VERSION.zip"
 TEAM_ID="7S3F9767BM"
 KEYCHAIN_PROFILE="${KEYCHAIN_PROFILE:-zte-menu-notary}"
 SPARKLE_BIN="${SPARKLE_BIN:-$HOME/.local/sparkle/bin}"

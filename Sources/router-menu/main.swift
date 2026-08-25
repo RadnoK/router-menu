@@ -1,0 +1,3 @@
+import RouterMenu
+
+RouterMenuApp.main()

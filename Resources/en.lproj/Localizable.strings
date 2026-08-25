@@ -40,7 +40,7 @@
 "error.unreachable" = "Cannot reach the modem";
 
 /* Settings — network */
-"settings.window_title" = "ZTE Menu Settings";
+"settings.window_title" = "Router Menu Settings";
 "settings.tab.general" = "General";
 "settings.tab.updates" = "Updates";
 "settings.network.section" = "Network";
@@ -118,7 +118,7 @@
 "settings.panel.show_when_disconnected_help" = "Keeps the menu bar icon in place while the modem is out of reach, instead of hiding the app.";
 
 "settings.general.launch_at_login" = "Launch at login";
-"settings.general.launch_at_login_help" = "Adds ZTE Menu to the system's login items, so it starts with your Mac.";
+"settings.general.launch_at_login_help" = "Adds Router Menu to the system's login items, so it starts with your Mac.";
 "settings.general.launch_at_login_error" = "The system refused to register the app: %@";
 
 /* Settings — battery */

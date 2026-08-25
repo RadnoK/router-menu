@@ -94,7 +94,7 @@ jobs:
       - name: GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          ZIP: dist/ZteMenu-${{ steps.ver.outputs.version }}.zip
+          ZIP: dist/RouterMenu-${{ steps.ver.outputs.version }}.zip
         run: |
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             echo "Release already exists — replacing the artifact"
@@ -128,7 +128,7 @@ jobs:
           GH_TOKEN: ${{ secrets.TAP_TOKEN }}
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          SHA="$(shasum -a 256 "dist/ZteMenu-$VERSION.zip" | awk '{print $1}')"
+          SHA="$(shasum -a 256 "dist/RouterMenu-$VERSION.zip" | awk '{print $1}')"
           git clone "https://x-access-token:$GH_TOKEN@github.com/RadnoK/homebrew-tap.git" \
             "$RUNNER_TEMP/tap"
           cd "$RUNNER_TEMP/tap"

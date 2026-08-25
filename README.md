@@ -24,7 +24,7 @@ brew install --cask router-menu
 ```
 
 Or grab the `.zip` from [Releases](https://github.com/RadnoK/router-menu/releases)
-and drag `ZTE Menu.app` into `/Applications`.
+and drag `Router Menu.app` into `/Applications`.
 
 The app is signed and notarized by Apple, so it opens without Gatekeeper
 warnings. It runs natively on both Apple Silicon and Intel Macs.
@@ -108,7 +108,7 @@ The app talks to your modem and nothing else.
 ## Not seeing the icon?
 
 If you use a menu bar manager like Bartender or Ice, it may have tucked the new
-icon into the hidden section. Check there and mark **ZTE Menu** as always
+icon into the hidden section. Check there and mark **Router Menu** as always
 visible.
 
 Otherwise, remember the icon is hidden by design when you're not connected to
@@ -127,7 +127,7 @@ project — it's a Swift package.
 ```bash
 swift test              # run the test suite (64 tests)
 ./scripts/build-app.sh  # build and package into a .app
-open "dist/ZTE Menu.app"
+open "dist/Router Menu.app"
 ```
 
 `build-app.sh` produces a universal binary, assembles the app bundle, and
