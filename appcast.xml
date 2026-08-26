@@ -3,12 +3,12 @@
     <channel>
         <title>Router Menu</title>
         <item>
-            <title>0.5.1</title>
-            <pubDate>Tue, 25 Aug 2026 12:35:05 +0000</pubDate>
-            <sparkle:version>0.5.1</sparkle:version>
-            <sparkle:shortVersionString>0.5.1</sparkle:shortVersionString>
+            <title>0.5.2</title>
+            <pubDate>Wed, 26 Aug 2026 10:09:31 +0000</pubDate>
+            <sparkle:version>0.5.2</sparkle:version>
+            <sparkle:shortVersionString>0.5.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.1/RouterMenu-0.5.1.zip" length="2361265" type="application/octet-stream" sparkle:edSignature="i0TFjq6+crDIkeff6UnnKXcD+d0XUXOchEZhP50M1Clo13xP+4cBR+Wc3R2Hht0dgomcM7Lam1uafjdZ5Q5pBQ=="/>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.2/RouterMenu-0.5.2.zip" length="2376740" type="application/octet-stream" sparkle:edSignature="nW90pkosjRAqd17qXuhCOF7Szry624OMWfsYmOPdFuRUPR/Hed2hH/q8DYooeWZ+BeIw1efdOkRU8CtICeIlAg=="/>
         </item>
     </channel>
 </rss>
