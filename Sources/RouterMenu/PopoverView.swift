@@ -24,6 +24,20 @@ public struct PopoverView: View {
         }
         .padding(14)
         .frame(width: 320)
+        .background(PopoverPanelSizer(stateKey: Self.stateKey(for: store.state)))
+    }
+
+    /// One key per content case — the panel sizer re-fits the window when it
+    /// changes. Deliberately payload-blind: data ticks while connected must
+    /// not thrash the window, and growth is the one direction the panel
+    /// already handles by itself.
+    nonisolated static func stateKey(for state: AppState) -> String {
+        switch state {
+        case .hidden: return "hidden"
+        case .locationDenied: return "locationDenied"
+        case .error: return "error"
+        case .connected: return "connected"
+        }
     }
 
     @ViewBuilder
