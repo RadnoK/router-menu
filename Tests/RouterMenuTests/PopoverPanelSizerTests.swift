@@ -42,6 +42,39 @@ final class PopoverPanelSizerTests: XCTestCase {
                        "data ticks must not thrash the window while open")
     }
 
+    /// The backdrop install runs on every `viewDidMoveToWindow`, which fires
+    /// again each time the panel is rebuilt. Stacking effect views would
+    /// darken the material one wash per reopen.
+    @MainActor
+    func testBackdropIsInstalledOncePerWindow() {
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 320, height: 400),
+                              styleMask: [.borderless], backing: .buffered, defer: false)
+        let tracker = PopoverPanelSizer.TrackerView()
+        window.contentView?.addSubview(tracker)
+
+        func backdrops() -> Int {
+            window.contentView?.subviews
+                .filter { $0 is PopoverPanelSizer.TrackerView.Backdrop }.count ?? 0
+        }
+        XCTAssertEqual(backdrops(), 1, "moving into a window installs the material")
+
+        tracker.removeFromSuperview()
+        window.contentView?.addSubview(tracker)
+        XCTAssertEqual(backdrops(), 1, "a rebuilt panel must not stack a second wash")
+    }
+
+    @MainActor
+    func testBackdropClearsTheOpaqueWindowFill() {
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 320, height: 400),
+                              styleMask: [.borderless], backing: .buffered, defer: false)
+        window.isOpaque = true
+        window.backgroundColor = .windowBackgroundColor
+        window.contentView?.addSubview(PopoverPanelSizer.TrackerView())
+
+        XCTAssertFalse(window.isOpaque, "an opaque window would blur to flat grey")
+        XCTAssertEqual(window.backgroundColor, NSColor.clear)
+    }
+
     private static let data = makeData(signalBars: 4)
     private static let otherData = makeData(signalBars: 1)
 
