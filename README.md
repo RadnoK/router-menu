@@ -2,11 +2,12 @@
 
 # Router Menu
 
-Keep an eye on your ZTE 5G modem from the macOS menu bar — battery, signal,
-and how much data you've used, without opening the modem's web panel.
+Keep an eye on your connection from the macOS menu bar — battery, signal, and
+how much data you've used, without opening a web panel. Works with ZTE 5G
+modems, ASUS routers, and an iPhone Personal Hotspot.
 
-The icon shows up only while you're actually connected to the modem, and stays
-out of the way the rest of the time.
+The icon shows up only while you're actually on that network, and stays out of
+the way the rest of the time.
 
 [![Release](https://img.shields.io/github/v/release/RadnoK/router-menu)](https://github.com/RadnoK/router-menu/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -23,6 +24,11 @@ transfer with a 24-hour chart:
 battery with its own history:
 
 ![The popover for a mobile ZTE modem — battery level, signal strength, network type, transfer speeds, and a battery history chart](docs/assets/readme-popover-zte@2x.png)
+
+**An iPhone Personal Hotspot** — the tether read from the Mac's own interface,
+with the link medium and traffic since the connection came up:
+
+![The popover for an iPhone Personal Hotspot — the link medium, this Mac's address on the tether, and traffic since the connection came up](docs/assets/readme-popover-hotspot@2x.png)
 
 ## Install
 
@@ -62,9 +68,16 @@ you can pick one in Settings.
 ## Requirements
 
 - macOS 14 or newer
-- A ZTE 5G modem with a web panel at `192.168.0.1` — developed against the
-  **ZTE U50**, and likely to work with related models that share the same web
-  panel. If you try another one, [let me know how it goes](https://github.com/RadnoK/router-menu/issues).
+- One of:
+  - A ZTE 5G modem with a web panel at `192.168.0.1` — developed against the
+    **ZTE U50**, and likely to work with related models that share the same web
+    panel.
+  - An ASUS router running Asuswrt.
+  - An iPhone (or Android) Personal Hotspot — no setup on the phone, the Mac
+    reads its own end of the tether. Note that iOS does not share the phone's
+    battery or cellular signal with a Mac, so those are not shown.
+
+  If you try another device, [let me know how it goes](https://github.com/RadnoK/router-menu/issues).
 
 ## Setup
 
