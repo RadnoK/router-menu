@@ -17,7 +17,8 @@ public struct RouterMenuApp: App {
         let p = MenuBarPresentation.make(for: store.state,
                                          showBatteryPercent: activeProfile?.showBatteryPercent ?? false,
                                          showWhenDisconnected: settings.settings.showWhenDisconnected,
-                                         showsRadioSignal: showsRadioSignal)
+                                         showsRadioSignal: showsRadioSignal,
+                                         isTether: activeProfile?.provider.isTether ?? false)
 
         MenuBarExtra(isInserted: .constant(p.isVisible)) {
             PopoverView(store: store, settings: settings, l10n: l10n) {

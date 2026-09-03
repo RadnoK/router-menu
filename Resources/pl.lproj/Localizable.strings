@@ -10,6 +10,7 @@
 "popover.upload" = "Wysyłanie";
 "popover.monthly" = "W tym miesiącu";
 "popover.total" = "Łącznie";
+"popover.since_connected" = "Od połączenia";
 "popover.session" = "Sesja";
 "popover.session_data" = "W tej sesji";
 

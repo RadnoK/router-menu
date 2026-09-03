@@ -216,8 +216,12 @@ struct AppSettings: Codable, Equatable {
 extension AppSettings {
     /// Appends a fresh descriptor-prefilled profile; returns its id so the
     /// UI can select it.
-    mutating func addProfile(provider: ProviderKind) -> UUID {
-        let profile = ModemProfile.makeDefault(provider: provider)
+    ///
+    /// - Parameter currentSSID: passed in by the caller rather than read here
+    ///   — this type stays a pure model, with CoreWLAN left to the UI layer.
+    ///   Providers without a factory network name seed theirs from it.
+    mutating func addProfile(provider: ProviderKind, currentSSID: String? = nil) -> UUID {
+        let profile = ModemProfile.makeDefault(provider: provider, currentSSID: currentSSID)
         profiles.append(profile)
         return profile.id
     }

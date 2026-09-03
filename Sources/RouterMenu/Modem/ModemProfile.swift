@@ -54,11 +54,21 @@ struct ModemProfile: Codable, Equatable, Identifiable, Sendable {
     }
 
     /// A fresh profile for a provider, prefilled from its descriptor.
-    static func makeDefault(provider: ProviderKind) -> ModemProfile {
+    ///
+    /// - Parameter currentSSID: the network the Mac is on right now. A phone
+    ///   hotspot has no factory network name to ship as a default — it is
+    ///   named after its owner — and the user is typically already joined to
+    ///   it while adding the profile, so the live name is the best guess
+    ///   available. Providers that DO ship a default keep theirs.
+    static func makeDefault(provider: ProviderKind,
+                            currentSSID: String? = nil) -> ModemProfile {
         let d = ProviderCatalog.descriptor(for: provider)
+        let ssid = d.defaultSSID.isEmpty && d.defaultMatchMode == .ssid
+            ? (currentSSID ?? "")
+            : d.defaultSSID
         return ModemProfile(provider: provider,
                             matchMode: d.defaultMatchMode,
-                            ssid: d.defaultSSID,
+                            ssid: ssid,
                             modemIP: d.defaultBaseURL.host ?? "192.168.0.1")
     }
 

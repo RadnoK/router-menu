@@ -10,6 +10,7 @@
 "popover.upload" = "Upload";
 "popover.monthly" = "This month";
 "popover.total" = "Total";
+"popover.since_connected" = "Since connected";
 "popover.session" = "Session";
 "popover.session_data" = "This session";
 

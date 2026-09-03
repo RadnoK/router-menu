@@ -4,6 +4,16 @@ import Foundation
 enum ProviderKind: String, Codable, CaseIterable, Sendable {
     case zte
     case asus
+    /// A tethered phone. Named for the feature, not the vendor: Android
+    /// tethering presents the Mac with the same interface to read.
+    case hotspot
+}
+
+extension ProviderKind {
+    /// Whether the "device" is a phone sharing its connection rather than a
+    /// modem or router. The Mac sees the LINK to it, never its radio or
+    /// battery, which the menu bar symbol has to reflect.
+    var isTether: Bool { self == .hotspot }
 }
 
 /// What the panel password unlocks on a device, so credential UI can be
@@ -50,6 +60,7 @@ enum ProviderCatalog {
         switch kind {
         case .zte: return ZTEProvider.descriptor
         case .asus: return AsusProvider.descriptor
+        case .hotspot: return HotspotProvider.descriptor
         }
     }
 }

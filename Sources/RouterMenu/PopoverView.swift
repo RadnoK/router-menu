@@ -151,7 +151,7 @@ public struct PopoverView: View {
                                   hasChartData: downloadSeries.count >= 2) {
             pane(l10n(.popoverSectionTransfer)) {
                 if profile.stats.transfer {
-                    transferRows(d)
+                    transferRows(d, isTether: profile.provider.isTether)
                 }
                 if profile.stats.session, caps.hasSessionCounters,
                    let sessionRx = d.sessionRx, let sessionTx = d.sessionTx {
@@ -203,7 +203,7 @@ public struct PopoverView: View {
     }
 
     @ViewBuilder
-    private func transferRows(_ d: ModemData) -> some View {
+    private func transferRows(_ d: ModemData, isTether: Bool) -> some View {
         if let rx = d.rxSpeed, let tx = d.txSpeed {
             row("arrow.down.circle", l10n(.popoverDownload), ByteFormat.speed(rx))
             row("arrow.up.circle", l10n(.popoverUpload), ByteFormat.speed(tx))
@@ -212,7 +212,8 @@ public struct PopoverView: View {
             row("calendar", l10n(.popoverMonthly), "\(ByteFormat.gb(mrx + mtx))")
         }
         if let trx = d.totalRx, let ttx = d.totalTx {
-            row("sum", l10n(.popoverTotal), "\(ByteFormat.gb(trx + ttx))")
+            row("sum", l10n(isTether ? .popoverSinceConnected : .popoverTotal),
+                "\(ByteFormat.gb(trx + ttx))")
         }
     }
 

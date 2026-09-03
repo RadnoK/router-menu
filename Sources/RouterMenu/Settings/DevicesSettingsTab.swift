@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreWLAN
 
 /// The device manager, System-Settings style: the profile list as a sidebar
 /// on the left, the selected device's settings filling the right pane.
@@ -57,7 +58,12 @@ struct DevicesSettingsTab: View {
                 Menu {
                     ForEach(ProviderKind.allCases, id: \.self) { kind in
                         Button(ProviderCatalog.descriptor(for: kind).displayName) {
-                            settings.editedProfileID = settings.settings.addProfile(provider: kind)
+                            // Read at the moment of adding, not cached on
+                            // appear: the user may join the hotspot after
+                            // opening settings.
+                            settings.editedProfileID = settings.settings.addProfile(
+                                provider: kind,
+                                currentSSID: CoreWLANReader().currentSSID())
                         }
                     }
                 } label: {

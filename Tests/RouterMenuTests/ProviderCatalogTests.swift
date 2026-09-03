@@ -12,7 +12,10 @@ final class ProviderCatalogTests: XCTestCase {
             XCTAssertFalse(d.supportedMatchModes.isEmpty, "\(kind) supports no match mode")
             XCTAssertTrue(d.supportedMatchModes.contains(d.defaultMatchMode),
                           "\(kind)'s default match mode is not among its supported modes")
-            if d.defaultMatchMode == .ssid {
+            // A factory network name is a property of hardware. A phone
+            // hotspot is named after its owner, so it has none to ship —
+            // `makeDefault` seeds it from the network the Mac is on instead.
+            if d.defaultMatchMode == .ssid && !kind.isTether {
                 XCTAssertFalse(d.defaultSSID.isEmpty,
                                "\(kind) matches by SSID by default but ships no default SSID")
             }

@@ -15,10 +15,13 @@ struct MenuBarPresentation: Equatable {
     ///   - showWhenDisconnected: keeps the icon in the menu bar while the modem
     ///     is out of reach, so the app stays reachable — its popover explains
     ///     the missing connection and offers the settings window.
+    ///   - isTether: a phone sharing its connection. Like a wired router it has
+    ///     no bars to grade, but it is not a router — it gets its own symbol.
     static func make(for state: AppState,
                      showBatteryPercent: Bool = false,
                      showWhenDisconnected: Bool = false,
-                     showsRadioSignal: Bool = true) -> MenuBarPresentation {
+                     showsRadioSignal: Bool = true,
+                     isTether: Bool = false) -> MenuBarPresentation {
         func presentation(symbolName: String, variableValue: Double, battery: Int? = nil) -> MenuBarPresentation {
             MenuBarPresentation(isVisible: true,
                                 symbolName: symbolName,
@@ -39,9 +42,9 @@ struct MenuBarPresentation: Equatable {
                                 variableValue: 0)
         case .connected(let d):
             guard showsRadioSignal else {
-                // A wired router has no bars to grade — a healthy connection
-                // shows the router symbol, full stop.
-                return presentation(symbolName: "wifi.router",
+                // Neither has bars to grade, but they are different objects:
+                // a tethered phone is not the household router.
+                return presentation(symbolName: isTether ? "personalhotspot" : "wifi.router",
                                     variableValue: 0,
                                     battery: d.batteryPercent)
             }

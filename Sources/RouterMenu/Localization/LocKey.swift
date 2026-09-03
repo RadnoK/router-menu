@@ -15,6 +15,9 @@ enum LocKey: String, CaseIterable, Sendable {
     case popoverUpload = "popover.upload"
     case popoverMonthly = "popover.monthly"
     case popoverTotal = "popover.total"
+    /// A tether's counters restart with the interface, so the same row means
+    /// something narrower than a modem's lifetime total.
+    case popoverSinceConnected = "popover.since_connected"
     case popoverSession = "popover.session"
     case popoverSessionData = "popover.session_data"
 
