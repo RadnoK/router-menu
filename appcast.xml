@@ -4,27 +4,11 @@
         <title>Router Menu</title>
         <item>
             <title>0.6.0</title>
-            <pubDate>Thu, 03 Sep 2026 11:32:10 +0200</pubDate>
+            <pubDate>Thu, 03 Sep 2026 09:34:52 +0000</pubDate>
             <sparkle:version>0.6.0</sparkle:version>
             <sparkle:shortVersionString>0.6.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.0/RouterMenu-0.6.0.zip" length="2492958" type="application/octet-stream" sparkle:edSignature="zjlCsWycoI7sDYjyKAgf8W5qVNwNYPZeaLwZSGzwJgW+4PVazYIaKwcC7xzhbBKN5EFa5NCUSyV+lFdS8s0UCw=="/>
-        </item>
-        <item>
-            <title>0.5.3</title>
-            <pubDate>Wed, 02 Sep 2026 16:13:10 +0000</pubDate>
-            <sparkle:version>0.5.3</sparkle:version>
-            <sparkle:shortVersionString>0.5.3</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.3/RouterMenu-0.5.3.zip" length="2378407" type="application/octet-stream" sparkle:edSignature="f8hnPLRbm0cfb2HCxDMxvYcjm30XIWWYMFANAL+FSWopyRFJiQbU+/oMDI6KT4GDskNaPl5BQlft+K2jLn4NAw=="/>
-        </item>
-        <item>
-            <title>0.5.2</title>
-            <pubDate>Wed, 26 Aug 2026 10:09:31 +0000</pubDate>
-            <sparkle:version>0.5.2</sparkle:version>
-            <sparkle:shortVersionString>0.5.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.2/RouterMenu-0.5.2.zip" length="2376740" type="application/octet-stream" sparkle:edSignature="nW90pkosjRAqd17qXuhCOF7Szry624OMWfsYmOPdFuRUPR/Hed2hH/q8DYooeWZ+BeIw1efdOkRU8CtICeIlAg=="/>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.0/RouterMenu-0.6.0.zip" length="2407029" type="application/octet-stream" sparkle:edSignature="6EKkfMdoexY8sX+QpOWA7MtFKXcCWI1S83W9zoYEaob+u0qzdFNtB+djeFX4ZNEEB04js+RVZTNzz61E8oWLCQ=="/>
         </item>
     </channel>
 </rss>
