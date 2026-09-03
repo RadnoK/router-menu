@@ -22,6 +22,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var batteryNotifier = BatteryNotifier(settings: settings, l10n: l10n)
     private let permission = LocationPermission()
     private var refreshTask: Task<Void, Never>?
+    /// Retains the right-click monitor on the menu bar icon; releasing it
+    /// would remove the event monitor.
+    private var statusItemObserver: RightClickMonitor?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         l10n.setLanguage(settings.settings.language)
@@ -45,6 +48,56 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         store.setLocationAuth(permission.status)
         permission.requestIfNeeded()
         startRefreshLoop()
+        attachStatusItemMenu()
+    }
+
+    /// Gives the menu bar icon a right-click menu.
+    ///
+    /// `MenuBarExtra` keeps its `NSStatusItem` private and creates it lazily,
+    /// so there is nothing to attach to at launch. The item shows up as a
+    /// status-bar window, which is what this looks for — retrying briefly
+    /// rather than assuming a fixed delay, since the icon also appears (and
+    /// disappears) later as the modem comes and goes.
+    private func attachStatusItemMenu() {
+        Task { @MainActor [weak self] in
+            for _ in 0..<20 {
+                if let self, self.installMenuOnStatusItem() { return }
+                try? await Task.sleep(for: .milliseconds(250))
+            }
+        }
+    }
+
+    /// Walks the app's windows for the one hosting the status item's button.
+    /// Returns whether the menu found a home.
+    @discardableResult
+    private func installMenuOnStatusItem() -> Bool {
+        for window in NSApp.windows {
+            guard let button = Self.statusButton(in: window.contentView) else { continue }
+            // NOT `button.menu = …`: AppKit pops an assigned menu on EVERY
+            // click, which swallows the primary one and leaves the popover
+            // unopenable (verified — the popover stopped appearing). Instead
+            // the right click is intercepted here and the menu popped by hand,
+            // leaving MenuBarExtra's own left-click handling untouched.
+            let monitor = RightClickMonitor(button: button) { [weak self] in
+                guard let self else { return }
+                let menu = StatusItemMenu.make(l10n: self.l10n)
+                menu.popUp(positioning: nil,
+                           at: NSPoint(x: 0, y: button.bounds.height + 4),
+                           in: button)
+            }
+            statusItemObserver = monitor
+            return true
+        }
+        return false
+    }
+
+    private static func statusButton(in view: NSView?) -> NSStatusBarButton? {
+        guard let view else { return nil }
+        if let button = view as? NSStatusBarButton { return button }
+        for subview in view.subviews {
+            if let button = statusButton(in: subview) { return button }
+        }
+        return nil
     }
 
     /// Called by the settings window the moment the user arms the first alert.
