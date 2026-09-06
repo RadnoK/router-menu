@@ -102,8 +102,14 @@ public struct PopoverView: View {
         hasRadio && (stats.radio || (stats.signalChart && hasChartData))
     }
 
-    static func showsTransferPane(stats: StatVisibility, hasChartData: Bool) -> Bool {
-        stats.transfer || stats.session || (stats.transferChart && hasChartData)
+    /// `hasRows` means "there are actually values to print", not just that the
+    /// toggles are on — a device reporting neither speeds nor counters would
+    /// otherwise earn a box holding nothing but its own title, the same noise
+    /// `hasRadio` keeps out of the signal pane.
+    static func showsTransferPane(stats: StatVisibility, hasRows: Bool,
+                                  hasChartData: Bool) -> Bool {
+        (hasRows && (stats.transfer || stats.session))
+            || (stats.transferChart && hasChartData)
     }
 
     static func showsBatteryPane(stats: StatVisibility, hasBattery: Bool,
@@ -180,7 +186,14 @@ public struct PopoverView: View {
             }
         }
 
-        if Self.showsTransferPane(stats: profile.stats,
+        // Mirrors the row conditions below: a pane whose every row is absent
+        // would render as a lone title.
+        let hasTransferRows = (d.rxSpeed != nil && d.txSpeed != nil)
+            || (d.monthlyRx != nil && d.monthlyTx != nil)
+            || (d.totalRx != nil && d.totalTx != nil)
+            || (caps.hasSessionCounters && d.sessionRx != nil && d.sessionTx != nil)
+
+        if Self.showsTransferPane(stats: profile.stats, hasRows: hasTransferRows,
                                   hasChartData: downloadSeries.count >= 2) {
             pane(l10n(.popoverSectionTransfer)) {
                 if profile.stats.transfer {

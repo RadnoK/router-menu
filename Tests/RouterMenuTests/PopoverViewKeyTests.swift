@@ -79,12 +79,28 @@ final class PopoverViewKeyTests: XCTestCase {
     }
 
     func testTransferPaneFollowsRowsAndChart() {
-        XCTAssertTrue(PopoverView.showsTransferPane(stats: stats(), hasChartData: false))
+        XCTAssertTrue(PopoverView.showsTransferPane(stats: stats(), hasRows: true,
+                                                    hasChartData: false))
         let rowsOff = stats { $0.transfer = false; $0.session = false }
-        XCTAssertFalse(PopoverView.showsTransferPane(stats: rowsOff, hasChartData: false))
-        XCTAssertTrue(PopoverView.showsTransferPane(stats: rowsOff, hasChartData: true))
+        XCTAssertFalse(PopoverView.showsTransferPane(stats: rowsOff, hasRows: true,
+                                                     hasChartData: false))
+        XCTAssertTrue(PopoverView.showsTransferPane(stats: rowsOff, hasRows: true,
+                                                    hasChartData: true))
         let allOff = stats { $0.transfer = false; $0.session = false; $0.transferChart = false }
-        XCTAssertFalse(PopoverView.showsTransferPane(stats: allOff, hasChartData: true))
+        XCTAssertFalse(PopoverView.showsTransferPane(stats: allOff, hasRows: true,
+                                                     hasChartData: true))
+    }
+
+    /// A device that reports no speeds and no counters — an Asus read before
+    /// its first delta, or a modem that simply omits them — would otherwise
+    /// earn a TRANSFER box holding nothing but its own title.
+    func testTransferPaneNeedsSomethingToPutInIt() {
+        XCTAssertFalse(PopoverView.showsTransferPane(stats: stats(), hasRows: false,
+                                                     hasChartData: false),
+                       "a title with no rows under it is noise, not a pane")
+        // The chart alone still earns the pane, exactly like the signal pane.
+        XCTAssertTrue(PopoverView.showsTransferPane(stats: stats(), hasRows: false,
+                                                    hasChartData: true))
     }
 
     func testLocalIPPaneNeedsToggleAndAResolvedAddress() {
