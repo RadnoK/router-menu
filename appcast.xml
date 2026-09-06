@@ -4,11 +4,11 @@
         <title>Router Menu</title>
         <item>
             <title>0.6.2</title>
-            <pubDate>Sun, 06 Sep 2026 16:55:29 +0200</pubDate>
+            <pubDate>Sun, 06 Sep 2026 14:58:15 +0000</pubDate>
             <sparkle:version>0.6.2</sparkle:version>
             <sparkle:shortVersionString>0.6.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.2/RouterMenu-0.6.2.zip" length="2490882" type="application/octet-stream" sparkle:edSignature="nBxPTQSDH5zRAOZZxGxodRY3EW0ms5ginrfPTcj7aI6EahnhRGatioTSmLknBrj73layaTx7YiZ9a2/pTO8xCA=="/>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.2/RouterMenu-0.6.2.zip" length="2404813" type="application/octet-stream" sparkle:edSignature="VgKw4+Pt7f+0mLeCXGFabr32bZR8nGHs8e9Fds1aDiI3Nj2CdPz5RZiZXWsMV3pvEJWmV76W+epNh9dhHLHYDA=="/>
         </item>
     </channel>
 </rss>
