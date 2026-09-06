@@ -178,6 +178,16 @@ git tag v0.4.0 && git push origin main v0.4.0
 GitHub Actions takes it from there — builds, signs, notarizes, publishes the
 release, updates the appcast, and bumps the Homebrew cask.
 
+To cut a release from your own machine instead, run `./scripts/release.sh
+<version>`. It picks up the Developer ID certificate from your keychain on its
+own; if you hold more than one, it stops and asks you to name the one to use:
+
+```bash
+SIGN_IDENTITY=<sha1-hash> ./scripts/release.sh 0.6.3
+```
+
+`security find-identity -v -p codesigning` lists the hashes.
+
 ## License
 
 [MIT](LICENSE) © Konrad Alfaro
