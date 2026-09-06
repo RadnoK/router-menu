@@ -107,6 +107,23 @@ final class PopoverRenderHarness: XCTestCase {
         render(store, settings: settings, name: "zte", dark: true)
     }
 
+    /// The state a wrong password lands in — the popover must explain it and
+    /// offer the way out, not show a near-empty panel.
+    func testRenderLoginFailedPopover() async {
+        let defaults = UserDefaults(suiteName: "render-\(UUID().uuidString)")!
+        let settings = SettingsStore(defaults: defaults)
+        settings.profile.provider = .zte
+        settings.profile.matchMode = .ipProbe
+        let history = HistoryStore(fileURL: FileManager.default.temporaryDirectory
+            .appendingPathComponent("render-\(UUID()).json"))
+        let store = ModemStore(settings: settings, history: history,
+                               matcher: ModemMatcher(reader: NoSSID()),
+                               driverFactory: { _ in RejectingDriver() })
+        await store.refresh()
+        render(store, settings: settings, name: "login-failed", dark: false)
+        render(store, settings: settings, name: "login-failed", dark: true)
+    }
+
     func testRenderAsusPopover() async {
         let (history, rx, tx) = makeHistory(battery: false, rsrp: false)
         let data = ModemData(batteryPercent: nil, isCharging: false, signalBars: 0,
@@ -123,6 +140,11 @@ final class PopoverRenderHarness: XCTestCase {
         render(store, settings: settings, name: "asus", dark: false)
         render(store, settings: settings, name: "asus", dark: true)
     }
+}
+
+private struct RejectingDriver: ModemDriving {
+    func fetch() async throws -> ModemData { throw ModemError.loginFailed }
+    func probe() async -> Bool { true }
 }
 
 private struct NoSSID: SSIDReading {

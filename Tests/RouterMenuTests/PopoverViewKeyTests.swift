@@ -17,6 +17,11 @@ final class PopoverViewKeyTests: XCTestCase {
         XCTAssertEqual(PopoverView.key(for: .unreachable), .errorUnreachable)
     }
 
+    func testOnlyLoginFailureOffersTheSettingsShortcut() {
+        XCTAssertTrue(PopoverView.offersSettingsShortcut(for: .loginFailed))
+        XCTAssertFalse(PopoverView.offersSettingsShortcut(for: .unreachable))
+    }
+
     func testHeaderShowsBrandAndSSIDWhenMatchedBySSID() {
         var p = ModemProfile.makeDefault(provider: .zte)
         p.matchMode = .ssid

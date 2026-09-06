@@ -39,6 +39,8 @@
 /* Errors */
 "error.login_failed" = "Login failed — check the password";
 "error.unreachable" = "Cannot reach the modem";
+"error.login_failed_hint" = "The router rejected the saved password. Update it in Settings to reconnect.";
+"error.open_settings" = "Open Settings";
 
 /* Settings — network */
 "settings.window_title" = "Router Menu Settings";

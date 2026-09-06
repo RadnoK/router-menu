@@ -35,7 +35,9 @@ public struct PopoverView: View {
         switch state {
         case .hidden: return "hidden"
         case .locationDenied: return "locationDenied"
-        case .error: return "error"
+        // The kind is part of the key: only a login failure carries the hint
+        // and the settings button, so the two errors are different heights.
+        case .error(let kind): return "error-\(kind)"
         case .connected: return "connected"
         }
     }
@@ -48,11 +50,40 @@ public struct PopoverView: View {
         case .locationDenied:
             label(l10n(.popoverLocationDenied), "location.slash")
         case .error(let kind):
-            label(l10n(Self.key(for: kind)), "exclamationmark.triangle")
+            errorPane(kind)
         case .connected(let d):
             connected(d, profile: settings.settings.profile(with: store.activeProfile?.id)
                 ?? store.activeProfile
                 ?? settings.profile)
+        }
+    }
+
+    /// A rejected password is the one error the user can act on from here, so
+    /// it — and only it — earns the shortcut into the settings window.
+    static func offersSettingsShortcut(for kind: ModemErrorKind) -> Bool {
+        kind == .loginFailed
+    }
+
+    /// Errors take the same bordered box the stats use, so a failed refresh
+    /// fills the popover instead of leaving a near-empty panel.
+    @ViewBuilder
+    private func errorPane(_ kind: ModemErrorKind) -> some View {
+        pane(l10n(.popoverSectionStatus)) {
+            label(l10n(Self.key(for: kind)), "exclamationmark.triangle")
+            if Self.offersSettingsShortcut(for: kind) {
+                Text(l10n(.errorLoginFailedHint))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    openSettings()
+                } label: {
+                    Label(l10n(.errorOpenSettings), systemImage: "gearshape")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+            }
         }
     }
 

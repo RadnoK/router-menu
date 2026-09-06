@@ -32,6 +32,7 @@ final class PopoverPanelSizerTests: XCTestCase {
         let keys = [PopoverView.stateKey(for: .hidden),
                     PopoverView.stateKey(for: .locationDenied),
                     PopoverView.stateKey(for: .error(.unreachable)),
+                    PopoverView.stateKey(for: .error(.loginFailed)),
                     PopoverView.stateKey(for: .connected(Self.data))]
         XCTAssertEqual(Set(keys).count, keys.count, "each case must trigger a re-fit")
     }

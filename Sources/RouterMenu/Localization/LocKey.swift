@@ -48,6 +48,10 @@ enum LocKey: String, CaseIterable, Sendable {
     // Errors
     case errorLoginFailed = "error.login_failed"
     case errorUnreachable = "error.unreachable"
+    /// Explains what to do about a rejected password, next to the button that
+    /// takes the user there.
+    case errorLoginFailedHint = "error.login_failed_hint"
+    case errorOpenSettings = "error.open_settings"
 
     // Settings — window and network section
     case settingsWindowTitle = "settings.window_title"

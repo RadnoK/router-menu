@@ -39,6 +39,8 @@
 /* Błędy */
 "error.login_failed" = "Błąd logowania — sprawdź hasło";
 "error.unreachable" = "Nie można połączyć z modemem";
+"error.login_failed_hint" = "Router odrzucił zapisane hasło. Zaktualizuj je w Ustawieniach, aby połączyć ponownie.";
+"error.open_settings" = "Otwórz ustawienia";
 
 /* Ustawienia — sieć */
 "settings.window_title" = "Ustawienia Router Menu";
