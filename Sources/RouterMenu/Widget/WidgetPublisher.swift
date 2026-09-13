@@ -25,7 +25,11 @@ struct WidgetSnapshotBuilder {
                      history: HistoryStore,
                      now: Date = Date()) -> WidgetSnapshot {
         WidgetSnapshot(capturedAt: now,
-                       deviceName: profile.name,
+                       // `displayTitle`, not `name`: `name` is the user's
+                       // optional custom label and is empty unless they typed
+                       // one, which left the widget showing a blank device.
+                       // This is the same string the popover header uses.
+                       deviceName: profile.displayTitle,
                        batteryPercent: data.batteryPercent,
                        isCharging: data.isCharging,
                        signalBars: data.signalBars,

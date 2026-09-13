@@ -167,6 +167,12 @@ enum LocKey: String, CaseIterable, Sendable {
     case notificationBatteryFullTitle = "notification.battery.full_title"
     case notificationBatteryFullBody = "notification.battery.full_body"
 
+    // Updates — channel
+    case settingsUpdateChannel = "settings.update_channel"
+    case settingsUpdateChannelStable = "settings.update_channel.stable"
+    case settingsUpdateChannelBeta = "settings.update_channel.beta"
+    case settingsUpdateChannelHelp = "settings.update_channel.help"
+
     // Widget
     // Resolved by `WidgetCopy` against the extension's own bundle rather than
     // through `L10n`, but declared here so the key-sync test still covers

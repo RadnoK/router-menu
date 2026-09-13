@@ -156,3 +156,9 @@
 "widget.no_data" = "Brak danych modemu";
 "widget.no_history" = "Brak historii";
 "widget.just_now" = "przed chwilą";
+
+/* Updates — channel */
+"settings.update_channel" = "Kanał aktualizacji";
+"settings.update_channel.stable" = "Stabilny";
+"settings.update_channel.beta" = "Beta";
+"settings.update_channel.help" = "Beta udostępnia także wersje przedpremierowe do testów. Nadal otrzymujesz każde stabilne wydanie.";

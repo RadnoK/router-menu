@@ -36,19 +36,14 @@ XCB=(xcodebuild
   ARCHS="arm64 x86_64"
   ONLY_ACTIVE_ARCH=NO)
 
-if [[ "$SIGN_IDENTITY" == "-" ]]; then
-  # Ad-hoc: no App Group entitlement is possible, so the widget will build
-  # and install but find no snapshot to read. The app itself is unaffected.
-  echo "==> Building (unsigned, ad-hoc signature applied after)"
-  "${XCB[@]}" CODE_SIGNING_ALLOWED=NO build
-else
-  echo "==> Building with Developer ID: $SIGN_IDENTITY"
-  "${XCB[@]}" \
-    CODE_SIGN_STYLE=Manual \
-    CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
-    OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime" \
-    build
-fi
+# Always built unsigned, then signed by hand below — for BOTH paths.
+# Letting xcodebuild sign requires a provisioning profile the moment an
+# entitlement needs one (the App Group does), and it hard-fails without it:
+#   "RouterMenuWidget" requires a provisioning profile.
+# Signing afterwards is what the pre-xcodegen pipeline did, and it keeps a
+# Developer ID release building on a machine that has no profile installed.
+echo "==> Building (unsigned; signed below)"
+"${XCB[@]}" CODE_SIGNING_ALLOWED=NO build
 
 BUILT="$DERIVED/Build/Products/Release/$APP_NAME.app"
 if [[ ! -d "$BUILT" ]]; then
@@ -90,26 +85,32 @@ for PAIR in "Resources/entitlements.plist:app" \
   fi
 done
 
+# Inside-out, never --deep: --deep re-signs nested code with the OUTER
+# bundle's arguments, which strips the extension's own entitlements and
+# leaves a widget macOS refuses to load.
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+
 if [[ "$SIGN_IDENTITY" == "-" ]]; then
-  # Inside-out, not --deep: --deep re-signs nested code with the OUTER
-  # bundle's arguments, which strips the extension's own entitlements and
-  # leaves a widget macOS refuses to load. Ad-hoc cannot carry the App Group
-  # anyway, so a local widget finds no data — but it must still load.
   echo "==> Ad-hoc signing"
-  codesign --force --sign - \
-    --entitlements "Resources/widget-entitlements.plist" "$APPEX" 2>/dev/null || true
-  codesign --force --sign - \
-    "$APP/Contents/Frameworks/RouterMenu.framework" 2>/dev/null || true
-  codesign --force --sign - \
-    --entitlements "Resources/entitlements.plist" "$APP" \
-    || echo "Warning: codesign failed (the app still runs locally)"
+  SIGN=(codesign --force --sign -)
 else
-  echo "==> Verifying Developer ID signature"
-  # xcodebuild already signed every nested bundle inside-out; re-signing by
-  # hand here is what used to break the framework layout.
-  codesign --verify --deep --strict --verbose=2 "$APP"
-  codesign --verify --strict --verbose=2 "$APPEX"
+  echo "==> Developer ID signature: $SIGN_IDENTITY"
+  SIGN=(codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY")
 fi
+
+# Nested code first, parent last — notarization rejects the other order.
+"${SIGN[@]}" "$FW/Versions/B/XPCServices/Downloader.xpc"
+"${SIGN[@]}" "$FW/Versions/B/XPCServices/Installer.xpc"
+"${SIGN[@]}" "$FW/Versions/B/Updater.app"
+"${SIGN[@]}" "$FW/Versions/B/Autoupdate"
+"${SIGN[@]}" "$FW/Versions/B"
+"${SIGN[@]}" "$FW"
+"${SIGN[@]}" "$APP/Contents/Frameworks/RouterMenu.framework"
+"${SIGN[@]}" --entitlements "Resources/widget-entitlements.plist" "$APPEX"
+"${SIGN[@]}" --entitlements "Resources/entitlements.plist" "$APP"
+
+codesign --verify --deep --strict --verbose=2 "$APP"
+codesign --verify --strict --verbose=2 "$APPEX"
 
 echo "==> Launch smoke test"
 # Nothing else in this pipeline ever runs the assembled app, so a bundle that

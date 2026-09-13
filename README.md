@@ -191,8 +191,9 @@ against captured responses.
 
 ### Releasing
 
-Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`, then
-push a matching tag (the release script refuses a mismatch):
+Bump `MARKETING_VERSION` in `project.yml` (and `CURRENT_PROJECT_VERSION`, which
+must stay purely numeric — Apple rejects a pre-release suffix there), then push
+a matching tag (the release script refuses a mismatch):
 
 ```bash
 git tag v0.4.0 && git push origin main v0.4.0
@@ -210,6 +211,14 @@ SIGN_IDENTITY=<sha1-hash> ./scripts/release.sh 0.6.3
 ```
 
 `security find-identity -v -p codesigning` lists the hashes.
+
+### Beta releases
+
+A tag with a pre-release suffix (`v0.7.0-beta.1`) is published on Sparkle's
+`beta` channel and marked as a pre-release on GitHub. Only users who pick
+**Beta** under Settings → Updates are offered it; everyone else keeps seeing
+stable releases only, and the Homebrew cask is left untouched. Beta is
+additive — a beta user still receives every stable release.
 
 ## License
 

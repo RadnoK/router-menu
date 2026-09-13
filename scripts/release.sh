@@ -96,16 +96,28 @@ if [[ ! -x "$SPARKLE_BIN/generate_appcast" ]]; then
   exit 1
 fi
 mkdir -p "$APPCAST_DIR"
+
+# A hyphen in the version marks a pre-release (0.7.0-beta.1). Those are
+# published on Sparkle's "beta" channel, which only users who opted into it in
+# Settings are offered; a channel-less item is what everybody receives. This is
+# what keeps a test build from being pushed to every existing install.
+CHANNEL_ARGS=()
+if [[ "$VERSION" == *-* ]]; then
+  CHANNEL_ARGS=(--channel beta)
+  echo "    pre-release — publishing on the beta channel"
+fi
 cp "$ZIP" "$APPCAST_DIR/"
 URL_PREFIX="https://github.com/RadnoK/router-menu/releases/download/v$VERSION/"
 if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
   # CI: key from the secret via stdin, the runner's keychain doesn't have it
   echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
-    --ed-key-file - --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+    --ed-key-file - --download-url-prefix "$URL_PREFIX" \
+    "${CHANNEL_ARGS[@]}" "$APPCAST_DIR"
 else
   # Locally: the private key lives in the keychain
   "$SPARKLE_BIN/generate_appcast" \
-    --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+    --download-url-prefix "$URL_PREFIX" \
+    "${CHANNEL_ARGS[@]}" "$APPCAST_DIR"
 fi
 
 SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"

@@ -52,6 +52,23 @@ final class WidgetPublishingTests: XCTestCase {
                      now: { Date(timeIntervalSince1970: 100) })
     }
 
+    /// `profile.name` is empty until the user types a custom label, so
+    /// publishing it left the widget with a blank device name.
+    func testUnnamedProfileStillPublishesADeviceName() async {
+        let spy = SpyPublisher()
+        let defaults = UserDefaults(suiteName: "w-\(UUID().uuidString)")!
+        let settings = SettingsStore(defaults: defaults)
+        settings.profile.matchMode = .ipProbe
+        settings.profile.name = ""
+        let store = ModemStore(settings: settings, history: tempHistory(),
+                               matcher: ModemMatcher(reader: FixedSSID(value: nil)),
+                               driverFactory: { _ in FakeDriver(reachable: true) })
+        store.setWidgetPublisher(spy)
+        await store.refresh()
+        let published = spy.published.first?.deviceName ?? ""
+        XCTAssertFalse(published.isEmpty, "widget would show a blank device")
+    }
+
     func testConnectedPublishesTheReading() async {
         let spy = SpyPublisher()
         let store = makeStore(reachable: true, history: tempHistory(), publisher: spy)

@@ -15,8 +15,12 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "0.6.2"
-    CURRENT_PROJECT_VERSION: "0.6.2"
+    # Shown to the user, and what Sparkle compares. May carry a pre-release
+    # suffix (0.7.0-beta.1).
+    MARKETING_VERSION: "0.7.0-beta.1"
+    # Must stay purely numeric: Apple rejects a CFBundleVersion with a
+    # pre-release suffix, so this tracks the release without one.
+    CURRENT_PROJECT_VERSION: "0.7.0"
     SWIFT_VERSION: "6.0"
     DEVELOPMENT_TEAM: "$(ROUTER_MENU_TEAM_ID)"
     # Universal, matching what build-app.sh produced with --arch arm64 --arch x86_64.
@@ -101,10 +105,20 @@ targets:
           [ -d "$SRC" ] || { echo "error: no Sparkle.framework found"; exit 1; }
           DEST="$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"
           mkdir -p "$DEST"
+          # A previously embedded, code-signed framework resists `rm -rf`
+          # ("Directory not empty"), which broke every incremental rebuild.
+          # Replacing it via a staged copy + `mv` avoids deleting in place.
           # -R keeps the versioned framework's symlinks; notarization rejects
           # a flattened layout.
-          rm -rf "$DEST/Sparkle.framework"
-          cp -R "$SRC" "$DEST/"
+          STAGE="$DEST/.Sparkle.framework.new"
+          rm -rf "$STAGE" 2>/dev/null || true
+          cp -R "$SRC" "$STAGE"
+          if [ -e "$DEST/Sparkle.framework" ]; then
+            OLD="$DEST/.Sparkle.framework.old.$$"
+            mv "$DEST/Sparkle.framework" "$OLD"
+            rm -rf "$OLD" 2>/dev/null || true
+          fi
+          mv "$STAGE" "$DEST/Sparkle.framework"
     info:
       path: Resources/Info.plist
       properties:

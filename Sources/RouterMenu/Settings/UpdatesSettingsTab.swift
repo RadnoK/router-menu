@@ -25,6 +25,17 @@ struct UpdatesSettingsTab: View {
             }
 
             Section {
+                Picker(l10n(.settingsUpdateChannel), selection: $updater.updateChannel) {
+                    Text(l10n(.settingsUpdateChannelStable)).tag(UpdateChannel.stable)
+                    Text(l10n(.settingsUpdateChannelBeta)).tag(UpdateChannel.beta)
+                }
+            } footer: {
+                Text(l10n(.settingsUpdateChannelHelp))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 HStack {
                     Text(Self.lastCheckLabel(updater.lastUpdateCheckDate, l10n: l10n))
                         .foregroundStyle(.secondary)
