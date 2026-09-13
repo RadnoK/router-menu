@@ -149,3 +149,10 @@
 
 /* Wspólne */
 "shared.placeholder_dash" = "—";
+
+/* Widget */
+"widget.display_name" = "Router Menu";
+"widget.description" = "Bateria, sygnał i transfer Twojego modemu.";
+"widget.no_data" = "Brak danych modemu";
+"widget.no_history" = "Brak historii";
+"widget.just_now" = "przed chwilą";

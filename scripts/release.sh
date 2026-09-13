@@ -12,18 +12,56 @@ APP_NAME="Router Menu"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
 ZIP="$DIST/RouterMenu-$VERSION.zip"
-TEAM_ID="7S3F9767BM"
 KEYCHAIN_PROFILE="${KEYCHAIN_PROFILE:-zte-menu-notary}"
 SPARKLE_BIN="${SPARKLE_BIN:-$HOME/.local/sparkle/bin}"
 APPCAST_DIR="$DIST/appcast"
 
-# SHA-1 hash instead of a name — locally the keychain has two certificates
-# with an identical name. In CI the hash is supplied by the workflow after
-# importing the .p12.
-export SIGN_IDENTITY="${SIGN_IDENTITY:-78189AA14E80C16A00C743B32112F7B6D663D714}"
+# The SHA-1 hash, not the name — a keychain can hold several certificates
+# sharing one name, and codesign refuses an ambiguous match. Resolved from
+# whatever Developer ID this machine holds, so the script needs no edit to
+# run on someone else's Mac. CI supplies SIGN_IDENTITY after importing its
+# .p12; set it by hand to pick a specific certificate.
+# bash 3.2 (the macOS system shell) has no mapfile, so collect by hand.
+if [[ -z "${SIGN_IDENTITY:-}" ]]; then
+  FOUND="$(security find-identity -v -p codesigning \
+    | grep "Developer ID Application" || true)"
+  COUNT="$(printf '%s' "$FOUND" | grep -c . || true)"
+  if [[ "$COUNT" -eq 0 ]]; then
+    echo "No 'Developer ID Application' certificate in the keychain." >&2
+    echo "Install one, or set SIGN_IDENTITY to its SHA-1 hash." >&2
+    exit 1
+  elif [[ "$COUNT" -gt 1 ]]; then
+    echo "Several Developer ID certificates found:" >&2
+    echo "$FOUND" >&2
+    echo "Set SIGN_IDENTITY to the hash of the one to use." >&2
+    exit 1
+  fi
+  SIGN_IDENTITY="$(printf '%s' "$FOUND" | awk '{print $2}')"
+fi
+export SIGN_IDENTITY
+
+# project.yml drives the generated Info.plists, so the tag and the manifest
+# must agree before anything is built.
+YML_VERSION="$(grep -E '^[[:space:]]+MARKETING_VERSION:' project.yml \
+  | head -1 | sed -E 's/.*"(.*)".*/\1/')"
+if [[ "$YML_VERSION" != "$VERSION" ]]; then
+  echo "Version mismatch: asked for $VERSION, project.yml says $YML_VERSION." >&2
+  echo "Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.yml." >&2
+  exit 1
+fi
 
 echo "==> Build + Developer ID signature"
 ./scripts/build-app.sh
+
+# Notarization staples the outer bundle, but the service rejects a package
+# whose nested code is unsigned or signed with the wrong identity — and a
+# widget that fails Gatekeeper simply never loads, with no visible error.
+APPEX="$APP/Contents/PlugIns/RouterMenuWidget.appex"
+if [[ ! -d "$APPEX" ]]; then
+  echo "No widget extension in the bundle — nothing would appear in Notification Center." >&2
+  exit 1
+fi
+codesign --verify --strict --verbose=2 "$APPEX"
 
 echo "==> Packaging $ZIP"
 rm -f "$ZIP"
@@ -44,6 +82,9 @@ ditto -c -k --keepParent "$APP" "$ZIP"
 
 echo "==> Gatekeeper verification"
 spctl -a -vvv -t install "$APP"
+# The staple covers nested code too; checking the appex separately is what
+# catches an extension that was signed but never notarized.
+codesign --verify --deep --strict --verbose=2 "$APP"
 
 echo "==> Appcast for Sparkle"
 # generate_appcast reads the whole directory and signs with the EdDSA key from

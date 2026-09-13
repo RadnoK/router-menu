@@ -15,6 +15,8 @@ public final class ModemStore {
     private var locationAuth: LocationAuth = .authorized
     /// Optional so tests get a store that posts nothing; the app wires one in.
     private var notifier: BatteryNotifier?
+    /// Optional for the same reason: a test store must not reach into WidgetKit.
+    private var widgets: (any WidgetPublishing)?
     /// Which device produced the previous history sample. Totals from two
     /// different devices must never be diffed into a transfer-speed point.
     private var lastSampledProfileID: UUID?
@@ -36,6 +38,10 @@ public final class ModemStore {
         self.notifier = notifier
     }
 
+    func setWidgetPublisher(_ widgets: any WidgetPublishing) {
+        self.widgets = widgets
+    }
+
     func setLocationAuth(_ auth: LocationAuth) {
         locationAuth = auth
     }
@@ -48,9 +54,11 @@ public final class ModemStore {
         case .none(ssidSkipped: true):
             activeProfile = nil
             state = .locationDenied
+            widgets?.clear()
         case .none(ssidSkipped: false):
             activeProfile = nil
             state = .hidden
+            widgets?.clear()
         case .matched(let profile):
             activeProfile = profile
             let driver = driverFactory(profile)
@@ -68,10 +76,17 @@ public final class ModemStore {
                             sinr: data.sinr)
                 lastSampledProfileID = profile.id
                 notifier?.handle(data, profile: profile)
+                // After `history.add`, so the chart series the widget carries
+                // includes the reading being published rather than lagging it.
+                widgets?.publish(WidgetSnapshotBuilder.make(from: data,
+                                                            profile: profile,
+                                                            history: history))
             } catch ModemError.loginFailed {
                 state = .error(.loginFailed)
+                widgets?.clear()
             } catch {
                 state = .error(.unreachable)
+                widgets?.clear()
             }
         }
     }

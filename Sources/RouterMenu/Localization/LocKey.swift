@@ -167,6 +167,16 @@ enum LocKey: String, CaseIterable, Sendable {
     case notificationBatteryFullTitle = "notification.battery.full_title"
     case notificationBatteryFullBody = "notification.battery.full_body"
 
+    // Widget
+    // Resolved by `WidgetCopy` against the extension's own bundle rather than
+    // through `L10n`, but declared here so the key-sync test still covers
+    // them — a widget string missing from a .strings file is just as broken.
+    case widgetDisplayName = "widget.display_name"
+    case widgetDescription = "widget.description"
+    case widgetNoData = "widget.no_data"
+    case widgetNoHistory = "widget.no_history"
+    case widgetJustNow = "widget.just_now"
+
     // Shared
     case placeholderDash = "shared.placeholder_dash"
 }

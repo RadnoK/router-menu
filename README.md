@@ -62,6 +62,12 @@ that tell you how clean the cellular signal is. Useful when you're hunting for
 the best spot to put the modem; easy to ignore otherwise. You can hide them,
 along with any other group of stats, in Settings.
 
+**A widget in Notification Center** — battery, signal and transfer at a glance
+without opening anything. Three sizes: the small one leads with the battery
+level, the medium one adds RSRP/SINR and current speeds, and the large one
+draws the last 24 hours of battery history. The widget shows the last reading
+the app took, and says how old it is once that reading stops being current.
+
 **Speaks your language** — English and Polish. Follows your Mac's language, or
 you can pick one in Settings.
 
@@ -142,17 +148,33 @@ isn't supported, [open an issue](https://github.com/RadnoK/router-menu/issues).
 
 ### Building from source
 
-You'll need a Swift 6 toolchain (ships with recent Xcode). There's no Xcode
-project — it's a Swift package.
+You'll need a Swift 6 toolchain (ships with recent Xcode) and `xcodegen`
+(`brew install xcodegen`).
 
 ```bash
-swift test              # run the test suite (64 tests)
-./scripts/build-app.sh  # build and package into a .app
+swift test              # run the test suite
+./scripts/build-app.sh  # generate the project, build, package into a .app
 open "dist/Router Menu.app"
 ```
 
-`build-app.sh` produces a universal binary, assembles the app bundle, and
-ad-hoc signs it so it runs locally.
+Dependencies and the test suite still live in `Package.swift`; `swift test`
+needs nothing else. The Xcode project is **generated** from `project.yml` and
+is not checked in — it exists because the widget is an app extension, and only
+`xcodebuild` can build a nested `.appex`, embed it and sign the bundle
+inside-out.
+
+`build-app.sh` produces a universal binary (arm64 + x86_64), assembles the app
+with the widget in `Contents/PlugIns/`, and ad-hoc signs it so it runs locally.
+
+> **The widget needs a real signature.** It reads the app's data through the
+> App Group `group.io.8lines.router-menu`, and macOS only grants that to a
+> bundle signed with a provisioning profile carrying the group. An ad-hoc local
+> build installs the widget, but it finds no data to show. The app itself is
+> unaffected and runs normally.
+
+`Resources/Info.plist`, `Resources/Widget-Info.plist` and both entitlement
+files are **generated from `project.yml`** — edit the manifest, not the plists,
+or the next `xcodegen generate` will overwrite them.
 
 ### How it fits together
 
@@ -169,7 +191,8 @@ against captured responses.
 
 ### Releasing
 
-Bump the version in `Resources/Info.plist`, then push a matching tag:
+Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`, then
+push a matching tag (the release script refuses a mismatch):
 
 ```bash
 git tag v0.4.0 && git push origin main v0.4.0

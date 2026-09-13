@@ -1,0 +1,197 @@
+# Generates Router Menu.xcodeproj. Regenerate with: xcodegen generate
+#
+# The project exists for ONE reason SwiftPM cannot cover: an app extension is
+# a nested bundle (Contents/PlugIns/*.appex) that must be built, embedded and
+# signed inside-out, and only xcodebuild does that. Everything else stays as
+# it was — Package.swift still owns Sparkle, and `swift test` still runs the
+# suite without touching this file.
+name: Router Menu
+options:
+  bundleIdPrefix: io.8lines
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    MARKETING_VERSION: "0.6.2"
+    CURRENT_PROJECT_VERSION: "0.6.2"
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: "$(ROUTER_MENU_TEAM_ID)"
+    # Universal, matching what build-app.sh produced with --arch arm64 --arch x86_64.
+    ARCHS: "$(ARCHS_STANDARD)"
+    ONLY_ACTIVE_ARCH: NO
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.9.6
+
+targets:
+  # The shared library. Kept a separate target rather than compiled into both
+  # bundles: the widget links the same code the app does, and duplicating the
+  # sources would let the two drift apart in exactly the types they exchange.
+  RouterMenu:
+    type: framework
+    platform: macOS
+    sources:
+      - path: Sources/RouterMenu
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
+    # Generated rather than checked in: a framework without one is rejected at
+    # embed time, and its contents are entirely boilerplate.
+    info:
+      path: Resources/RouterMenuKit-Info.plist
+      properties:
+        CFBundleName: RouterMenu
+        CFBundlePackageType: FMWK
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.8lines.RouterMenuKit
+        # A framework the app and the appex both embed must resolve at both
+        # nesting depths.
+        LD_RUNPATH_SEARCH_PATHS:
+          - "@executable_path/../Frameworks"
+          - "@loader_path/Frameworks"
+
+  Router Menu:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/router-menu
+      - path: Resources/en.lproj
+        buildPhase: resources
+      - path: Resources/pl.lproj
+        buildPhase: resources
+      - path: dist/AppIcon.icns
+        buildPhase: resources
+        optional: true
+    dependencies:
+      - target: RouterMenu
+        embed: true
+      # Linked only. Sparkle resolves to an .xcframework, and xcodegen's
+      # package-embed phase emits a copy of a file literally named "Sparkle"
+      # that the build never produces. The embed is an explicit phase below.
+      - package: Sparkle
+        product: Sparkle
+        embed: false
+      - target: RouterMenuWidget
+        embed: true
+        codeSign: true
+    postBuildScripts:
+      - name: Embed Sparkle.framework
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          # BUILT_PRODUCTS_DIR holds a *flattened* copy whose _CodeSignature is
+          # missing; the xcframework slice in SourcePackages is the complete
+          # bundle, so embed from there.
+          SLICE="$BUILD_DIR/../../SourcePackages/artifacts/sparkle/Sparkle/Sparkle.xcframework"
+          SRC=""
+          for CANDIDATE in "$SLICE"/macos-*; do
+            [ -d "$CANDIDATE/Sparkle.framework" ] && SRC="$CANDIDATE/Sparkle.framework" && break
+          done
+          if [ -z "$SRC" ]; then
+            SRC="$BUILT_PRODUCTS_DIR/Sparkle.framework"
+          fi
+          [ -d "$SRC" ] || { echo "error: no Sparkle.framework found"; exit 1; }
+          DEST="$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"
+          mkdir -p "$DEST"
+          # -R keeps the versioned framework's symlinks; notarization rejects
+          # a flattened layout.
+          rm -rf "$DEST/Sparkle.framework"
+          cp -R "$SRC" "$DEST/"
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleName: Router Menu
+        CFBundleDisplayName: Router Menu
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleIconFile: AppIcon
+        CFBundleLocalizations: [en, pl]
+        LSMinimumSystemVersion: "14.0"
+        # Menu bar app: no Dock icon, no main window.
+        LSUIElement: true
+        NSLocationWhenInUseUsageDescription: >-
+          The app reads your Wi-Fi network name so it can show modem status
+          only while you are connected to it.
+        SUEnableAutomaticChecks: true
+        SUFeedURL: https://radnok.github.io/router-menu/appcast.xml
+        SUPublicEDKey: ALXbpEEByW2KIAMtGC69OHKfoA0ghWfqNkvT0xXTIvA=
+        SUScheduledCheckInterval: 86400
+    entitlements:
+      path: Resources/entitlements.plist
+      properties:
+        # The menu bar app reads the Wi-Fi SSID and talks to the modem on the
+        # LAN, neither of which survives the sandbox.
+        com.apple.security.app-sandbox: false
+        com.apple.security.network.client: true
+        com.apple.security.personal-information.location: true
+        # The container the widget extension reads its snapshot from. Needs a
+        # provisioning profile carrying the group — an ad-hoc signature cannot
+        # grant it, so local builds simply have no widget data.
+        com.apple.security.application-groups:
+          - group.io.8lines.router-menu
+    settings:
+      base:
+        PRODUCT_NAME: "Router Menu"
+        PRODUCT_BUNDLE_IDENTIFIER: io.8lines.router-menu
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/entitlements.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+        LD_RUNPATH_SEARCH_PATHS:
+          - "@executable_path/../Frameworks"
+
+  RouterMenuWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Sources/RouterMenuWidget
+      # Its own copy of the tables: Bundle.main inside an extension is the
+      # .appex, so strings living only in the app bundle resolve to raw keys.
+      - path: Resources/en.lproj
+        buildPhase: resources
+      - path: Resources/pl.lproj
+        buildPhase: resources
+    dependencies:
+      - target: RouterMenu
+        embed: false
+    info:
+      path: Resources/Widget-Info.plist
+      properties:
+        CFBundleName: RouterMenuWidget
+        CFBundleDisplayName: Router Menu
+        CFBundlePackageType: XPC!
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleLocalizations: [en, pl]
+        LSMinimumSystemVersion: "14.0"
+        # Without this key macOS never treats the bundle as a widget: it
+        # builds, embeds and signs cleanly, and simply never appears in the
+        # widget gallery.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Resources/widget-entitlements.plist
+      properties:
+        # Extensions are always sandboxed; macOS refuses to load one that
+        # claims otherwise.
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.io.8lines.router-menu
+    settings:
+      base:
+        PRODUCT_NAME: RouterMenuWidget
+        PRODUCT_BUNDLE_IDENTIFIER: io.8lines.router-menu.widget
+        INFOPLIST_FILE: Resources/Widget-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/widget-entitlements.plist
+        # The framework lives in the host app, two levels up from the appex.
+        LD_RUNPATH_SEARCH_PATHS:
+          - "@executable_path/../../../../Frameworks"
+        SKIP_INSTALL: YES

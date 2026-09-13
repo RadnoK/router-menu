@@ -16,6 +16,10 @@ let package = Package(
             dependencies: [.product(name: "Sparkle", package: "Sparkle")]
         ),
         .executableTarget(name: "router-menu", dependencies: ["RouterMenu"]),
+        // Built here purely so `swift build` and CI type-check the extension's
+        // sources. The shipping `.appex` is assembled by xcodebuild, which is
+        // the only toolchain that can produce an app extension bundle.
+        .target(name: "RouterMenuWidget", dependencies: ["RouterMenu"]),
         .testTarget(name: "RouterMenuTests", dependencies: ["RouterMenu"]),
     ]
 )

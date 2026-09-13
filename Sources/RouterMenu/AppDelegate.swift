@@ -33,6 +33,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         // same legacy settings, so the password belongs to it.
         Keychain.migrateLegacyPassword(to: settings.settings.profiles[0].id)
         store.setBatteryNotifier(batteryNotifier)
+        // Feeds the Notification Center widget. A no-op when the App Group
+        // entitlement is absent, which is the case in ad-hoc local builds.
+        store.setWidgetPublisher(WidgetCenterPublisher())
         // The default profile ships with battery thresholds armed, so on a
         // fresh install this asks for notification permission on first launch;
         // afterwards it is a no-op (macOS only ever prompts once).
