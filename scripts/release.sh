@@ -97,28 +97,83 @@ if [[ ! -x "$SPARKLE_BIN/generate_appcast" ]]; then
 fi
 mkdir -p "$APPCAST_DIR"
 
+# generate_appcast describes ONLY the archives present in the directory, and
+# CI starts from an empty checkout — so without this the appcast is rewritten
+# with a single item and every other release disappears from it. That went
+# unnoticed while each release was a stable one replacing the previous stable
+# entry; a beta replacing the stable entry left users with no update at all.
+# Re-download the published archives so the generated feed keeps its history.
+echo "==> Fetching published releases for the appcast"
+PREVIOUS_TAGS="$(gh release list --limit 30 --json tagName -q '.[].tagName' \
+  | grep -v "^v$VERSION$" || true)"
+for TAG in $PREVIOUS_TAGS; do
+  gh release download "$TAG" --dir "$APPCAST_DIR" --pattern '*.zip' --clobber \
+    2>/dev/null || echo "    (no archive on $TAG, skipping)"
+done
+
 # A hyphen in the version marks a pre-release (0.7.0-beta.1). Those are
 # published on Sparkle's "beta" channel, which only users who opted into it in
 # Settings are offered; a channel-less item is what everybody receives. This is
 # what keeps a test build from being pushed to every existing install.
-CHANNEL_ARGS=()
-if [[ "$VERSION" == *-* ]]; then
-  CHANNEL_ARGS=(--channel beta)
-  echo "    pre-release — publishing on the beta channel"
-fi
 cp "$ZIP" "$APPCAST_DIR/"
+# Every archive lives under its own tag, so a single --download-url-prefix
+# cannot address them all. `--link-prefix-format` is not available here, so the
+# per-item URLs are rewritten after generation instead.
 URL_PREFIX="https://github.com/RadnoK/router-menu/releases/download/v$VERSION/"
 if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
   # CI: key from the secret via stdin, the runner's keychain doesn't have it
   echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
-    --ed-key-file - --download-url-prefix "$URL_PREFIX" \
-    "${CHANNEL_ARGS[@]}" "$APPCAST_DIR"
+    --ed-key-file - --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
 else
   # Locally: the private key lives in the keychain
   "$SPARKLE_BIN/generate_appcast" \
-    --download-url-prefix "$URL_PREFIX" \
-    "${CHANNEL_ARGS[@]}" "$APPCAST_DIR"
+    --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
 fi
+
+# Two fixes generate_appcast cannot express, both per-item:
+#  * it applies ONE --download-url-prefix to every entry, which 404s for older
+#    versions that live under their own tag;
+#  * --channel tags the whole directory, so it marked the stable releases as
+#    beta too — which would hide them from everyone on the stable channel.
+python3 - "$APPCAST_DIR/appcast.xml" <<'PYEOF'
+import re, sys
+
+path = sys.argv[1]
+with open(path) as handle:
+    feed = handle.read()
+
+def version_of(item):
+    found = re.search(r"<sparkle:shortVersionString>([^<]+)", item)
+    return found.group(1) if found else None
+
+def fix_item(match):
+    item = match.group(0)
+    version = version_of(item)
+    if not version:
+        return item
+
+    # Every archive lives under its own tag.
+    item = re.sub(
+        r'(url=")[^"]*/(RouterMenu-[^"/]+\.zip)',
+        lambda m: (f'{m.group(1)}https://github.com/RadnoK/router-menu/'
+                   f'releases/download/v{version}/{m.group(2)}'),
+        item)
+
+    # A hyphen marks a pre-release; only those carry a channel. An item with
+    # no channel is the one every user is offered.
+    item = re.sub(r"\s*<sparkle:channel>[^<]*</sparkle:channel>", "", item)
+    if "-" in version:
+        item = item.replace(
+            "</item>",
+            "    <sparkle:channel>beta</sparkle:channel>\n        </item>")
+    return item
+
+feed = re.sub(r"<item>.*?</item>", fix_item, feed, flags=re.S)
+
+with open(path, "w") as handle:
+    handle.write(feed)
+print("    per-tag download URLs; beta channel on pre-releases only")
+PYEOF
 
 SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
 echo
