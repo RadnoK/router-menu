@@ -1,10 +1,28 @@
 import Foundation
 
-/// The App Group both processes share. Registered under the Apprife team, so
-/// it must match the `com.apple.security.application-groups` entitlement in
-/// *both* the app and the widget or the container URL comes back nil.
+/// The App Group both processes share. Must match the
+/// `com.apple.security.application-groups` entitlement in *both* the app and
+/// the widget, or the sandbox never grants the widget access.
 public enum WidgetSharing {
-    public static let appGroupID = "group.io.8lines.router-menu"
+    /// Prefixed with the Team ID, which is what makes the sandbox honour this
+    /// on macOS WITHOUT a provisioning profile: for a Developer ID app the
+    /// group is verified against the signing team, and a bare `group.*`
+    /// identifier has nothing to verify against, so the entitlement is
+    /// silently ignored and the widget reads an empty container while the
+    /// (unsandboxed) app writes happily to the same path. Symptom: the widget
+    /// shows "No modem data" while the menu bar is live.
+    ///
+    /// The unprefixed form is the iOS/App Store convention, where a
+    /// provisioning profile supplies the proof instead. Every Developer ID app
+    /// that ships a group uses the prefixed form.
+    ///
+    /// Changing this ORPHANS the previous container — see `legacyAppGroupIDs`.
+    public static let appGroupID = "7S3F9767BM.io.8lines.router-menu"
+
+    /// Containers from earlier builds, cleaned up on launch. 0.7.0-beta.1
+    /// shipped the unprefixed id, which left a stale directory behind holding
+    /// a snapshot nothing reads.
+    public static let legacyAppGroupIDs = ["group.io.8lines.router-menu"]
     public static let snapshotFilename = "widget-snapshot.json"
     /// WidgetKit addresses timelines by kind string; it must match the
     /// `@main` widget's `kind` exactly.
@@ -64,5 +82,24 @@ public struct WidgetSnapshotStore {
     public func clear() {
         guard let fileURL else { return }
         try? FileManager.default.removeItem(at: fileURL)
+    }
+
+    /// Deletes snapshots left in containers this app no longer uses.
+    ///
+    /// Only the snapshot file is removed, never the container directory:
+    /// `containerURL(...)` reports a path for any group an unsandboxed process
+    /// asks about, so deleting the directory outright risks removing something
+    /// this app never owned.
+    public static func removeLegacySnapshots(
+        containerURL: (String) -> URL? = {
+            FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: $0)
+        }
+    ) {
+        for id in WidgetSharing.legacyAppGroupIDs {
+            guard let container = containerURL(id) else { continue }
+            let stale = container.appendingPathComponent(WidgetSharing.snapshotFilename)
+            guard FileManager.default.fileExists(atPath: stale.path) else { continue }
+            try? FileManager.default.removeItem(at: stale)
+        }
     }
 }

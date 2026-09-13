@@ -78,7 +78,7 @@ for PAIR in "Resources/entitlements.plist:app" \
   FILE="${PAIR%%:*}"
   WHICH="${PAIR##*:}"
   if ! /usr/libexec/PlistBuddy -c 'Print :com.apple.security.application-groups:0' \
-       "$FILE" 2>/dev/null | grep -q "group.io.8lines.router-menu"; then
+       "$FILE" 2>/dev/null | grep -q "7S3F9767BM.io.8lines.router-menu"; then
     echo "The $WHICH entitlements ($FILE) carry no App Group." >&2
     echo "The widget cannot read the app's data without it. Check project.yml." >&2
     exit 1

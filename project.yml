@@ -17,7 +17,7 @@ settings:
   base:
     # Shown to the user, and what Sparkle compares. May carry a pre-release
     # suffix (0.7.0-beta.1).
-    MARKETING_VERSION: "0.7.0-beta.1"
+    MARKETING_VERSION: "0.7.0"
     # Must stay purely numeric: Apple rejects a CFBundleVersion with a
     # pre-release suffix, so this tracks the release without one.
     CURRENT_PROJECT_VERSION: "0.7.0"
@@ -147,11 +147,11 @@ targets:
         com.apple.security.app-sandbox: false
         com.apple.security.network.client: true
         com.apple.security.personal-information.location: true
-        # The container the widget extension reads its snapshot from. Needs a
-        # provisioning profile carrying the group — an ad-hoc signature cannot
-        # grant it, so local builds simply have no widget data.
+        # Team-ID-prefixed on purpose: on macOS the sandbox verifies the group
+        # against the signing team, so a Developer ID build needs no
+        # provisioning profile. A bare `group.*` id is silently ignored.
         com.apple.security.application-groups:
-          - group.io.8lines.router-menu
+          - 7S3F9767BM.io.8lines.router-menu
     settings:
       base:
         PRODUCT_NAME: "Router Menu"
@@ -198,7 +198,7 @@ targets:
         # claims otherwise.
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups:
-          - group.io.8lines.router-menu
+          - 7S3F9767BM.io.8lines.router-menu
     settings:
       base:
         PRODUCT_NAME: RouterMenuWidget

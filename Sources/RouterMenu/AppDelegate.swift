@@ -36,6 +36,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         // Feeds the Notification Center widget. A no-op when the App Group
         // entitlement is absent, which is the case in ad-hoc local builds.
         store.setWidgetPublisher(WidgetCenterPublisher())
+        // 0.7.0-beta.1 used an unprefixed App Group id the sandbox ignored;
+        // its container is still on disk holding a snapshot nothing reads.
+        WidgetSnapshotStore.removeLegacySnapshots()
         // The default profile ships with battery thresholds armed, so on a
         // fresh install this asks for notification permission on first launch;
         // afterwards it is a no-op (macOS only ever prompts once).

@@ -167,10 +167,10 @@ inside-out.
 with the widget in `Contents/PlugIns/`, and ad-hoc signs it so it runs locally.
 
 > **The widget needs a real signature.** It reads the app's data through the
-> App Group `group.io.8lines.router-menu`, and macOS only grants that to a
-> bundle signed with a provisioning profile carrying the group. An ad-hoc local
-> build installs the widget, but it finds no data to show. The app itself is
-> unaffected and runs normally.
+> App Group `7S3F9767BM.io.8lines.router-menu`. The Team ID prefix is what lets
+> the sandbox verify the group against the signing team, so no provisioning
+> profile is needed — but an ad-hoc signature has no team, so a local build
+> installs the widget and it finds no data. The app itself is unaffected.
 
 `Resources/Info.plist`, `Resources/Widget-Info.plist` and both entitlement
 files are **generated from `project.yml`** — edit the manifest, not the plists,

@@ -78,3 +78,40 @@ extension WidgetSnapshotStoreTests {
         XCTAssertNil(store.read())
     }
 }
+
+extension WidgetSnapshotStoreTests {
+    /// 0.7.0-beta.1 shipped an unprefixed App Group id the macOS sandbox
+    /// ignores, leaving a container behind with a snapshot nothing reads.
+    func testLegacySnapshotIsRemoved() throws {
+        let legacy = containerURL.appendingPathComponent(WidgetSharing.snapshotFilename)
+        try Data("{}".utf8).write(to: legacy)
+        WidgetSnapshotStore.removeLegacySnapshots { _ in self.containerURL }
+        XCTAssertFalse(FileManager.default.fileExists(atPath: legacy.path))
+    }
+
+    /// The container may already be gone, or never have existed on a machine
+    /// that only ever ran the fixed build.
+    func testCleanupIsSilentWhenNothingIsThere() {
+        WidgetSnapshotStore.removeLegacySnapshots { _ in self.containerURL }
+        WidgetSnapshotStore.removeLegacySnapshots { _ in nil }
+    }
+
+    /// Only the snapshot file is ours to delete — the directory itself may
+    /// hold data this app never wrote.
+    func testCleanupLeavesTheContainerDirectoryAlone() throws {
+        let other = containerURL.appendingPathComponent("someone-elses.json")
+        try Data("{}".utf8).write(to: other)
+        try Data("{}".utf8).write(
+            to: containerURL.appendingPathComponent(WidgetSharing.snapshotFilename))
+        WidgetSnapshotStore.removeLegacySnapshots { _ in self.containerURL }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: other.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: containerURL.path))
+    }
+
+    /// The prefixed id is what the macOS sandbox can verify against the
+    /// signing team; reverting it silently breaks the widget.
+    func testAppGroupIDCarriesTheTeamPrefix() {
+        XCTAssertTrue(WidgetSharing.appGroupID.hasPrefix("7S3F9767BM."),
+                      "an unprefixed group id is ignored by the sandbox")
+    }
+}
