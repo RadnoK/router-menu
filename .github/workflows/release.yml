@@ -106,6 +106,10 @@ jobs:
         env:
           # EdDSA private key read by generate_appcast from the environment
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          # release.sh re-downloads published archives so the generated feed
+          # keeps its history; without a token `gh` refuses to run here and
+          # the appcast silently ends up listing only the new version.
+          GH_TOKEN: ${{ github.token }}
         run: ./scripts/release.sh "${{ steps.ver.outputs.version }}"
 
       # Idempotent — on a re-run the release already exists

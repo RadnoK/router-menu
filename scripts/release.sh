@@ -104,12 +104,27 @@ mkdir -p "$APPCAST_DIR"
 # entry; a beta replacing the stable entry left users with no update at all.
 # Re-download the published archives so the generated feed keeps its history.
 echo "==> Fetching published releases for the appcast"
-PREVIOUS_TAGS="$(gh release list --limit 30 --json tagName -q '.[].tagName' \
-  | grep -v "^v$VERSION$" || true)"
+# Hard-fail rather than `|| true`: a feed that lists only the new version
+# strands every existing install on "no update available", and that is far
+# worse than a failed release. CI supplies GH_TOKEN for this.
+if ! PREVIOUS_TAGS="$(gh release list --limit 30 --json tagName -q '.[].tagName' \
+     | grep -v "^v$VERSION$")"; then
+  echo "Could not list previous releases — refusing to publish an appcast" >&2
+  echo "that would drop every other version. Is GH_TOKEN set?" >&2
+  exit 1
+fi
 for TAG in $PREVIOUS_TAGS; do
-  gh release download "$TAG" --dir "$APPCAST_DIR" --pattern '*.zip' --clobber \
-    2>/dev/null || echo "    (no archive on $TAG, skipping)"
+  gh release download "$TAG" --dir "$APPCAST_DIR" --pattern 'RouterMenu-*.zip' \
+    --clobber 2>/dev/null || echo "    (no archive on $TAG, skipping)"
 done
+
+# A pre-release and the release it became share a CFBundleVersion, and
+# generate_appcast refuses a directory holding two archives with the same
+# bundle version. The final release supersedes its own betas, so drop them.
+BASE="${VERSION%%-*}"
+if [[ "$VERSION" != *-* ]]; then
+  rm -f "$APPCAST_DIR/RouterMenu-$BASE-"*.zip 2>/dev/null || true
+fi
 
 # A hyphen in the version marks a pre-release (0.7.0-beta.1). Those are
 # published on Sparkle's "beta" channel, which only users who opted into it in
@@ -123,11 +138,13 @@ URL_PREFIX="https://github.com/RadnoK/router-menu/releases/download/v$VERSION/"
 if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
   # CI: key from the secret via stdin, the runner's keychain doesn't have it
   echo "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN/generate_appcast" \
-    --ed-key-file - --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+    --ed-key-file - --download-url-prefix "$URL_PREFIX" \
+    --maximum-versions 0 "$APPCAST_DIR"
 else
   # Locally: the private key lives in the keychain
   "$SPARKLE_BIN/generate_appcast" \
-    --download-url-prefix "$URL_PREFIX" "$APPCAST_DIR"
+    --download-url-prefix "$URL_PREFIX" \
+    --maximum-versions 0 "$APPCAST_DIR"
 fi
 
 # Two fixes generate_appcast cannot express, both per-item:
