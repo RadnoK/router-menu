@@ -4,11 +4,66 @@
         <title>Router Menu</title>
         <item>
             <title>0.7.0</title>
-            <pubDate>Sun, 13 Sep 2026 12:24:30 +0000</pubDate>
+            <pubDate>Sun, 13 Sep 2026 14:26:51 +0200</pubDate>
             <sparkle:version>0.7.0</sparkle:version>
             <sparkle:shortVersionString>0.7.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/RouterMenu-0.7.0.zip" length="2645518" type="application/octet-stream" sparkle:edSignature="jXM4wCmjP/US3+6jMtEgPOlvZRf7BMoSXfqxZytMi6dFiRjGFgHm3PVuv6RKvUZhdeq6PexLoxCUl2lncxx8Bg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/Router%20Menu0.7.0-0.6.2.delta" sparkle:deltaFrom="0.6.2" length="642482" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="+BAfyiXaIHlzHQemyxidW1kRrpSNv3faN8lDHsxfzSDwdyi4jvPKAjp0yyrat4S2WJX3pYzrMMdqAnFzycX/DQ=="/>
+                <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/Router%20Menu0.7.0-0.6.1.delta" sparkle:deltaFrom="0.6.1" length="642018" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="DdwWJPdcO9o5EbHobw1GZ2SB0tCZ/Ye5GYYovPUPu3llPm//ezRqS7r24xveaDo7J7EkfhgF/Yre3ePRsBnfBQ=="/>
+                <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/Router%20Menu0.7.0-0.6.0.delta" sparkle:deltaFrom="0.6.0" length="643782" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="inRqlE3AaZW26wnG9vkTFETAVxWT9yzj7lAeNeTbe+zn8OcWBXFgu3wrUXWKz46TzS1Lcyw+Za+RXu6tKXhCAQ=="/>
+                <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/Router%20Menu0.7.0-0.5.3.delta" sparkle:deltaFrom="0.5.3" length="642958" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="QJdCU7XtHLTl0JTh6SELD6hN6p+x5NQePJfMkRRz9JtU43/EmG7cw5uQzyMyUI8WZKdaSRDHABHD8cBhWYX0Aw=="/>
+                <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.7.0/Router%20Menu0.7.0-0.5.2.delta" sparkle:deltaFrom="0.5.2" length="643046" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="7ZaiM85jCALkw403SIESDEB+GrtCMppuCeIp9/NShJqyjMsvQoh+oAVNVODNq5OvscP9MBgsv8tvFXBLqp0uDw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>0.6.2</title>
+            <pubDate>Sun, 13 Sep 2026 14:26:54 +0200</pubDate>
+            <sparkle:version>0.6.2</sparkle:version>
+            <sparkle:shortVersionString>0.6.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.2/RouterMenu-0.6.2.zip" length="2404813" type="application/octet-stream" sparkle:edSignature="VgKw4+Pt7f+0mLeCXGFabr32bZR8nGHs8e9Fds1aDiI3Nj2CdPz5RZiZXWsMV3pvEJWmV76W+epNh9dhHLHYDA=="/>
+        </item>
+        <item>
+            <title>0.6.1</title>
+            <pubDate>Sun, 13 Sep 2026 14:26:55 +0200</pubDate>
+            <sparkle:version>0.6.1</sparkle:version>
+            <sparkle:shortVersionString>0.6.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.1/RouterMenu-0.6.1.zip" length="2420839" type="application/octet-stream" sparkle:edSignature="5NgAQ7BTZOm/vIj5B/U3uvuGstZnE9T0LvAxOI2bDS3A5/MJlWtMoxWCQ7uVTcUL8yL2BJeW0TgCDzYXU6KGAw=="/>
+        </item>
+        <item>
+            <title>0.6.0</title>
+            <pubDate>Sun, 13 Sep 2026 14:26:57 +0200</pubDate>
+            <sparkle:version>0.6.0</sparkle:version>
+            <sparkle:shortVersionString>0.6.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.6.0/RouterMenu-0.6.0.zip" length="2407029" type="application/octet-stream" sparkle:edSignature="6EKkfMdoexY8sX+QpOWA7MtFKXcCWI1S83W9zoYEaob+u0qzdFNtB+djeFX4ZNEEB04js+RVZTNzz61E8oWLCQ=="/>
+        </item>
+        <item>
+            <title>0.5.3</title>
+            <pubDate>Sun, 13 Sep 2026 14:26:58 +0200</pubDate>
+            <sparkle:version>0.5.3</sparkle:version>
+            <sparkle:shortVersionString>0.5.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.3/RouterMenu-0.5.3.zip" length="2378407" type="application/octet-stream" sparkle:edSignature="f8hnPLRbm0cfb2HCxDMxvYcjm30XIWWYMFANAL+FSWopyRFJiQbU+/oMDI6KT4GDskNaPl5BQlft+K2jLn4NAw=="/>
+        </item>
+        <item>
+            <title>0.5.2</title>
+            <pubDate>Sun, 13 Sep 2026 14:27:00 +0200</pubDate>
+            <sparkle:version>0.5.2</sparkle:version>
+            <sparkle:shortVersionString>0.5.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.2/RouterMenu-0.5.2.zip" length="2376740" type="application/octet-stream" sparkle:edSignature="nW90pkosjRAqd17qXuhCOF7Szry624OMWfsYmOPdFuRUPR/Hed2hH/q8DYooeWZ+BeIw1efdOkRU8CtICeIlAg=="/>
+        </item>
+        <item>
+            <title>0.5.1</title>
+            <pubDate>Sun, 13 Sep 2026 14:27:01 +0200</pubDate>
+            <sparkle:version>0.5.1</sparkle:version>
+            <sparkle:shortVersionString>0.5.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/RadnoK/router-menu/releases/download/v0.5.1/RouterMenu-0.5.1.zip" length="2361265" type="application/octet-stream" sparkle:edSignature="i0TFjq6+crDIkeff6UnnKXcD+d0XUXOchEZhP50M1Clo13xP+4cBR+Wc3R2Hht0dgomcM7Lam1uafjdZ5Q5pBQ=="/>
         </item>
     </channel>
 </rss>
