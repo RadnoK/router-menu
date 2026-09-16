@@ -2,22 +2,11 @@ import SwiftUI
 
 /// The menu bar panel's content.
 ///
-/// Deliberately does NOT size or style its own window. An earlier version
-/// carried a `PopoverPanelSizer` in `.background` that re-fitted the panel and
-/// slotted an `NSVisualEffectView` under the content; both turned out to be
-/// unnecessary and actively harmful, verified against a real `MenuBarExtra`:
-///
-///   * `MenuBarExtraHostingView.fittingSize` is always zero, so the re-fit's
-///     `setFrame` never once ran — the panel was already tracking its content
-///     on its own, growing AND shrinking (307pt ↔ 122pt across a state flip).
-///   * The panel's window is already `isOpaque == false`, so clearing it won
-///     nothing, and the backdrop was being spliced into the system's own
-///     hosting view alongside its `_NSGraphicsView` — the layer that draws
-///     every bit of this view, footer included.
-///
-/// A permanently cleared window plus a foreign subview in SwiftUI's private
-/// tree is exactly how the panel came up blank instead of falling back to an
-/// opaque one. Let `MenuBarExtra` own its window.
+/// Sizing and window styling live in `PopoverPanelSizer`, carried in
+/// `.background` below. `MenuBarExtra(.window)` grows its panel for tall
+/// content but never shrinks it back, so without the sizer a
+/// connected → disconnected flip leaves the short content floating inside the
+/// tall window, drawn as blank strips above and below it.
 public struct PopoverView: View {
     @State private var store: ModemStore
     private let settings: SettingsStore
@@ -42,6 +31,22 @@ public struct PopoverView: View {
         }
         .padding(14)
         .frame(width: 320)
+        .background(PopoverPanelSizer(stateKey: Self.stateKey(for: store.state)))
+    }
+
+    /// One key per content case — the sizer re-fits the window when it
+    /// changes. Deliberately payload-blind: data ticks while connected must
+    /// not thrash the window, and only a change of case can change the height
+    /// enough to matter.
+    nonisolated static func stateKey(for state: AppState) -> String {
+        switch state {
+        case .hidden: return "hidden"
+        case .locationDenied: return "locationDenied"
+        // The kind is part of the key: only a login failure carries the hint
+        // and the settings button, so the two errors are different heights.
+        case .error(let kind): return "error-\(kind)"
+        case .connected: return "connected"
+        }
     }
 
     @ViewBuilder
