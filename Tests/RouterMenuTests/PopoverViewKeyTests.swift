@@ -120,4 +120,35 @@ final class PopoverViewKeyTests: XCTestCase {
         XCTAssertFalse(PopoverView.showsBatteryPane(stats: stats(), hasBattery: true,
                                                     hasChartData: false))
     }
+
+    // MARK: Panel state key
+
+    /// The key is what tells `PopoverPanelSizer` a re-fit is due. Payload
+    /// changes must NOT move it — a data tick every refresh while connected
+    /// would otherwise thrash the window.
+    func testStateKeyIsOnePerContentCase() {
+        XCTAssertEqual(PopoverView.stateKey(for: .hidden), "hidden")
+        XCTAssertEqual(PopoverView.stateKey(for: .locationDenied), "locationDenied")
+        XCTAssertEqual(PopoverView.stateKey(for: .error(.loginFailed)), "error-loginFailed")
+        // The two errors differ in height: only a login failure carries the
+        // hint and the settings button.
+        XCTAssertNotEqual(PopoverView.stateKey(for: .error(.loginFailed)),
+                          PopoverView.stateKey(for: .error(.unreachable)))
+    }
+
+    func testStateKeyIgnoresConnectedPayload() {
+        func data(battery: Int, bars: Int, rx: Int) -> ModemData {
+            ModemData(batteryPercent: battery, isCharging: false, signalBars: bars,
+                      networkType: "ENDC", provider: "Plus", rsrp: -93, sinr: 12,
+                      isOnline: true, rxSpeed: rx, txSpeed: 500,
+                      sessionRx: nil, sessionTx: nil, totalRx: nil, totalTx: nil,
+                      monthlyRx: nil, monthlyTx: nil,
+                      sessionUptime: nil, monthlyUptime: nil)
+        }
+        let a = data(battery: 61, bars: 4, rx: 1_000)
+        let b = data(battery: 12, bars: 1, rx: 9_999)
+        XCTAssertEqual(PopoverView.stateKey(for: .connected(a)),
+                       PopoverView.stateKey(for: .connected(b)),
+                       "a data tick must not re-fit the window")
+    }
 }
