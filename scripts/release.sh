@@ -119,12 +119,26 @@ for TAG in $PREVIOUS_TAGS; do
 done
 
 # A pre-release and the release it became share a CFBundleVersion, and
-# generate_appcast refuses a directory holding two archives with the same
-# bundle version. The final release supersedes its own betas, so drop them.
-BASE="${VERSION%%-*}"
-if [[ "$VERSION" != *-* ]]; then
-  rm -f "$APPCAST_DIR/RouterMenu-$BASE-"*.zip 2>/dev/null || true
-fi
+# generate_appcast hard-fails on a directory holding two archives with the
+# same bundle version:
+#
+#   Duplicate updates are not supported. Found archives 'RouterMenu-0.7.0.zip'
+#   and 'RouterMenu-0.7.0-beta.1.zip' which contain the same bundle version.
+#
+# The final release supersedes its own betas, so wherever both are present,
+# the beta goes. This has to consider every archive in the directory, not just
+# the version being released: the collision that broke 0.7.1 was between two
+# *historical* archives (0.7.0 and 0.7.0-beta.1) re-downloaded above, neither
+# of which is the current version.
+for ARCHIVE in "$APPCAST_DIR"/RouterMenu-*-*.zip; do
+  [[ -e "$ARCHIVE" ]] || continue          # no pre-releases present
+  PRERELEASE="$(basename "$ARCHIVE" .zip)" # RouterMenu-0.7.0-beta.1
+  REST="${PRERELEASE#RouterMenu-}"         # 0.7.0-beta.1
+  if [[ -e "$APPCAST_DIR/RouterMenu-${REST%%-*}.zip" ]]; then
+    echo "    dropping $PRERELEASE (superseded by ${REST%%-*})"
+    rm -f "$ARCHIVE"
+  fi
+done
 
 # A hyphen in the version marks a pre-release (0.7.0-beta.1). Those are
 # published on Sparkle's "beta" channel, which only users who opted into it in
