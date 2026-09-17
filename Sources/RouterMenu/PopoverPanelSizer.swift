@@ -19,12 +19,13 @@ import SwiftUI
 /// above and below the content. That is the "outline of the big menu with
 /// 'disconnected' floating in the middle" report.
 ///
-/// **2. The panel did not look like a window.** Commit 68b94d0 deleted the
-/// previous sizer wholesale, and with it the only code that gave the panel its
-/// material and rounding. Nothing replaced it, leaving a flat, square-cornered,
-/// fully opaque rectangle.
+/// **2. The panel looked like a flat grey slab.** `MenuBarExtra(.window)`
+/// ships no material of its own on macOS 26 — dumped from a live panel, its
+/// content view holds only two flat `_NSGraphicsView`s, one an opaque grey
+/// fill. Without a backdrop the panel reads as grey and dated next to every
+/// other menu bar surface on the system.
 ///
-/// ## Why the previous attempt failed, and what is different here
+/// ## Why the previous sizing attempt failed, and what is different here
 ///
 /// The old sizer measured `window.contentView.fittingSize`. On
 /// `MenuBarExtraHostingView` that is **always (0, 0)** — verified by dumping a
@@ -36,12 +37,31 @@ import SwiftUI
 /// representable out inside, which fills the panel's content and therefore
 /// reports the height the window *should* be. That value is live and correct.
 ///
-/// The old backdrop is also NOT reinstated. It cleared `window.backgroundColor`
-/// permanently and spliced an `NSVisualEffectView` into SwiftUI's private
-/// hosting tree next to its `_NSGraphicsView`s; reproduced in isolation, that
-/// combination stops the panel drawing at all — the blank-window bug 68b94d0
-/// was right to remove. The rounding and material are applied to the window
-/// itself instead, touching no view SwiftUI owns.
+/// ## Why the backdrop is back, after being removed twice as broken
+///
+/// An earlier backdrop here was removed on the grounds that clearing
+/// `window.backgroundColor` and splicing an `NSVisualEffectView` into
+/// SwiftUI's hosting tree "stops the panel drawing at all". The sibling
+/// project deploybar chased the same blank panel through four releases and
+/// reached the same wrong conclusion twice, before measuring it properly.
+/// Two things were actually going on, and neither is the backdrop:
+///
+///   * **A missing `window.hasShadow = true`.** With the background cleared
+///     and no shadow, the window has no layer forcing a background draw and
+///     the panel comes up as an empty rectangle. Verified both ways on Release
+///     builds: material with the shadow renders fully, the same build without
+///     it renders nothing.
+///   * **The SDK the app was built against.** Built against the macOS 15 SDK,
+///     the app gets the older AppKit behaviour at runtime, and *there* a
+///     cleared panel background does make `MenuBarExtra` draw nothing on
+///     macOS 26. deploybar measured panel content as pixel variance across
+///     builds of one commit — 39 = content, 3 = blank — and every SDK 27 build
+///     rendered while the SDK 15.2 CI artifact was blank. The release workflow
+///     asserts SDK 26+ for exactly this reason.
+///
+/// So the backdrop is added the way remote-mac does it: an
+/// `NSVisualEffectView` *below* the existing views, with the window's
+/// background cleared, none of their layers rewritten, and the shadow kept.
 struct PopoverPanelSizer: NSViewRepresentable {
     /// Changes when the popover switches content case. `updateNSView` only
     /// fires when a stored property actually changes, so without this a state
@@ -114,23 +134,60 @@ struct PopoverPanelSizer: NSViewRepresentable {
             follow = nil
         }
 
-        /// Rounds and softens the panel's own window.
+        /// Rounds the panel, gives it a shadow, and slots an
+        /// `NSVisualEffectView` underneath so the desktop reads through it.
         ///
-        /// Deliberately window-level only. The previous implementation added a
-        /// visual effect view *inside* `window.contentView` — SwiftUI's private
-        /// hosting view — and permanently cleared the window's background;
-        /// together those stopped the panel drawing entirely. Nothing here
-        /// touches a view SwiftUI owns, and the background is left intact so
-        /// the system still has a surface to draw.
+        /// The ordering is what makes this work: the backdrop goes *below* the
+        /// views SwiftUI already put in the content view, and none of their
+        /// layers are rewritten. An earlier attempt cleared the opaque grey
+        /// fill's own layer instead, and that is what stopped the panel
+        /// drawing.
+        ///
+        /// **`window.hasShadow` is load-bearing, not decoration.** Dropping it
+        /// while `backgroundColor` is cleared leaves the window with no layer
+        /// forcing a background draw, and the panel comes up as an empty
+        /// rectangle. It must stay above the `contentView` guard — a merged
+        /// `guard` that swallowed this line is what shipped a blank panel in
+        /// deploybar 1.0.0-beta. See the note on the type.
+        ///
+        /// Idempotent: `viewDidMoveToWindow` fires again whenever the panel is
+        /// rebuilt, and a second effect view would stack another wash of tint.
         private func styleWindow() {
             guard let window else { return }
             window.hasShadow = true
             guard let content = window.contentView else { return }
+            window.isOpaque = false
+            window.backgroundColor = .clear
+
             content.wantsLayer = true
             content.layer?.cornerRadius = Self.cornerRadius
             content.layer?.cornerCurve = .continuous
             content.layer?.masksToBounds = true
+
+            guard !content.subviews.contains(where: { $0 is Backdrop }) else { return }
+            let backdrop = Backdrop()
+            // `.menu` is the thinnest of the popover materials, which is the
+            // point: the panel should read as glass, not as frosted plastic.
+            backdrop.material = .menu
+            backdrop.blendingMode = .behindWindow
+            // .active, not .followsWindowActiveState: the panel resigns key as
+            // soon as the user clicks another app, and a backdrop that goes
+            // solid grey on the way out is the bug this came to fix.
+            backdrop.state = .active
+            backdrop.autoresizingMask = [.width, .height]
+            backdrop.frame = content.bounds
+            // Clipped to the panel's own corners — clearing the window drops
+            // the system's rounding, leaving the material square at the tips.
+            backdrop.wantsLayer = true
+            backdrop.layer?.cornerRadius = Self.cornerRadius
+            backdrop.layer?.cornerCurve = .continuous
+            backdrop.layer?.masksToBounds = true
+            content.addSubview(backdrop, positioned: .below, relativeTo: nil)
         }
+
+        /// A marker class, so the idempotence check cannot mistake some other
+        /// effect view SwiftUI may park in the panel for ours.
+        final class Backdrop: NSVisualEffectView {}
 
         /// Matches the rounding `MenuBarExtra(.window)` draws for itself.
         static let cornerRadius: CGFloat = 11

@@ -44,6 +44,26 @@ jobs:
             exit 1
           fi
 
+      # The SDK the app is built against decides which AppKit behaviour it
+      # gets at runtime, and that is not cosmetic here: built against the
+      # macOS 15 SDK (what macos-14 runners carry), clearing the panel
+      # window's background makes `MenuBarExtra` draw nothing at all on
+      # macOS 26 — a blank popover, while the very same commit built against
+      # SDK 27 renders fully. Measured in the sibling project deploybar as
+      # pixel variance over one commit's builds: 39 = content, 3 = blank, and
+      # only the SDK differed. So the SDK is asserted, not assumed.
+      - name: Select latest Xcode
+        run: |
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest"; fi
+          xcodebuild -version
+          SDK="$(xcrun --sdk macosx --show-sdk-version)"
+          echo "macOS SDK: $SDK"
+          if [ "${SDK%%.*}" -lt 26 ]; then
+            echo "::error::macOS SDK $SDK is too old — the popover ships blank on macOS 26. Need SDK 26+."
+            exit 1
+          fi
+
       - name: xcodegen
         run: brew install xcodegen
 

@@ -9,7 +9,7 @@ name: Router Menu
 options:
   bundleIdPrefix: io.8lines
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "26.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
@@ -129,7 +129,7 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleIconFile: AppIcon
         CFBundleLocalizations: [en, pl]
-        LSMinimumSystemVersion: "14.0"
+        LSMinimumSystemVersion: "26.0"
         # Menu bar app: no Dock icon, no main window.
         LSUIElement: true
         NSLocationWhenInUseUsageDescription: >-
@@ -185,7 +185,7 @@ targets:
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleLocalizations: [en, pl]
-        LSMinimumSystemVersion: "14.0"
+        LSMinimumSystemVersion: "26.0"
         # Without this key macOS never treats the bundle as a widget: it
         # builds, embeds and signs cleanly, and simply never appears in the
         # widget gallery.

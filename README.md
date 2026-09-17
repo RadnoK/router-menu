@@ -11,7 +11,7 @@ the way the rest of the time.
 
 [![Release](https://img.shields.io/github/v/release/RadnoK/router-menu)](https://github.com/RadnoK/router-menu/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-lightgrey)](#requirements)
+[![macOS 26+](https://img.shields.io/badge/macOS-26%2B-lightgrey)](#requirements)
 
 ## How it looks
 
@@ -73,7 +73,8 @@ you can pick one in Settings.
 
 ## Requirements
 
-- macOS 14 or newer
+- macOS 26 (Tahoe) or newer — the popover is a translucent, rounded panel
+  that reads through to what is behind it, which needs Tahoe's AppKit.
 - One of:
   - A ZTE 5G modem with a web panel at `192.168.0.1` — developed against the
     **ZTE U50**, and likely to work with related models that share the same web
