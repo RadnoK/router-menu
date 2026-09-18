@@ -14,7 +14,10 @@ permissions:
 
 jobs:
   release:
-    runs-on: macos-15
+    # macOS 26, not just its SDK: the app targets 26.0, and a test bundle
+    # built for 26.0 cannot be dlopen'd on a macos-15 runner — SwiftUI 26
+    # symbols are simply absent. That is what failed the v1.0.0 run.
+    runs-on: macos-26
     timeout-minutes: 45
 
     steps:
@@ -58,9 +61,18 @@ jobs:
           if [ -n "$latest" ]; then sudo xcode-select -s "$latest"; fi
           xcodebuild -version
           SDK="$(xcrun --sdk macosx --show-sdk-version)"
-          echo "macOS SDK: $SDK"
+          OS="$(sw_vers -productVersion)"
+          echo "macOS SDK: $SDK   runner OS: $OS"
           if [ "${SDK%%.*}" -lt 26 ]; then
             echo "::error::macOS SDK $SDK is too old — the popover ships blank on macOS 26. Need SDK 26+."
+            exit 1
+          fi
+          # The SDK alone is not enough. A macos-15 runner carries SDK 26.2 and
+          # passes the check above, but the app targets macOS 26 and its test
+          # bundle cannot load there: `dlopen` fails on a missing SwiftUI 26
+          # symbol, "built for macOS 26.0 which is newer than running OS".
+          if [ "${OS%%.*}" -lt 26 ]; then
+            echo "::error::Runner OS $OS is older than the macOS 26 deployment target — tests cannot load. Need a macos-26 runner."
             exit 1
           fi
 
