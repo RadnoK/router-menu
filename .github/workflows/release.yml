@@ -191,6 +191,19 @@ jobs:
           cd "$RUNNER_TEMP/tap"
           sed -i '' "s|^  version .*|  version \"$VERSION\"|" Casks/router-menu.rb
           sed -i '' "s|^  sha256 .*|  sha256 \"$SHA\"|" Casks/router-menu.rb
+          # The minimum OS too, or the cask drifts from the app. 1.0.0 raised
+          # the target to macOS 26 while the cask still said `:sonoma`, so
+          # Homebrew would install a build that cannot launch. Only the two
+          # names this project has actually shipped are mapped; an unmapped
+          # one fails the step rather than silently leaving the old value.
+          MIN="$(grep -E '^\s+LSMinimumSystemVersion:' project.yml \
+            | head -1 | sed -E 's/.*"(.*)".*/\1/')"
+          case "${MIN%%.*}" in
+            26) CODENAME="tahoe" ;;
+            14) CODENAME="sonoma" ;;
+            *) echo "::error::No Homebrew codename mapped for macOS $MIN — add it here."; exit 1 ;;
+          esac
+          sed -i '' "s|^  depends_on macos: .*|  depends_on macos: :$CODENAME|" Casks/router-menu.rb
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/router-menu.rb
